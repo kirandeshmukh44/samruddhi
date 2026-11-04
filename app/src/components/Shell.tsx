@@ -201,13 +201,9 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           </View>
 
           {/* Main content area */}
-          <ScrollView
-            style={styles.wideContentScroll}
-            contentContainerStyle={styles.wideContentContainer}
-            showsVerticalScrollIndicator={false}
-          >
+          <View style={styles.wideContentArea}>
             {children}
-          </ScrollView>
+          </View>
         </View>
 
         {/* Business Selector Modal */}
@@ -217,12 +213,19 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           animationType="fade"
           onRequestClose={() => setBusinessPickerVisible(false)}
         >
-          <Pressable
-            style={styles.modalOverlay}
-            onPress={() => setBusinessPickerVisible(false)}
-          >
+          <View style={styles.modalOverlay}>
             <View style={styles.modalCard}>
-              <Text style={styles.modalTitle}>Switch Business</Text>
+              <View style={styles.modalHeaderRow}>
+                <Text style={styles.modalTitle}>Switch Business</Text>
+                <Pressable
+                  onPress={() => setBusinessPickerVisible(false)}
+                  style={styles.modalCloseBtn}
+                  hitSlop={12}
+                >
+                  <Feather name="x" size={20} color="#64748B" />
+                </Pressable>
+              </View>
+
               {businesses.map((b) => (
                 <Pressable
                   key={b.id}
@@ -249,7 +252,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                 </Pressable>
               ))}
             </View>
-          </Pressable>
+          </View>
         </Modal>
 
         {/* Language Selector Modal */}
@@ -259,12 +262,19 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           animationType="fade"
           onRequestClose={() => setLangPickerVisible(false)}
         >
-          <Pressable
-            style={styles.modalOverlay}
-            onPress={() => setLangPickerVisible(false)}
-          >
+          <View style={styles.modalOverlay}>
             <View style={styles.modalCard}>
-              <Text style={styles.modalTitle}>Choose Language</Text>
+              <View style={styles.modalHeaderRow}>
+                <Text style={styles.modalTitle}>Choose Language</Text>
+                <Pressable
+                  onPress={() => setLangPickerVisible(false)}
+                  style={styles.modalCloseBtn}
+                  hitSlop={12}
+                >
+                  <Feather name="x" size={20} color="#64748B" />
+                </Pressable>
+              </View>
+
               {supportedLanguages.map((l) => (
                 <Pressable
                   key={l.code}
@@ -288,7 +298,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                 </Pressable>
               ))}
             </View>
-          </Pressable>
+          </View>
         </Modal>
       </View>
     );
@@ -351,6 +361,7 @@ const styles = StyleSheet.create({
   // Desktop wide layout
   wideRoot: {
     flex: 1,
+    height: '100%',
     flexDirection: 'row',
     backgroundColor: colors.bg,
   },
@@ -414,6 +425,7 @@ const styles = StyleSheet.create({
   // Desktop Main Column
   wideMainCol: {
     flex: 1,
+    height: '100%',
     backgroundColor: colors.bg,
   },
   desktopTopBar: {
@@ -481,6 +493,11 @@ const styles = StyleSheet.create({
     fontFamily: fonts.semiBold,
     fontWeight: '600',
   },
+  wideContentArea: {
+    flex: 1,
+    height: '100%',
+    backgroundColor: colors.bg,
+  },
   wideContentScroll: {
     flex: 1,
     backgroundColor: colors.bg,
@@ -493,6 +510,7 @@ const styles = StyleSheet.create({
   // Mobile layout
   mobileRoot: {
     flex: 1,
+    height: '100%',
     backgroundColor: colors.bg,
   },
   mobileContentArea: {
@@ -543,6 +561,17 @@ const styles = StyleSheet.create({
     borderRadius: radii.card,
     padding: spacing.lg,
     ...shadows.card,
+  },
+  modalHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.md,
+  },
+  modalCloseBtn: {
+    padding: 6,
+    borderRadius: 8,
+    backgroundColor: '#F1F5F9',
   },
   modalTitle: {
     fontSize: fontSizes.lg,

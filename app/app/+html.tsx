@@ -29,12 +29,25 @@ export default function Root({ children }: { children: ReactNode }) {
 }
 
 const responsiveBackground = `
-html, body, #root {
-  background: #F4F6FA;
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #F4F6FA;
   color: #0F172A;
   color-scheme: light;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
-body {
+#root {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 100%;
+  width: 100%;
+  min-height: 100%;
   background-color: #F4F6FA;
 }`;

@@ -86,11 +86,16 @@ export default function DashboardScreen() {
   // Desktop view (>= 900px)
   if (isDesktop) {
     return (
-      <View style={styles.desktopRoot}>
-        {/* Title */}
-        <View style={styles.desktopHeader}>
-          <Text style={styles.desktopTitle}>Dashboard</Text>
-        </View>
+      <View style={{ flex: 1, position: 'relative' }}>
+        <ScrollView
+          style={styles.desktopRoot}
+          contentContainerStyle={styles.desktopScrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Title */}
+          <View style={styles.desktopHeader}>
+            <Text style={styles.desktopTitle}>Dashboard</Text>
+          </View>
 
         {/* 4 KPI cards in a row */}
         <View style={styles.kpiRow}>
@@ -222,6 +227,8 @@ export default function DashboardScreen() {
             </Card>
           </View>
         </View>
+
+        </ScrollView>
 
         {/* Floating button "+ New sale" */}
         <Pressable
@@ -894,7 +901,11 @@ const styles = StyleSheet.create({
   desktopRoot: {
     flex: 1,
     minHeight: '100%',
-    paddingBottom: 60,
+  },
+  desktopScrollContent: {
+    paddingVertical: 24,
+    paddingHorizontal: 32,
+    paddingBottom: 80,
   },
   desktopHeader: {
     marginBottom: 20,

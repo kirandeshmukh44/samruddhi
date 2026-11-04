@@ -1,6 +1,6 @@
 // app/app/_layout.tsx
 import React, { useEffect } from 'react';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, ActivityIndicator, StyleSheet, Platform } from 'react-native';
 import { Slot, usePathname, useRouter } from 'expo-router';
 import { useFonts, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
 import * as SplashScreen from 'expo-splash-screen';
@@ -12,8 +12,10 @@ import { colors } from '@/src/theme';
 
 export { ErrorBoundary } from 'expo-router';
 
-// Keep splash screen visible while loading resources
-SplashScreen.preventAutoHideAsync().catch(() => {});
+// Only prevent auto hide on native platforms to prevent web blank screen locks
+if (Platform.OS !== 'web') {
+  SplashScreen.preventAutoHideAsync().catch(() => {});
+}
 
 function RootNav() {
   const { user, loading } = useAuth();
@@ -27,6 +29,15 @@ function RootNav() {
   }, [loading, user, pathname]);
 
   if (loading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
+  // Prevent flash of protected screen while redirecting to login
+  if (!user && pathname !== '/login' && pathname !== '/register') {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color={colors.primary} />
@@ -59,17 +70,18 @@ export default function RootLayout() {
   }, []);
 
   useEffect(() => {
-    if (fontsLoaded || fontError) {
+    if (Platform.OS !== 'web' && (fontsLoaded || fontError)) {
       SplashScreen.hideAsync().catch(() => {});
     }
   }, [fontsLoaded, fontError]);
 
-  if (!fontsLoaded && !fontError) {
+  // On native mobile, wait for custom fonts. On web, render immediately with system CSS fallbacks!
+  if (Platform.OS !== 'web' && !fontsLoaded && !fontError) {
     return null;
   }
 
   return (
-    <SafeAreaProvider>
+    <SafeAreaProvider style={{ flex: 1 }}>
       <AuthProvider>
         <RootNav />
       </AuthProvider>
@@ -80,6 +92,7 @@ export default function RootLayout() {
 const styles = StyleSheet.create({
   center: {
     flex: 1,
+    height: '100%',
     backgroundColor: colors.bg,
     alignItems: 'center',
     justifyContent: 'center',
