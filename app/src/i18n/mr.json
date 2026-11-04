@@ -1,0 +1,113 @@
+{
+  "app": { "name": "व्यापार" },
+  "nav": {
+    "dashboard": "डॅशबोर्ड",
+    "sale": "विक्री बिल",
+    "purchase": "खरेदी बिल",
+    "parties": "पार्ट्या",
+    "items": "वस्तू आणि स्टॉक",
+    "payments": "पेमेंट",
+    "reports": "अहवाल",
+    "settings": "सेटिंग्ज"
+  },
+  "common": {
+    "save": "सेव्ह",
+    "cancel": "रद्द",
+    "delete": "हटवा",
+    "edit": "एडिट",
+    "add": "जोडा",
+    "search": "शोध",
+    "loading": "लोड होत आहे...",
+    "empty": "डेटा नाही",
+    "toCollect": "वसूलायचे",
+    "toPay": "भरायचे",
+    "total": "एकूण",
+    "subtotal": "उप-एकूण",
+    "discount": "सवलत",
+    "cgst": "सीजीएसटी",
+    "sgst": "एसजीएसटी",
+    "igst": "आयजीएसटी",
+    "grandTotal": "एकूण रक्कम",
+    "paid": "भरले",
+    "unpaid": "बाकी",
+    "partial": "अंशतः",
+    "date": "तारीख",
+    "name": "नाव",
+    "phone": "फोन",
+    "state": "राज्य",
+    "gstin": "जीएसटीआयएन",
+    "amount": "रक्कम",
+    "mode": "माध्यम",
+    "direction": "दिशा",
+    "in": "आवक",
+    "out": "जावक",
+    "unit": "एकक",
+    "price": "किंमत",
+    "qty": "प्रमाण",
+    "stock": "स्टॉक",
+    "lowStock": "कमी स्टॉक",
+    "business": "व्यवसाय",
+    "switchBusiness": "व्यवसाय बदला",
+    "language": "भाषा",
+    "theme": "थीम"
+  },
+  "dashboard": {
+    "title": "डॅशबोर्ड",
+    "todaySales": "आजची विक्री",
+    "todayPurchases": "आजची खरेदी",
+    "toCollect": "वसूलायचे",
+    "toPay": "भरायचे",
+    "lowStock": "कमी स्टॉक वस्तू",
+    "recentInvoices": "अलीकडील बिले"
+  },
+  "parties": {
+    "title": "पार्ट्या",
+    "addCustomer": "ग्राहक जोडा",
+    "addSupplier": "पुरवठादार जोडा",
+    "customer": "ग्राहक",
+    "supplier": "पुरवठादार",
+    "openingBalance": "प्रारंभिक शिल्लक"
+  },
+  "items": {
+    "title": "वस्तू आणि स्टॉक",
+    "addItem": "वस्तू जोडा",
+    "hsn": "एचएसएन",
+    "gstRate": "जीएसटी दर",
+    "salePrice": "विक्री किंमत",
+    "purchasePrice": "खरेदी किंमत",
+    "lowStockLimit": "कमी स्टॉक मर्यादा"
+  },
+  "invoices": {
+    "title": "बिले",
+    "newSale": "नवीन विक्री",
+    "newPurchase": "नवीन खरेदी",
+    "invoiceNo": "बिल क्रमांक",
+    "party": "पार्टी",
+    "addItem": "वस्तू जोडा",
+    "saveInvoice": "बिल सेव्ह करा"
+  },
+  "payments": {
+    "title": "पेमेंट",
+    "recordPayment": "पेमेंट नोंदवा",
+    "cash": "रोख",
+    "upi": "यूपीआय",
+    "card": "कार्ड",
+    "bank": "बँक",
+    "cheque": "चेक"
+  },
+  "reports": {
+    "title": "अहवाल",
+    "salesReport": "विक्री अहवाल",
+    "purchaseReport": "खरेदी अहवाल",
+    "gstReport": "जीएसटी अहवाल",
+    "stockReport": "स्टॉक अहवाल"
+  },
+  "settings": {
+    "title": "सेटिंग्ज",
+    "profile": "प्रोफाइल",
+    "subscription": "सब्सक्रिप्शन",
+    "freePlan": "फ्री प्लान",
+    "premiumPlan": "प्रीमियम प्लान",
+    "logout": "लॉगआउट"
+  }
+}

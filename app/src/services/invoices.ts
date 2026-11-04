@@ -1,0 +1,58 @@
+// app/src/services/invoices.ts
+import axios from 'axios';
+import { USE_MOCK, API_BASE_URL } from '../config';
+import { mockInvoices, mockPayments } from './mockData';
+import { Invoice, Payment } from '../types';
+
+let invoices = [...mockInvoices];
+let payments = [...mockPayments];
+
+export async function listInvoices(businessId: string, type?: 'sale' | 'purchase'): Promise<Invoice[]> {
+  if (USE_MOCK) {
+    return invoices.filter((inv) => inv.business_id === businessId && (type ? inv.type === type : true));
+  }
+  const res = await axios.get(`${API_BASE_URL}/invoices`, { params: { business_id: businessId, type } });
+  return res.data;
+}
+
+export async function getInvoice(id: string): Promise<Invoice | undefined> {
+  if (USE_MOCK) return invoices.find((inv) => inv.id === id);
+  const res = await axios.get(`${API_BASE_URL}/invoices/${id}`);
+  return res.data;
+}
+
+export async function createInvoice(inv: Omit<Invoice, 'id'>): Promise<Invoice> {
+  if (USE_MOCK) {
+    const created = { ...inv, id: `inv-${Date.now()}` };
+    invoices.push(created);
+    return created;
+  }
+  const res = await axios.post(`${API_BASE_URL}/invoices`, inv);
+  return res.data;
+}
+
+export async function listPayments(businessId: string): Promise<Payment[]> {
+  if (USE_MOCK) return payments.filter((p) => p.business_id === businessId);
+  const res = await axios.get(`${API_BASE_URL}/payments`, { params: { business_id: businessId } });
+  return res.data;
+}
+
+export async function createPayment(
+  businessIdOrPay: string | Omit<Payment, 'id'>,
+  payData?: any
+): Promise<Payment> {
+  const pay: Omit<Payment, 'id'> =
+    typeof businessIdOrPay === 'string'
+      ? { ...payData, business_id: businessIdOrPay }
+      : businessIdOrPay;
+
+  if (USE_MOCK) {
+    const created = { ...pay, id: `pay-${Date.now()}` } as Payment;
+    payments.push(created);
+    return created;
+  }
+  const res = await axios.post(`${API_BASE_URL}/payments`, pay);
+  return res.data;
+}
+
+export const recordPayment = createPayment;

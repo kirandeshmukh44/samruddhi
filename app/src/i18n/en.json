@@ -1,0 +1,113 @@
+{
+  "app": { "name": "Vyapar" },
+  "nav": {
+    "dashboard": "Dashboard",
+    "sale": "Sale invoices",
+    "purchase": "Purchase bills",
+    "parties": "Parties",
+    "items": "Items & stock",
+    "payments": "Payments",
+    "reports": "Reports",
+    "settings": "Settings"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "loading": "Loading...",
+    "empty": "No data yet",
+    "toCollect": "To collect",
+    "toPay": "To pay",
+    "total": "Total",
+    "subtotal": "Subtotal",
+    "discount": "Discount",
+    "cgst": "CGST",
+    "sgst": "SGST",
+    "igst": "IGST",
+    "grandTotal": "Grand total",
+    "paid": "Paid",
+    "unpaid": "Unpaid",
+    "partial": "Partial",
+    "date": "Date",
+    "name": "Name",
+    "phone": "Phone",
+    "state": "State",
+    "gstin": "GSTIN",
+    "amount": "Amount",
+    "mode": "Mode",
+    "direction": "Direction",
+    "in": "In",
+    "out": "Out",
+    "unit": "Unit",
+    "price": "Price",
+    "qty": "Qty",
+    "stock": "Stock",
+    "lowStock": "Low stock",
+    "business": "Business",
+    "switchBusiness": "Switch business",
+    "language": "Language",
+    "theme": "Theme"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "todaySales": "Today's sales",
+    "todayPurchases": "Today's purchases",
+    "toCollect": "To collect",
+    "toPay": "To pay",
+    "lowStock": "Low stock items",
+    "recentInvoices": "Recent invoices"
+  },
+  "parties": {
+    "title": "Parties",
+    "addCustomer": "Add customer",
+    "addSupplier": "Add supplier",
+    "customer": "Customer",
+    "supplier": "Supplier",
+    "openingBalance": "Opening balance"
+  },
+  "items": {
+    "title": "Items & stock",
+    "addItem": "Add item",
+    "hsn": "HSN",
+    "gstRate": "GST rate",
+    "salePrice": "Sale price",
+    "purchasePrice": "Purchase price",
+    "lowStockLimit": "Low stock limit"
+  },
+  "invoices": {
+    "title": "Invoices",
+    "newSale": "New sale",
+    "newPurchase": "New purchase",
+    "invoiceNo": "Invoice no.",
+    "party": "Party",
+    "addItem": "Add item",
+    "saveInvoice": "Save invoice"
+  },
+  "payments": {
+    "title": "Payments",
+    "recordPayment": "Record payment",
+    "cash": "Cash",
+    "upi": "UPI",
+    "card": "Card",
+    "bank": "Bank",
+    "cheque": "Cheque"
+  },
+  "reports": {
+    "title": "Reports",
+    "salesReport": "Sales report",
+    "purchaseReport": "Purchase report",
+    "gstReport": "GST report",
+    "stockReport": "Stock report"
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": "Profile",
+    "subscription": "Subscription",
+    "freePlan": "Free plan",
+    "premiumPlan": "Premium plan",
+    "logout": "Logout"
+  }
+}

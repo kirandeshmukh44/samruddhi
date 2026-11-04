@@ -1,0 +1,39 @@
+# Node / Expo dependencies
+node_modules/
+.expo/
+dist/
+web-build/
+*.tsbuildinfo
+
+# Python Virtualenv
+.venv/
+venv/
+env/
+ENV/
+
+# Python Cache & Pytest
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local databases & test DBs
+test_*.db
+*.sqlite3-journal
+
+# Local Environment Variables & Secrets
+.env
+.env*.local
+*.pem
+*.key
+
+# OS & Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+npm-debug.*
+yarn-debug.*
+yarn-error.*

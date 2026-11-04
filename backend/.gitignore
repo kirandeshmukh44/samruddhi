@@ -1,0 +1,22 @@
+# Python & Virtualenv
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+ENV/
+
+# Pytest & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local SQLite databases (except official seed / prod db if tracked)
+test_*.db
+*.sqlite3-journal
+
+# Environment variables
+.env
+.env.local
+
