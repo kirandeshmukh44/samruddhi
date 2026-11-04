@@ -51,10 +51,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithOtp = async (phone: string, otp: string): Promise<boolean> => {
     if (otp !== '123456') return false;
     const res = await login(phone + '@mock.com', otp);
-    setUser(res.user);
+    const loggedUser = { ...res.user, phone: phone || res.user.phone };
+    setUser(loggedUser);
     setToken(res.token);
     await safeStorage.setItem('token', res.token);
-    const bs = await listBusinesses(res.user.id);
+    const bs = await listBusinesses(loggedUser.id);
     setBusinesses(bs);
     if (bs.length) setCurrentBusiness(bs[0]);
     return true;

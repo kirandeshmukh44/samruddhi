@@ -30,7 +30,7 @@ export default function LoginScreen() {
 
   // Login Modal & Form State
   const [loginModalOpen, setLoginModalOpen] = useState(false);
-  const [loginMode, setLoginMode] = useState<'quick' | 'otp' | 'email'>('quick');
+  const [loginMode, setLoginMode] = useState<'otp' | 'email'>('otp');
 
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
@@ -44,22 +44,16 @@ export default function LoginScreen() {
     i18n.changeLanguage(code);
   };
 
-  const handle1TapQuickLogin = async () => {
-    // 1-Tap Quick Login for Kiran Deshmukh (matching user profile)
-    setSending(true);
-    const ok = await signInWithOtp('9422000159', '123456');
-    setSending(false);
-    if (ok) {
-      setLoginModalOpen(false);
-      router.replace('/');
-    } else {
-      setError('Quick login failed, try OTP');
-    }
+  const handleDemoFill = () => {
+    setPhone('9876543210');
+    setOtp('123456');
+    setError('');
+    setOtpSent(true);
   };
 
   const handleGetOtp = () => {
-    if (!phone) {
-      setError('Please enter mobile number');
+    if (!phone || phone.trim().length < 10) {
+      setError('Please enter a valid 10-digit mobile number');
       return;
     }
     setError('');
@@ -272,10 +266,10 @@ export default function LoginScreen() {
             <View style={styles.visualCard}>
               <View style={styles.reminderMockRow}>
                 <View style={styles.avatarMock}>
-                  <Text style={styles.avatarMockText}>K</Text>
+                  <Text style={styles.avatarMockText}>M</Text>
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.reminderName}>Kiran Deshmukh</Text>
+                  <Text style={styles.reminderName}>Mahesh Patil (Customer)</Text>
                   <Text style={styles.reminderDue}>Due: ₹ 12,000.00</Text>
                 </View>
                 <View style={styles.remindBtnPill}>
@@ -344,7 +338,7 @@ export default function LoginScreen() {
             pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] },
           ]}
           onPress={() => {
-            setLoginMode('quick');
+            setLoginMode('otp');
             setLoginModalOpen(true);
           }}
           accessibilityRole="button"
@@ -397,77 +391,53 @@ export default function LoginScreen() {
 
             <View style={styles.sheetDivider} />
 
-            {loginMode === 'quick' ? (
-              /* 1-Tap Quick Profile Login (Matching Vyapar Screenshot 1) */
-              <View style={styles.quickLoginWrap}>
-                <View style={styles.quickProfileCard}>
-                  <View style={styles.quickAvatar}>
-                    <Text style={styles.quickAvatarText}>KD</Text>
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.quickProfileName}>Kiran Deshmukh</Text>
-                    <Text style={styles.quickProfilePhone}>9422000159 · Business Owner</Text>
-                  </View>
-                  <Feather name="check-circle" size={20} color="#0F766E" />
+            {loginMode === 'otp' ? (
+              /* Mobile Number + OTP Form (Universal Login for all users) */
+              <View style={styles.formContainer}>
+                <View style={styles.labelWithDemoRow}>
+                  <Text style={styles.inputLabel}>Mobile number</Text>
+                  <Pressable
+                    style={styles.demoFillChip}
+                    onPress={handleDemoFill}
+                  >
+                    <Feather name="zap" size={12} color="#0F766E" />
+                    <Text style={styles.demoFillChipText}>Use Demo: 9876543210</Text>
+                  </Pressable>
                 </View>
 
-                {error ? <Text style={styles.errorText}>{error}</Text> : null}
-
-                {/* Big CONTINUE Button */}
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.continueBtn,
-                    (pressed || sending) && { opacity: 0.85, transform: [{ scale: 0.98 }] },
-                  ]}
-                  onPress={handle1TapQuickLogin}
-                  disabled={sending}
-                >
-                  <Text style={styles.continueBtnText}>
-                    {sending ? 'Signing In...' : 'CONTINUE'}
-                  </Text>
-                </Pressable>
-
-                {/* Secondary: USE ANOTHER METHOD */}
-                <Pressable
-                  style={styles.anotherMethodBtn}
-                  onPress={() => {
-                    setError('');
-                    setLoginMode('otp');
-                  }}
-                >
-                  <Text style={styles.anotherMethodBtnText}>USE ANOTHER NUMBER / OTP</Text>
-                </Pressable>
-
-                <Text style={styles.termsText}>
-                  By continuing you accept to share your profile with Samruddhi by Pravara Infotech, and agree to the privacy policy and terms of service.
-                </Text>
-              </View>
-            ) : loginMode === 'otp' ? (
-              /* Mobile Number + OTP Form */
-              <View style={styles.formContainer}>
-                <Text style={styles.inputLabel}>Mobile number</Text>
                 <View style={styles.inputBox}>
                   <Text style={styles.prefixText}>+91</Text>
                   <TextInput
                     value={phone}
-                    onChangeText={setPhone}
-                    placeholder="Enter 10-digit number"
+                    onChangeText={(val) => {
+                      setPhone(val);
+                      setError('');
+                    }}
+                    placeholder="Enter 10-digit mobile number"
                     placeholderTextColor="#94A3B8"
                     keyboardType="phone-pad"
+                    maxLength={10}
                     style={styles.textInput}
                   />
                 </View>
 
                 {otpSent && (
                   <View style={{ marginTop: 14 }}>
-                    <Text style={styles.inputLabel}>OTP</Text>
+                    <View style={styles.labelWithDemoRow}>
+                      <Text style={styles.inputLabel}>Enter OTP</Text>
+                      <Text style={styles.otpHintText}>Mock OTP: 123456</Text>
+                    </View>
                     <View style={styles.inputBox}>
                       <TextInput
                         value={otp}
-                        onChangeText={setOtp}
+                        onChangeText={(val) => {
+                          setOtp(val);
+                          setError('');
+                        }}
                         placeholder="Enter 6-digit OTP (123456)"
                         placeholderTextColor="#94A3B8"
                         keyboardType="number-pad"
+                        maxLength={6}
                         style={styles.textInput}
                       />
                     </View>
@@ -479,24 +449,37 @@ export default function LoginScreen() {
                 <Pressable
                   style={({ pressed }) => [
                     styles.continueBtn,
-                    (pressed || sending) && { opacity: 0.85 },
+                    (pressed || sending) && { opacity: 0.85, transform: [{ scale: 0.99 }] },
                   ]}
                   onPress={otpSent ? handleVerifyOtp : handleGetOtp}
                   disabled={sending}
                 >
                   <Text style={styles.continueBtnText}>
-                    {sending ? 'Sending...' : otpSent ? 'Verify & Login' : 'Get OTP'}
+                    {sending ? 'Please wait...' : otpSent ? 'Verify & Continue' : 'Get OTP'}
                   </Text>
                 </Pressable>
 
+                {otpSent && (
+                  <Pressable
+                    style={{ marginTop: 10, alignItems: 'center' }}
+                    onPress={() => {
+                      setOtpSent(false);
+                      setOtp('');
+                    }}
+                  >
+                    <Text style={styles.changePhoneText}>Change mobile number</Text>
+                  </Pressable>
+                )}
+
                 <View style={styles.switchModeRow}>
                   <Pressable onPress={() => setLoginMode('email')}>
-                    <Text style={styles.switchModeText}>Login with Email</Text>
-                  </Pressable>
-                  <Pressable onPress={() => setLoginMode('quick')}>
-                    <Text style={styles.switchModeText}>Back to 1-Tap Login</Text>
+                    <Text style={styles.switchModeText}>Login with Email & Password</Text>
                   </Pressable>
                 </View>
+
+                <Text style={styles.termsText}>
+                  By continuing, you agree to Samruddhi Terms of Service and Privacy Policy.
+                </Text>
               </View>
             ) : (
               /* Email + Password Form */
@@ -541,7 +524,7 @@ export default function LoginScreen() {
                   style={{ marginTop: 14, alignItems: 'center' }}
                   onPress={() => setLoginMode('otp')}
                 >
-                  <Text style={styles.switchModeText}>← Back to Mobile OTP</Text>
+                  <Text style={styles.switchModeText}>← Back to Mobile OTP Login</Text>
                 </Pressable>
               </View>
             )}
@@ -1008,43 +991,39 @@ const styles = StyleSheet.create({
     marginVertical: 14,
   },
 
-  // 1-Tap Quick Login (Matching Vyapar Screenshot 1)
-  quickLoginWrap: {
-    gap: 12,
-  },
-  quickProfileCard: {
+  labelWithDemoRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 14,
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: '#0F766E',
-    backgroundColor: '#F0FDFA',
+    justifyContent: 'space-between',
+    marginBottom: 6,
   },
-  quickAvatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#0F766E',
+  demoFillChip: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    backgroundColor: '#F0FDFA',
+    borderWidth: 1,
+    borderColor: '#99F6E4',
   },
-  quickAvatarText: {
-    color: '#FFFFFF',
-    fontFamily: fonts.bold,
-    fontSize: 16,
-  },
-  quickProfileName: {
-    fontSize: 16,
-    fontFamily: fonts.bold,
-    color: '#0F172A',
-  },
-  quickProfilePhone: {
-    fontSize: 13,
+  demoFillChipText: {
+    fontSize: 11,
+    fontFamily: fonts.semiBold,
+    fontWeight: '600',
     color: '#0F766E',
-    marginTop: 2,
+  },
+  otpHintText: {
+    fontSize: 12,
     fontFamily: fonts.medium,
+    color: '#0F766E',
+  },
+  changePhoneText: {
+    fontSize: 13,
+    fontFamily: fonts.medium,
+    color: '#0F766E',
+    textDecorationLine: 'underline',
   },
   continueBtn: {
     height: 50,
@@ -1060,20 +1039,6 @@ const styles = StyleSheet.create({
     fontFamily: fonts.bold,
     fontWeight: '700',
     letterSpacing: 0.5,
-  },
-  anotherMethodBtn: {
-    height: 46,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#CBD5E1',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  anotherMethodBtnText: {
-    color: '#475569',
-    fontSize: 13,
-    fontFamily: fonts.semiBold,
-    fontWeight: '600',
   },
   termsText: {
     fontSize: 11,
