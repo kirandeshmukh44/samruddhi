@@ -109,7 +109,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           {/* BiLU ERP Brand Logo Header (from User Images) */}
           <View style={styles.sidebarBrandHeader}>
             <Image
-              source={require('../../assets/images/bilu-icon.png')}
+              source={require('../../assets/images/bilu-badge.png')}
               style={styles.sidebarLogoImg}
               resizeMode="contain"
             />
@@ -147,7 +147,11 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                 <Pressable
                   key={item.key}
                   onPress={() => router.push(item.path as any)}
-                  style={[styles.sidebarItem, active && styles.sidebarItemActive]}
+                  style={({ pressed }) => [
+                    styles.sidebarItem,
+                    active && styles.sidebarItemActive,
+                    pressed && { opacity: 0.82, transform: [{ scale: 0.98 }] },
+                  ]}
                   accessibilityRole="button"
                 >
                   <Feather
@@ -167,7 +171,11 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           <View style={styles.sidebarBottom}>
             <Pressable
               onPress={() => router.push(SETTINGS_NAV_ITEM.path as any)}
-              style={[styles.sidebarItem, isActive(SETTINGS_NAV_ITEM.path) && styles.sidebarItemActive]}
+              style={({ pressed }) => [
+                styles.sidebarItem,
+                isActive(SETTINGS_NAV_ITEM.path) && styles.sidebarItemActive,
+                pressed && { opacity: 0.82, transform: [{ scale: 0.98 }] },
+              ]}
               accessibilityRole="button"
             >
               <Feather
@@ -353,7 +361,10 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             <Pressable
               key={tab.key}
               onPress={() => router.push(tab.path as any)}
-              style={styles.mobileTabItem}
+              style={({ pressed }) => [
+                styles.mobileTabItem,
+                pressed && { opacity: 0.7, transform: [{ scale: 0.92 }] },
+              ]}
               accessibilityRole="tab"
             >
               <Feather
@@ -404,9 +415,14 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   sidebarLogoImg: {
-    width: 36,
-    height: 36,
-    borderRadius: 8,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    shadowColor: '#1D4ED8',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.35,
+    shadowRadius: 6,
+    elevation: 4,
   },
   sidebarBrandTitle: {
     fontSize: 20,

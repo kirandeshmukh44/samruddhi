@@ -1,5 +1,5 @@
 // app/src/screens/LoginScreen.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -40,6 +40,14 @@ export default function LoginScreen() {
   const [error, setError] = useState('');
   const [sending, setSending] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
+
+  // Auto-rotating feature carousel for smooth interactiveness
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % 4);
+    }, 4500);
+    return () => clearInterval(timer);
+  }, []);
 
   const setLang = (code: string) => {
     i18n.changeLanguage(code);
@@ -122,7 +130,7 @@ export default function LoginScreen() {
       <View style={styles.topHeader}>
         <View style={styles.brandRow}>
           <Image
-            source={require('../../assets/images/bilu-icon.png')}
+            source={require('../../assets/images/bilu-badge.png')}
             style={styles.brandLogoImg}
             resizeMode="contain"
           />
@@ -384,8 +392,8 @@ export default function LoginScreen() {
             <View style={styles.sheetHeader}>
               <View style={styles.sheetBrandRow}>
                 <Image
-                  source={require('../../assets/images/bilu-icon.png')}
-                  style={{ width: 40, height: 40 }}
+                  source={require('../../assets/images/bilu-badge.png')}
+                  style={{ width: 44, height: 44, borderRadius: 22 }}
                   resizeMode="contain"
                 />
                 <View style={{ marginLeft: 10 }}>

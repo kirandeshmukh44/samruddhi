@@ -5,21 +5,26 @@ import { mockParties } from './mockData';
 import { Party } from '../types';
 import safeStorage from '../lib/storage';
 
-const PARTIES_STORAGE_KEY = 'samruddhi_parties_data';
+const PARTIES_STORAGE_KEY = 'bilu_parties_data_v2';
+const LEGACY_PARTIES_KEY = 'samruddhi_parties_data';
 let parties = [...mockParties];
 
 // Auto-load persisted parties on startup
-safeStorage.getItem(PARTIES_STORAGE_KEY).then((data) => {
-  if (data) {
-    try {
+const loadStoredParties = async () => {
+  try {
+    const data = (await safeStorage.getItem(PARTIES_STORAGE_KEY)) || (await safeStorage.getItem(LEGACY_PARTIES_KEY));
+    if (data) {
       const parsed = JSON.parse(data);
       if (Array.isArray(parsed) && parsed.length > 0) {
         parties = parsed;
         mockParties.splice(0, mockParties.length, ...parsed);
       }
-    } catch (e) {}
+    }
+  } catch (e) {
+    console.warn('Error loading stored parties:', e);
   }
-});
+};
+loadStoredParties();
 
 const persistParties = () => {
   safeStorage.setItem(PARTIES_STORAGE_KEY, JSON.stringify(parties)).catch(() => {});
@@ -28,37 +33,52 @@ const persistParties = () => {
 
 export async function listParties(businessId: string): Promise<Party[]> {
   if (USE_MOCK) return parties.filter((p) => p.business_id === businessId);
-  const res = await axios.get(`${API_BASE_URL}/parties`, { params: { business_id: businessId } });
-  return res.data;
+  try {
+    const res = await axios.get(`${API_BASE_URL}/businesses/${businessId}/parties`);
+    if (res.data?.parties) return res.data.parties;
+    return res.data;
+  } catch (e) {
+    return parties.filter((p) => p.business_id === businessId);
+  }
 }
 
 export async function createParty(party: Omit<Party, 'id'>): Promise<Party> {
-  if (USE_MOCK) {
-    const created = { ...party, id: `p-${Date.now()}` };
-    parties.push(created);
-    persistParties();
-    return created;
+  const created = { ...party, id: `p-${Date.now()}` };
+  parties.unshift(created);
+  persistParties();
+
+  if (!USE_MOCK) {
+    try {
+      await axios.post(`${API_BASE_URL}/businesses/${party.business_id}/parties`, party);
+    } catch (e) {
+      console.warn('API sync failed, saved in BiLU ERP local storage:', e);
+    }
   }
-  const res = await axios.post(`${API_BASE_URL}/parties`, party);
-  return res.data;
+  return created;
 }
 
 export async function updateParty(id: string, data: Partial<Party>): Promise<Party> {
-  if (USE_MOCK) {
-    const idx = parties.findIndex((p) => p.id === id);
-    if (idx >= 0) parties[idx] = { ...parties[idx], ...data };
+  const idx = parties.findIndex((p) => p.id === id);
+  if (idx >= 0) {
+    parties[idx] = { ...parties[idx], ...data };
     persistParties();
-    return parties[idx];
   }
-  const res = await axios.put(`${API_BASE_URL}/parties/${id}`, data);
-  return res.data;
+
+  if (!USE_MOCK) {
+    try {
+      await axios.put(`${API_BASE_URL}/parties/${id}`, data);
+    } catch (e) {}
+  }
+  return parties[idx];
 }
 
 export async function deleteParty(id: string): Promise<void> {
-  if (USE_MOCK) {
-    parties = parties.filter((p) => p.id !== id);
-    persistParties();
-    return;
+  parties = parties.filter((p) => p.id !== id);
+  persistParties();
+
+  if (!USE_MOCK) {
+    try {
+      await axios.delete(`${API_BASE_URL}/parties/${id}`);
+    } catch (e) {}
   }
-  await axios.delete(`${API_BASE_URL}/parties/${id}`);
 }

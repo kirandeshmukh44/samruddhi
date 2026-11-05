@@ -288,7 +288,7 @@ export default function InvoicesScreen({ type }: { type: 'sale' | 'purchase' }) 
 
         <View style={styles.topBarRightActions}>
           <Pressable
-            style={styles.filledSaveBtn}
+            style={({ pressed }) => [styles.filledSaveBtn, pressed && { opacity: 0.85, transform: [{ scale: 0.97 }] }]}
             onPress={() => handleSaveInvoice(false)}
             accessibilityRole="button"
           >
@@ -297,7 +297,7 @@ export default function InvoicesScreen({ type }: { type: 'sale' | 'purchase' }) 
           </Pressable>
 
           <Pressable
-            style={styles.outlinedActionBtn}
+            style={({ pressed }) => [styles.outlinedActionBtn, pressed && { opacity: 0.85, transform: [{ scale: 0.97 }] }]}
             onPress={() => handleSaveInvoice(true)}
             accessibilityRole="button"
           >
@@ -306,7 +306,7 @@ export default function InvoicesScreen({ type }: { type: 'sale' | 'purchase' }) 
           </Pressable>
 
           <Pressable
-            style={styles.outlinedActionBtn}
+            style={({ pressed }) => [styles.outlinedActionBtn, pressed && { opacity: 0.85, transform: [{ scale: 0.97 }] }]}
             onPress={() => handleSaveInvoice(true)}
             accessibilityRole="button"
           >
@@ -315,7 +315,7 @@ export default function InvoicesScreen({ type }: { type: 'sale' | 'purchase' }) 
           </Pressable>
 
           <Pressable
-            style={styles.whatsAppActionBtn}
+            style={({ pressed }) => [styles.whatsAppActionBtn, pressed && { opacity: 0.85, transform: [{ scale: 0.97 }] }]}
             onPress={handleShareWhatsApp}
             accessibilityRole="button"
           >

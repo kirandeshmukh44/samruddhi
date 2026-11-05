@@ -36,6 +36,7 @@ export interface Party {
   state?: string;
   type: PartyType;
   opening_balance: number; // paise
+  balance?: number; // paise current ledger balance
 }
 
 export interface Item {
@@ -110,9 +111,12 @@ export interface Payment {
   party_id?: string;
   party_name?: string;
   invoice_id?: string;
+  invoice_no?: string;
   amount: number; // paise
   mode: PaymentMode;
-  direction: PaymentDirection;
+  direction?: PaymentDirection;
+  type?: PaymentDirection;
   date: string;
   note?: string;
+  notes?: string;
 }

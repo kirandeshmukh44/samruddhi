@@ -38,6 +38,13 @@ export default function DashboardScreen() {
   const [lowStock, setLowStock] = useState<any[]>([]);
   const [businessPickerVisible, setBusinessPickerVisible] = useState(false);
   const [selectedTx, setSelectedTx] = useState<any | null>(null);
+  const [selectedMonth, setSelectedMonth] = useState<'Sept' | 'Oct' | 'Nov'>('Nov');
+
+  const monthDetails = {
+    Sept: { total: '₹ 1,820.00', bills: 14, growth: '+12.5%' },
+    Oct: { total: '₹ 3,850.50', bills: 28, growth: '+22.4%' },
+    Nov: { total: '₹ 3,417.76', bills: 22, growth: '+18.4%' },
+  };
 
   useEffect(() => {
     if (!currentBusiness) return;
@@ -94,9 +101,20 @@ export default function DashboardScreen() {
           contentContainerStyle={styles.desktopScrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {/* Title */}
-          <View style={styles.desktopHeader}>
-            <Text style={styles.desktopTitle}>Dashboard</Text>
+          {/* Desktop Title & BiLU ERP Status Badge */}
+          <View style={[styles.desktopHeader, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
+            <View>
+              <Text style={styles.desktopTitle}>Dashboard</Text>
+              <Text style={{ fontSize: 13, color: '#64748B', marginTop: 2 }}>Welcome back to BiLU ERP · {businessName}</Text>
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#EFF6FF', paddingVertical: 6, paddingHorizontal: 12, borderRadius: 24, borderWidth: 1, borderColor: '#BFDBFE' }}>
+              <Image
+                source={require('../../assets/images/bilu-badge.png')}
+                style={{ width: 28, height: 28, borderRadius: 14, marginRight: 8 }}
+                resizeMode="contain"
+              />
+              <Text style={{ fontSize: 13, fontFamily: fonts.bold, fontWeight: '700', color: '#1D4ED8' }}>BiLU ERP Active</Text>
+            </View>
           </View>
 
         {/* 4 KPI cards in a row */}
@@ -259,8 +277,8 @@ export default function DashboardScreen() {
           <View style={styles.mobileTopRow}>
             <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 10 }}>
               <Image
-                source={require('../../assets/images/bilu-icon.png')}
-                style={{ width: 34, height: 34, marginRight: 8, borderRadius: 8 }}
+                source={require('../../assets/images/bilu-badge.png')}
+                style={{ width: 38, height: 38, marginRight: 8, borderRadius: 19 }}
                 resizeMode="contain"
               />
               <Pressable
@@ -326,37 +344,51 @@ export default function DashboardScreen() {
           ))}
         </View>
 
-        {/* Sales Overview Monthly Trend Chart (Real Vyapar Parity) */}
+        {/* Sales Overview Monthly Trend Chart (Interactive with tap feedback) */}
         <Card style={styles.chartCard}>
           <View style={styles.chartHeader}>
             <View>
-              <Text style={styles.chartTitle}>Sale Overview (Monthly)</Text>
-              <Text style={styles.chartSub}>Total Sale: ₹ 3,417.76</Text>
+              <Text style={styles.chartTitle}>Sale Overview ({selectedMonth})</Text>
+              <Text style={styles.chartSub}>Total Sale: {monthDetails[selectedMonth].total} · {monthDetails[selectedMonth].bills} bills</Text>
             </View>
             <View style={styles.growthBadge}>
               <Feather name="trending-up" size={13} color="#047857" style={{ marginRight: 4 }} />
-              <Text style={styles.growthBadgeText}>+18.4% Growth</Text>
+              <Text style={styles.growthBadgeText}>{monthDetails[selectedMonth].growth}</Text>
             </View>
           </View>
 
-          {/* Multi-month graphical trend bars */}
+          {/* Multi-month graphical trend bars with interactive tap selection */}
           <View style={styles.chartVisualArea}>
             <View style={styles.chartColsRow}>
-              <View style={styles.chartCol}>
-                <Text style={styles.colValText}>₹ 1.8k</Text>
-                <View style={[styles.barFill, { height: 42 }]} />
-                <Text style={styles.monthLabel}>Sept</Text>
-              </View>
-              <View style={styles.chartCol}>
-                <Text style={styles.colValText}>₹ 3.8k</Text>
-                <View style={[styles.barFill, styles.barFillPeak, { height: 78 }]} />
-                <Text style={[styles.monthLabel, styles.monthLabelActive]}>Oct</Text>
-              </View>
-              <View style={styles.chartCol}>
-                <Text style={styles.colValText}>₹ 3.4k</Text>
-                <View style={[styles.barFill, styles.barFillCurrent, { height: 68 }]} />
-                <Text style={[styles.monthLabel, styles.monthLabelActive]}>Nov</Text>
-              </View>
+              <Pressable
+                style={styles.chartCol}
+                onPress={() => setSelectedMonth('Sept')}
+                accessibilityRole="button"
+              >
+                <Text style={[styles.colValText, selectedMonth === 'Sept' && { color: '#1D4ED8', fontWeight: '700' }]}>₹ 1.8k</Text>
+                <View style={[styles.barFill, { height: 42 }, selectedMonth === 'Sept' && { backgroundColor: '#1D4ED8' }]} />
+                <Text style={[styles.monthLabel, selectedMonth === 'Sept' && styles.monthLabelActive]}>Sept</Text>
+              </Pressable>
+
+              <Pressable
+                style={styles.chartCol}
+                onPress={() => setSelectedMonth('Oct')}
+                accessibilityRole="button"
+              >
+                <Text style={[styles.colValText, selectedMonth === 'Oct' && { color: '#7C3AED', fontWeight: '700' }]}>₹ 3.8k</Text>
+                <View style={[styles.barFill, styles.barFillPeak, { height: 78 }, selectedMonth === 'Oct' && { backgroundColor: '#7C3AED' }]} />
+                <Text style={[styles.monthLabel, selectedMonth === 'Oct' && styles.monthLabelActive]}>Oct</Text>
+              </Pressable>
+
+              <Pressable
+                style={styles.chartCol}
+                onPress={() => setSelectedMonth('Nov')}
+                accessibilityRole="button"
+              >
+                <Text style={[styles.colValText, selectedMonth === 'Nov' && { color: '#1D4ED8', fontWeight: '700' }]}>₹ 3.4k</Text>
+                <View style={[styles.barFill, styles.barFillCurrent, { height: 68 }, selectedMonth === 'Nov' && { backgroundColor: '#1D4ED8' }]} />
+                <Text style={[styles.monthLabel, selectedMonth === 'Nov' && styles.monthLabelActive]}>Nov</Text>
+              </Pressable>
             </View>
           </View>
         </Card>
