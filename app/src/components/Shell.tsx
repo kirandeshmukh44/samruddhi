@@ -32,10 +32,11 @@ const DESKTOP_NAV_ITEMS: NavItem[] = [
   { key: 'dashboard', label: 'Dashboard', path: '/', icon: 'home' },
   { key: 'sale', label: 'Sale invoices', path: '/sale', icon: 'file-text' },
   { key: 'purchase', label: 'Purchase bills', path: '/purchase', icon: 'shopping-cart' },
-  { key: 'parties', label: 'Parties', path: '/parties', icon: 'users' },
-  { key: 'items', label: 'Items & stock', path: '/items', icon: 'package' },
+  { key: 'parties', label: 'Parties / Clients', path: '/parties', icon: 'users' },
+  { key: 'items', label: 'Items & Products', path: '/items', icon: 'package' },
   { key: 'payments', label: 'Payments', path: '/payments', icon: 'credit-card' },
   { key: 'reports', label: 'Reports', path: '/reports', icon: 'bar-chart-2' },
+  { key: 'gst-returns', label: 'GST Returns', path: '/gst-returns', icon: 'book-open' },
 ];
 
 const SETTINGS_NAV_ITEM: NavItem = {

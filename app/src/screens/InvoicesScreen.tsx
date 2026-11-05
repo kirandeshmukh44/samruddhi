@@ -22,17 +22,35 @@ import { calcLineGst, sumGst, GstBreakup } from '../lib/gst';
 import { mockParties, mockItems } from '../services/mockData';
 import { useAuth } from '../context/AuthContext';
 import { createInvoice } from '../services/invoices';
+import { DocumentType, SupplyCategory } from '../types';
 
 interface InvoiceItemState {
   id: string;
   itemId?: string;
   name: string;
+  hsn?: string;
   qty: number;
   rateRupees: number;
   gstRate: number;
 }
 
 const PAYMENT_MODES = ['Cash', 'UPI', 'Card', 'Bank transfer'];
+
+const DOC_TYPES: { key: DocumentType; label: string; desc: string }[] = [
+  { key: 'tax_invoice', label: 'Tax Invoice', desc: 'Standard GST tax invoice' },
+  { key: 'quotation', label: 'Quotation', desc: 'Commercial price quotation for buyer approval' },
+  { key: 'proforma', label: 'Proforma / Estimate', desc: 'Proforma estimate before official supply' },
+  { key: 'bill_of_supply', label: 'Bill of Supply (No GST)', desc: 'Official Bill of Supply for exempt or non-GST supplies' },
+  { key: 'composition', label: 'Composition (Bill of Supply)', desc: 'Composition scheme bill of supply (no tax collection)' },
+  { key: 'credit_note', label: 'Credit Note', desc: 'GST credit adjustment note against issued invoice' },
+  { key: 'delivery_challan', label: 'Delivery Challan', desc: 'Delivery note for transit of goods without sale' },
+];
+
+const SUPPLY_CATEGORIES: { key: SupplyCategory; label: string; tip: string }[] = [
+  { key: 'goods', label: 'Goods', tip: 'Use a 4, 6 or 8-digit HSN code for physical commodities' },
+  { key: 'services', label: 'Services', tip: 'Use a SAC code (services accounting code) in the HSN/SAC column' },
+  { key: 'mixed', label: 'Mixed', tip: 'Ensure both Goods HSN and Services SAC codes are specified per row' },
+];
 
 export default function InvoicesScreen({ type }: { type: 'sale' | 'purchase' }) {
   const { t } = useTranslation();
@@ -45,6 +63,10 @@ export default function InvoicesScreen({ type }: { type: 'sale' | 'purchase' }) 
   const businessName = currentBusiness?.name || 'Gupta Traders';
 
   // Form states
+  const [docType, setDocType] = useState<DocumentType>('tax_invoice');
+  const [supplyCategory, setSupplyCategory] = useState<SupplyCategory>('goods');
+  const [billingAddress, setBillingAddress] = useState('');
+
   const [selectedPartyId, setSelectedPartyId] = useState<string>('p-1');
   const [partyPickerOpen, setPartyPickerOpen] = useState(false);
   const [partySearch, setPartySearch] = useState('');
@@ -156,6 +178,7 @@ export default function InvoicesScreen({ type }: { type: 'sale' | 'purchase' }) 
         ...next[index],
         itemId: predefinedItem.id,
         name: predefinedItem.name,
+        hsn: predefinedItem.hsn || (supplyCategory === 'services' ? '998311' : '1006'),
         qty: 1,
         rateRupees: rate,
         gstRate: predefinedItem.gst_rate,
@@ -210,8 +233,12 @@ export default function InvoicesScreen({ type }: { type: 'sale' | 'purchase' }) 
       business_id: currentBusiness?.id || 'b-1',
       party_id: selectedPartyId || undefined,
       party_name: selectedParty?.name || (type === 'sale' ? 'Sharma Retail' : 'Mehta Distributors'),
+      party_gstin: selectedParty?.gstin,
+      billing_address: billingAddress || selectedParty?.address || 'Pune, Maharashtra',
       invoice_no: invoiceNo,
       type,
+      doc_type: docType,
+      supply_category: supplyCategory,
       date: new Date().toISOString().split('T')[0],
       subtotal: totalBreakup.taxable,
       discount: discountPaise,
@@ -225,14 +252,16 @@ export default function InvoicesScreen({ type }: { type: 'sale' | 'purchase' }) 
         id: `ii-${Date.now()}-${i}`,
         invoice_id: invoiceNo,
         name: v.name,
+        hsn: v.hsn || (supplyCategory === 'services' ? '998311' : '1006'),
         qty: v.qty,
-        unit: 'pcs',
+        unit: supplyCategory === 'services' ? 'hours' : 'pcs',
         price: toPaise(v.rateRupees),
         gst_rate: v.gstRate,
         amount: toPaise(v.rateRupees * v.qty),
       })),
     };
 
+    await createInvoice(newInv as any);
     setSavedInv(newInv);
     setSuccessModalOpen(true);
   };
@@ -243,37 +272,55 @@ export default function InvoicesScreen({ type }: { type: 'sale' | 'purchase' }) 
 
   return (
     <ScrollView style={styles.scrollRoot} contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-      {/* Title row */}
-      <View style={styles.titleRow}>
-        <Text style={styles.h1Title}>{titleText}</Text>
+      {/* Top Action Control Bar (Matching Image 4) */}
+      <View style={styles.topControlBar}>
+        <View style={styles.topBarLeftGroup}>
+          <Pressable style={styles.backButton} onPress={() => router.back()} accessibilityRole="button">
+            <Feather name="arrow-left" size={18} color="#0F172A" />
+            <Text style={styles.backButtonText}>Back</Text>
+          </Pressable>
 
-        <View style={styles.actionButtonsGroup}>
+          <View style={styles.draftBadge}>
+            <View style={styles.draftDot} />
+            <Text style={styles.draftBadgeText}>Draft — click to complete</Text>
+          </View>
+        </View>
+
+        <View style={styles.topBarRightActions}>
+          <Pressable
+            style={styles.filledSaveBtn}
+            onPress={() => handleSaveInvoice(false)}
+            accessibilityRole="button"
+          >
+            <Feather name="check" size={15} color="#FFFFFF" style={{ marginRight: 5 }} />
+            <Text style={styles.filledSaveBtnText}>Save</Text>
+          </Pressable>
+
           <Pressable
             style={styles.outlinedActionBtn}
             onPress={() => handleSaveInvoice(true)}
             accessibilityRole="button"
           >
-            <Feather name="printer" size={16} color="#0F766E" style={{ marginRight: 6 }} />
-            <Text style={styles.outlinedActionBtnText}>Save & print</Text>
+            <Feather name="download" size={15} color="#0F766E" style={{ marginRight: 5 }} />
+            <Text style={styles.outlinedActionBtnText}>Save & Download</Text>
           </Pressable>
 
           <Pressable
             style={styles.outlinedActionBtn}
-            onPress={handleShareWhatsApp}
+            onPress={() => handleSaveInvoice(true)}
             accessibilityRole="button"
           >
-            <Feather name="share-2" size={16} color="#047857" style={{ marginRight: 6 }} />
-            <Text style={[styles.outlinedActionBtnText, { color: '#047857' }]}>WhatsApp</Text>
+            <Feather name="printer" size={15} color="#475569" style={{ marginRight: 5 }} />
+            <Text style={[styles.outlinedActionBtnText, { color: '#475569' }]}>Print</Text>
           </Pressable>
 
           <Pressable
-            style={styles.filledActionBtn}
-            onPress={() => handleSaveInvoice(false)}
+            style={styles.whatsAppActionBtn}
+            onPress={handleShareWhatsApp}
             accessibilityRole="button"
           >
-            <Text style={styles.filledActionBtnText}>
-              {type === 'sale' ? 'Save invoice' : 'Save bill'}
-            </Text>
+            <Feather name="message-circle" size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
+            <Text style={styles.whatsAppActionBtnText}>WhatsApp</Text>
           </Pressable>
         </View>
       </View>
@@ -282,50 +329,126 @@ export default function InvoicesScreen({ type }: { type: 'sale' | 'purchase' }) 
       <View style={[styles.mainLayout, isDesktop && styles.mainLayoutDesktop]}>
         {/* Left White Card: Form & Items Table */}
         <Card style={styles.leftFormCard}>
-          {/* Top row of 3 fields */}
-          <View style={[styles.formTopRow, isDesktop && styles.formTopRowDesktop]}>
-            <View style={[styles.fieldCol, { flex: isDesktop ? 2 : undefined }]}>
-              <Text style={styles.fieldLabel}>{customerLabel}</Text>
-              <Pressable
-                style={styles.selectField}
-                onPress={() => setPartyPickerOpen(true)}
-                accessibilityRole="combobox"
-              >
-                <Text
-                  style={[
-                    styles.selectFieldText,
-                    !selectedParty && styles.placeholderText,
-                  ]}
-                  numberOfLines={1}
-                >
-                  {selectedParty ? selectedParty.name : customerPlaceholder}
-                </Text>
-                <Feather name="chevron-down" size={16} color="#0F172A" />
-              </Pressable>
-            </View>
+          {/* Invoice Type Pills Selector (Matching Image 4) */}
+          <View style={styles.docTypeSection}>
+            <Text style={styles.docTypeSectionLabel}>Invoice Type</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.docTypeScroll}>
+              <View style={styles.docTypePillsRow}>
+                {DOC_TYPES.map((dt) => {
+                  const isSelected = docType === dt.key;
+                  return (
+                    <Pressable
+                      key={dt.key}
+                      style={[styles.docTypePill, isSelected && styles.docTypePillSelected]}
+                      onPress={() => setDocType(dt.key)}
+                    >
+                      <Text style={[styles.docTypePillText, isSelected && styles.docTypePillTextSelected]}>
+                        {dt.label}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </ScrollView>
+            <Text style={styles.docTypeDescText}>
+              {DOC_TYPES.find((d) => d.key === docType)?.desc}
+            </Text>
+          </View>
 
-            <View style={[styles.fieldCol, { flex: isDesktop ? 1 : undefined }]}>
-              <Text style={styles.fieldLabel}>Invoice no.</Text>
-              <View style={styles.inputField}>
-                <TextInput
-                  value={invoiceNo}
-                  onChangeText={setInvoiceNo}
-                  style={styles.textInput}
-                />
+          {/* This invoice is for: Segment (Goods vs Services vs Mixed) */}
+          <View style={styles.categorySection}>
+            <View style={styles.categoryHeaderRow}>
+              <Text style={styles.categoryLabel}>This invoice is for:</Text>
+              <View style={styles.categoryPillsRow}>
+                {SUPPLY_CATEGORIES.map((cat) => {
+                  const isSel = supplyCategory === cat.key;
+                  return (
+                    <Pressable
+                      key={cat.key}
+                      style={[styles.categoryPill, isSel && styles.categoryPillSelected]}
+                      onPress={() => setSupplyCategory(cat.key)}
+                    >
+                      <Text style={[styles.categoryPillText, isSel && styles.categoryPillTextSelected]}>
+                        {cat.key === 'goods' ? '📦 ' : cat.key === 'services' ? '⏱️ ' : '🔀 '}
+                        {cat.label}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
               </View>
             </View>
 
-            <View style={[styles.fieldCol, { flex: isDesktop ? 1 : undefined }]}>
-              <Text style={styles.fieldLabel}>Date</Text>
-              <View style={styles.inputField}>
-                <TextInput
-                  value={dateStr}
-                  onChangeText={setDateStr}
-                  placeholder="mm/dd/yyyy"
-                  placeholderTextColor="#94A3B8"
-                  style={styles.textInput}
-                />
-                <Feather name="calendar" size={16} color="#0F172A" style={{ marginLeft: 6 }} />
+            <View style={styles.categoryTipBox}>
+              <Feather name="info" size={13} color="#0F766E" style={{ marginRight: 6 }} />
+              <Text style={styles.categoryTipText}>
+                {SUPPLY_CATEGORIES.find((c) => c.key === supplyCategory)?.tip}
+              </Text>
+            </View>
+          </View>
+
+          {/* Billed To Section (Matching Image 4) */}
+          <View style={styles.billedToCard}>
+            <Text style={styles.billedToTitle}>Billed To</Text>
+            <View style={[styles.formTopRow, isDesktop && styles.formTopRowDesktop]}>
+              <View style={[styles.fieldCol, { flex: isDesktop ? 2 : undefined }]}>
+                <Text style={styles.fieldLabel}>CLIENT NAME</Text>
+                <Pressable
+                  style={styles.selectField}
+                  onPress={() => setPartyPickerOpen(true)}
+                  accessibilityRole="combobox"
+                >
+                  <Text
+                    style={[
+                      styles.selectFieldText,
+                      !selectedParty && styles.placeholderText,
+                    ]}
+                    numberOfLines={1}
+                  >
+                    {selectedParty ? selectedParty.name : 'Type client name to search or add new'}
+                  </Text>
+                  <Feather name="chevron-down" size={16} color="#0F172A" />
+                </Pressable>
+              </View>
+
+              <View style={[styles.fieldCol, { flex: isDesktop ? 2 : undefined }]}>
+                <Text style={styles.fieldLabel}>BILLING ADDRESS</Text>
+                <View style={styles.inputField}>
+                  <TextInput
+                    value={billingAddress || selectedParty?.address || ''}
+                    onChangeText={setBillingAddress}
+                    placeholder="Enter client billing address"
+                    placeholderTextColor="#94A3B8"
+                    style={styles.textInput}
+                  />
+                </View>
+              </View>
+            </View>
+
+            {/* Invoice No & Date Row */}
+            <View style={[styles.formTopRow, isDesktop && styles.formTopRowDesktop, { marginTop: 4 }]}>
+              <View style={[styles.fieldCol, { flex: isDesktop ? 1 : undefined }]}>
+                <Text style={styles.fieldLabel}>INVOICE NO.</Text>
+                <View style={styles.inputField}>
+                  <TextInput
+                    value={invoiceNo}
+                    onChangeText={setInvoiceNo}
+                    style={styles.textInput}
+                  />
+                </View>
+              </View>
+
+              <View style={[styles.fieldCol, { flex: isDesktop ? 1 : undefined }]}>
+                <Text style={styles.fieldLabel}>DATE</Text>
+                <View style={styles.inputField}>
+                  <TextInput
+                    value={dateStr}
+                    onChangeText={setDateStr}
+                    placeholder="mm/dd/yyyy"
+                    placeholderTextColor="#94A3B8"
+                    style={styles.textInput}
+                  />
+                  <Feather name="calendar" size={16} color="#0F172A" style={{ marginLeft: 6 }} />
+                </View>
               </View>
             </View>
           </View>
@@ -845,6 +968,227 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingBottom: 90,
   },
+
+  // Top Action Control Bar (Matching Image 4)
+  topControlBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: 12,
+    marginBottom: 20,
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  topBarLeftGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    backgroundColor: '#F1F5F9',
+  },
+  backButtonText: {
+    fontSize: 13,
+    fontFamily: fonts.semiBold,
+    fontWeight: '600',
+    color: '#0F172A',
+  },
+  draftBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 20,
+    backgroundColor: '#FEF3C7',
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+  },
+  draftDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#D97706',
+    marginRight: 6,
+  },
+  draftBadgeText: {
+    fontSize: 12,
+    fontFamily: fonts.medium,
+    color: '#B45309',
+  },
+  topBarRightActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flexWrap: 'wrap',
+  },
+  filledSaveBtn: {
+    height: 38,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    backgroundColor: '#2563EB',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  filledSaveBtnText: {
+    fontSize: 13,
+    fontFamily: fonts.bold,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  whatsAppActionBtn: {
+    height: 38,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+    backgroundColor: '#16A34A',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  whatsAppActionBtnText: {
+    fontSize: 13,
+    fontFamily: fonts.bold,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+
+  // Document Type Selector (Matching Image 4)
+  docTypeSection: {
+    marginBottom: 16,
+    paddingBottom: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+  },
+  docTypeSectionLabel: {
+    fontSize: 11,
+    fontFamily: fonts.bold,
+    fontWeight: '700',
+    color: '#64748B',
+    letterSpacing: 0.5,
+    marginBottom: 8,
+    textTransform: 'uppercase',
+  },
+  docTypeScroll: {
+    marginBottom: 6,
+  },
+  docTypePillsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  docTypePill: {
+    paddingHorizontal: 14,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  docTypePillSelected: {
+    backgroundColor: '#2563EB',
+    borderColor: '#2563EB',
+  },
+  docTypePillText: {
+    fontSize: 13,
+    fontFamily: fonts.medium,
+    color: '#475569',
+  },
+  docTypePillTextSelected: {
+    color: '#FFFFFF',
+    fontFamily: fonts.bold,
+    fontWeight: '700',
+  },
+  docTypeDescText: {
+    fontSize: 12,
+    fontFamily: fonts.regular,
+    color: '#64748B',
+    marginTop: 2,
+  },
+
+  // Category Selector (Goods vs Services vs Mixed)
+  categorySection: {
+    marginBottom: 16,
+    paddingBottom: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+  },
+  categoryHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 8,
+  },
+  categoryLabel: {
+    fontSize: 13,
+    fontFamily: fonts.semiBold,
+    color: '#334155',
+  },
+  categoryPillsRow: {
+    flexDirection: 'row',
+    gap: 6,
+  },
+  categoryPill: {
+    paddingHorizontal: 12,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: '#F1F5F9',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  categoryPillSelected: {
+    backgroundColor: '#0F766E',
+  },
+  categoryPillText: {
+    fontSize: 12,
+    fontFamily: fonts.medium,
+    color: '#475569',
+  },
+  categoryPillTextSelected: {
+    color: '#FFFFFF',
+    fontFamily: fonts.bold,
+    fontWeight: '700',
+  },
+  categoryTipBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    backgroundColor: '#F0FDFA',
+    borderRadius: 6,
+  },
+  categoryTipText: {
+    fontSize: 12,
+    fontFamily: fonts.medium,
+    color: '#0F766E',
+  },
+
+  // Billed To Section
+  billedToCard: {
+    marginBottom: 16,
+  },
+  billedToTitle: {
+    fontSize: 14,
+    fontFamily: fonts.bold,
+    fontWeight: '700',
+    color: '#0F172A',
+    marginBottom: 10,
+  },
+
   titleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',

@@ -64,6 +64,7 @@ export default function DashboardScreen() {
     { label: 'Purchase', path: '/purchase', icon: 'shopping-cart' as const },
     { label: 'Payment', path: '/payments', icon: 'credit-card' as const },
     { label: 'Reports', path: '/reports', icon: 'bar-chart-2' as const },
+    { label: 'GST Returns', path: '/gst-returns', icon: 'book-open' as const },
   ];
 
   const cycleLang = () => {

@@ -32,6 +32,7 @@ export interface Party {
   name: string;
   phone?: string;
   gstin?: string;
+  address?: string;
   state?: string;
   type: PartyType;
   opening_balance: number; // paise
@@ -53,6 +54,17 @@ export interface Item {
 export type InvoiceType = 'sale' | 'purchase';
 export type InvoiceStatus = 'unpaid' | 'partial' | 'paid';
 
+export type DocumentType =
+  | 'tax_invoice'
+  | 'quotation'
+  | 'proforma'
+  | 'bill_of_supply'
+  | 'composition'
+  | 'credit_note'
+  | 'delivery_challan';
+
+export type SupplyCategory = 'goods' | 'services' | 'mixed';
+
 export interface InvoiceItem {
   id: string;
   invoice_id: string;
@@ -71,8 +83,12 @@ export interface Invoice {
   business_id: string;
   party_id?: string;
   party_name?: string;
+  party_gstin?: string;
+  billing_address?: string;
   invoice_no: string;
   type: InvoiceType;
+  doc_type?: DocumentType;
+  supply_category?: SupplyCategory;
   date: string;
   subtotal: number; // paise
   discount: number; // paise
