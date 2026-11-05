@@ -102,20 +102,20 @@ export default function ItemsScreen() {
   const getStatusBadge = (item: Item) => {
     if (item.stock_qty <= 0) {
       return {
-        label: 'Out of stock',
+        label: t('items.outOfStock', 'Out of stock'),
         bg: '#FEE2E2',
         color: '#991B1B',
       };
     }
     if (item.stock_qty <= item.low_stock_limit) {
       return {
-        label: 'Low stock',
+        label: t('items.lowStock', 'Low stock'),
         bg: '#FEF3C7',
         color: '#92400E',
       };
     }
     return {
-      label: 'In stock',
+      label: t('items.inStock', 'In stock'),
       bg: '#DCFCE7',
       color: '#166534',
     };
@@ -126,7 +126,7 @@ export default function ItemsScreen() {
       {/* Header with Safe Area spacing */}
       <View style={[styles.headerBlock, !isDesktop && { paddingTop: Math.max(insets.top, 16) + 4 }]}>
         <View style={styles.headerRow}>
-          <Text style={styles.h1Title}>Items & stock</Text>
+          <Text style={styles.h1Title}>{t('items.title', 'Items & stock')}</Text>
           <Pressable
             style={({ pressed }) => [
               styles.filledTealBtn,
@@ -136,7 +136,7 @@ export default function ItemsScreen() {
             accessibilityRole="button"
           >
             <Feather name="plus" size={18} color="#FFFFFF" style={{ marginRight: 6 }} />
-            <Text style={styles.filledTealBtnText}>+ Add item</Text>
+            <Text style={styles.filledTealBtnText}>{t('items.addItem', '+ Add item')}</Text>
           </Pressable>
         </View>
 
@@ -147,7 +147,7 @@ export default function ItemsScreen() {
             <TextInput
               value={search}
               onChangeText={setSearch}
-              placeholder="Search item or HSN code"
+              placeholder={t('items.searchPlaceholder', 'Search item or HSN code')}
               placeholderTextColor="#475569"
               style={styles.searchInput}
             />
@@ -169,7 +169,7 @@ export default function ItemsScreen() {
                   filterChip === 'all' ? styles.pillChipTextActive : styles.pillChipTextOutlined,
                 ]}
               >
-                All
+                {t('items.allItems', 'All')}
               </Text>
             </Pressable>
 
@@ -188,7 +188,7 @@ export default function ItemsScreen() {
                   filterChip === 'low_stock' ? styles.pillChipTextActive : styles.pillChipTextOutlined,
                 ]}
               >
-                Low stock
+                {t('items.lowStock', 'Low stock')}
               </Text>
             </Pressable>
           </View>
@@ -206,12 +206,12 @@ export default function ItemsScreen() {
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <Card style={[styles.tableCard, { minWidth: 720 }]}>
               <View style={styles.tableHeaderRow}>
-                <Text style={[styles.th, { flex: 2.4 }]}>ITEM</Text>
-                <Text style={[styles.th, { flex: 1.2 }]}>HSN</Text>
-                <Text style={[styles.th, { flex: 1.4 }]}>STOCK</Text>
-                <Text style={[styles.th, { flex: 1.6, textAlign: 'right' }]}>SALE PRICE</Text>
-                <Text style={[styles.th, { flex: 1.2, textAlign: 'center' }]}>GST</Text>
-                <Text style={[styles.th, { flex: 1.4, textAlign: 'right' }]}>STATUS</Text>
+                <Text style={[styles.th, { flex: 2.4 }]}>{t('common.name', 'ITEM')}</Text>
+                <Text style={[styles.th, { flex: 1.2 }]}>{t('items.hsn', 'HSN')}</Text>
+                <Text style={[styles.th, { flex: 1.4 }]}>{t('common.stock', 'STOCK')}</Text>
+                <Text style={[styles.th, { flex: 1.6, textAlign: 'right' }]}>{t('items.salePrice', 'SALE PRICE')}</Text>
+                <Text style={[styles.th, { flex: 1.2, textAlign: 'center' }]}>{t('items.gstRate', 'GST')}</Text>
+                <Text style={[styles.th, { flex: 1.4, textAlign: 'right' }]}>{t('common.status', 'STATUS')}</Text>
               </View>
 
               {filteredItems.length > 0 ? (
@@ -246,7 +246,7 @@ export default function ItemsScreen() {
                 })
               ) : (
                 <View style={styles.emptyBox}>
-                  <Text style={styles.emptyText}>No items found</Text>
+                  <Text style={styles.emptyText}>{t('common.empty', 'No items found')}</Text>
                 </View>
               )}
             </Card>
@@ -269,7 +269,7 @@ export default function ItemsScreen() {
                       <View style={styles.mobileCardTop}>
                         <View style={{ flex: 1 }}>
                           <Text style={styles.mobileItemName}>{item.name}</Text>
-                          <Text style={styles.mobileHsnText}>HSN: {item.hsn || '-'} · GST: {item.gst_rate}%</Text>
+                          <Text style={styles.mobileHsnText}>{t('items.hsn', 'HSN')}: {item.hsn || '-'} · {t('items.gstRate', 'GST')}: {item.gst_rate}%</Text>
                         </View>
                         <View style={[styles.badgePill, { backgroundColor: badge.bg }]}>
                           <Text style={[styles.badgeText, { color: badge.color }]}>
@@ -282,7 +282,7 @@ export default function ItemsScreen() {
 
                       <View style={styles.mobileCardBottom}>
                         <Text style={styles.mobileStockText}>
-                          Stock: <Text style={styles.mobileStockVal}>{item.stock_qty} {item.unit}</Text>
+                          {t('common.stock', 'Stock')}: <Text style={styles.mobileStockVal}>{item.stock_qty} {item.unit}</Text>
                         </Text>
                         <Text style={styles.mobilePriceText}>
                           {formatMoney(item.sale_price)}
@@ -294,7 +294,7 @@ export default function ItemsScreen() {
               })
             ) : (
               <View style={styles.emptyBox}>
-                <Text style={styles.emptyText}>No items found. Tap + Add item below.</Text>
+                <Text style={styles.emptyText}>{t('common.empty', 'No items found')}</Text>
               </View>
             )}
           </View>
@@ -311,7 +311,7 @@ export default function ItemsScreen() {
         accessibilityRole="button"
       >
         <Feather name="plus" size={20} color="#0F172A" style={{ marginRight: 6 }} />
-        <Text style={styles.floatingAddText}>+ Add item</Text>
+        <Text style={styles.floatingAddText}>{t('items.addItem', '+ Add item')}</Text>
       </Pressable>
 
       {/* Item Details, Barcode & Stock Adjustment Modal */}
@@ -360,19 +360,19 @@ export default function ItemsScreen() {
 
             <View style={styles.priceRow}>
               <View style={styles.priceCol}>
-                <Text style={styles.priceLabel}>Sale Price</Text>
+                <Text style={styles.priceLabel}>{t('items.salePrice', 'Sale Price')}</Text>
                 <Text style={styles.salePriceVal}>
                   {selectedItem ? formatMoney(selectedItem.sale_price) : ''}
                 </Text>
               </View>
               <View style={styles.priceCol}>
-                <Text style={styles.priceLabel}>Purchase Price</Text>
+                <Text style={styles.priceLabel}>{t('items.purchasePrice', 'Purchase Price')}</Text>
                 <Text style={styles.purchasePriceVal}>
                   {selectedItem ? formatMoney(selectedItem.purchase_price) : ''}
                 </Text>
               </View>
               <View style={styles.priceCol}>
-                <Text style={styles.priceLabel}>Stock in Hand</Text>
+                <Text style={styles.priceLabel}>{t('common.stock', 'Stock in Hand')}</Text>
                 <Text style={styles.stockVal}>
                   {selectedItem?.stock_qty} {selectedItem?.unit}
                 </Text>
@@ -381,7 +381,7 @@ export default function ItemsScreen() {
 
             {/* Quick Stock Adjustment */}
             <View style={styles.adjustSection}>
-              <Text style={styles.adjustTitle}>Adjust Stock</Text>
+              <Text style={styles.adjustTitle}>{t('items.adjustStock', 'Adjust Stock')}</Text>
               <View style={styles.adjustControls}>
                 <Pressable
                   style={[styles.adjustTypeBtn, adjustReason === 'add' && styles.adjustTypeBtnActive]}
@@ -400,13 +400,13 @@ export default function ItemsScreen() {
                 <TextInput
                   value={adjustQty}
                   onChangeText={setAdjustQty}
-                  placeholder="Qty to adjust"
+                  placeholder={t('common.qty', 'Qty to adjust')}
                   placeholderTextColor="#94A3B8"
                   keyboardType="numeric"
                   style={styles.adjustInput}
                 />
                 <Pressable style={styles.adjustSubmitBtn} onPress={handleAdjustStock}>
-                  <Text style={styles.adjustSubmitText}>Update Stock</Text>
+                  <Text style={styles.adjustSubmitText}>{t('common.save', 'Update Stock')}</Text>
                 </Pressable>
               </View>
             </View>
@@ -424,7 +424,7 @@ export default function ItemsScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.addModalCard}>
             <View style={styles.modalHeaderRow}>
-              <Text style={styles.modalTitle}>Add New Item</Text>
+              <Text style={styles.modalTitle}>{t('items.addItem', 'Add New Item')}</Text>
               <Pressable
                 onPress={() => setAddModalOpen(false)}
                 style={styles.modalCloseBtn}

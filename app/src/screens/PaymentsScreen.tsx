@@ -86,8 +86,10 @@ export default function PaymentsScreen() {
       {/* Header with Title and '+ Record Payment' button */}
       <View style={styles.headerRow}>
         <View>
-          <Text style={styles.h1Title}>Payments & Transactions</Text>
-          <Text style={styles.subtitle}>Money In (Received) and Money Out (Paid)</Text>
+          <Text style={styles.h1Title}>{t('payments.title', 'Payments')}</Text>
+          <Text style={styles.subtitle}>
+            {t('common.in', 'Money In')} ({t('payments.received', 'Received')}) & {t('common.out', 'Money Out')} ({t('payments.paid', 'Paid')})
+          </Text>
         </View>
 
         <Pressable
@@ -96,7 +98,7 @@ export default function PaymentsScreen() {
           accessibilityRole="button"
         >
           <Feather name="plus-circle" size={18} color="#FFFFFF" style={{ marginRight: 6 }} />
-          <Text style={styles.recordBtnText}>+ Record Payment</Text>
+          <Text style={styles.recordBtnText}>{t('payments.recordPayment', '+ Record Payment')}</Text>
         </Pressable>
       </View>
 
@@ -107,7 +109,7 @@ export default function PaymentsScreen() {
             <Feather name="arrow-down-left" size={20} color="#047857" />
           </View>
           <View>
-            <Text style={styles.kpiLabel}>Total Money In (Received)</Text>
+            <Text style={styles.kpiLabel}>{t('payments.received', 'Total Received')}</Text>
             <Text style={[styles.kpiValue, { color: '#047857' }]}>{formatMoney(totalIn)}</Text>
           </View>
         </Card>
@@ -117,7 +119,7 @@ export default function PaymentsScreen() {
             <Feather name="arrow-up-right" size={20} color="#B91C1C" />
           </View>
           <View>
-            <Text style={styles.kpiLabel}>Total Money Out (Paid)</Text>
+            <Text style={styles.kpiLabel}>{t('payments.paid', 'Total Paid')}</Text>
             <Text style={[styles.kpiValue, { color: '#B91C1C' }]}>{formatMoney(totalOut)}</Text>
           </View>
         </Card>

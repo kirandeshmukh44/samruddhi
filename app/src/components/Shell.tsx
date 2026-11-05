@@ -29,37 +29,12 @@ interface NavItem {
   icon: FeatherIconName;
 }
 
-const DESKTOP_NAV_ITEMS: NavItem[] = [
-  { key: 'dashboard', label: 'Dashboard', path: '/', icon: 'home' },
-  { key: 'sale', label: 'Sale invoices', path: '/sale', icon: 'file-text' },
-  { key: 'purchase', label: 'Purchase bills', path: '/purchase', icon: 'shopping-cart' },
-  { key: 'parties', label: 'Parties / Clients', path: '/parties', icon: 'users' },
-  { key: 'items', label: 'Items & Products', path: '/items', icon: 'package' },
-  { key: 'payments', label: 'Payments', path: '/payments', icon: 'credit-card' },
-  { key: 'reports', label: 'Reports', path: '/reports', icon: 'bar-chart-2' },
-  { key: 'gst-returns', label: 'GST Returns', path: '/gst-returns', icon: 'book-open' },
-];
-
-const SETTINGS_NAV_ITEM: NavItem = {
-  key: 'settings',
-  label: 'Settings',
-  path: '/settings',
-  icon: 'settings',
-};
-
-const MOBILE_TABS: NavItem[] = [
-  { key: 'dashboard', label: 'Home', path: '/', icon: 'home' },
-  { key: 'parties', label: 'Parties', path: '/parties', icon: 'users' },
-  { key: 'items', label: 'Items', path: '/items', icon: 'package' },
-  { key: 'more', label: 'More', path: '/settings', icon: 'more-horizontal' },
-];
-
 export default function Shell({ children }: { children: React.ReactNode }) {
   const { width } = useWindowDimensions();
   const isWide = width >= 900;
   const router = useRouter();
   const pathname = usePathname();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const insets = useSafeAreaInsets();
   const { currentBusiness, businesses, switchBusiness, user } = useAuth();
 
@@ -68,6 +43,31 @@ export default function Shell({ children }: { children: React.ReactNode }) {
   const [searchQuery, setSearchQuery] = useState('');
 
   const currentBusinessName = currentBusiness?.name || 'Gupta Traders';
+
+  const desktopNavItems: NavItem[] = [
+    { key: 'dashboard', label: t('nav.dashboard', 'Dashboard'), path: '/', icon: 'home' },
+    { key: 'sale', label: t('nav.sale', 'Sale invoices'), path: '/sale', icon: 'file-text' },
+    { key: 'purchase', label: t('nav.purchase', 'Purchase bills'), path: '/purchase', icon: 'shopping-cart' },
+    { key: 'parties', label: t('nav.parties', 'Parties / Clients'), path: '/parties', icon: 'users' },
+    { key: 'items', label: t('nav.items', 'Items & Products'), path: '/items', icon: 'package' },
+    { key: 'payments', label: t('nav.payments', 'Payments'), path: '/payments', icon: 'credit-card' },
+    { key: 'reports', label: t('nav.reports', 'Reports'), path: '/reports', icon: 'bar-chart-2' },
+    { key: 'gst-returns', label: t('nav.gstReturns', 'GST Returns'), path: '/gst-returns', icon: 'book-open' },
+  ];
+
+  const settingsNavItem: NavItem = {
+    key: 'settings',
+    label: t('nav.settings', 'Settings'),
+    path: '/settings',
+    icon: 'settings',
+  };
+
+  const mobileTabs: NavItem[] = [
+    { key: 'dashboard', label: t('nav.home', 'Home'), path: '/', icon: 'home' },
+    { key: 'parties', label: t('nav.parties', 'Parties'), path: '/parties', icon: 'users' },
+    { key: 'items', label: t('nav.items', 'Items'), path: '/items', icon: 'package' },
+    { key: 'more', label: t('nav.more', 'More'), path: '/settings', icon: 'more-horizontal' },
+  ];
 
   const isActive = (path: string) => {
     if (path === '/') return pathname === '/';
@@ -141,7 +141,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             contentContainerStyle={styles.sidebarNavContent}
             showsVerticalScrollIndicator={false}
           >
-            {DESKTOP_NAV_ITEMS.map((item) => {
+            {desktopNavItems.map((item) => {
               const active = isActive(item.path);
               return (
                 <Pressable
@@ -170,26 +170,26 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           {/* Settings pinned to bottom */}
           <View style={styles.sidebarBottom}>
             <Pressable
-              onPress={() => router.push(SETTINGS_NAV_ITEM.path as any)}
+              onPress={() => router.push(settingsNavItem.path as any)}
               style={({ pressed }) => [
                 styles.sidebarItem,
-                isActive(SETTINGS_NAV_ITEM.path) && styles.sidebarItemActive,
+                isActive(settingsNavItem.path) && styles.sidebarItemActive,
                 pressed && { opacity: 0.82, transform: [{ scale: 0.98 }] },
               ]}
               accessibilityRole="button"
             >
               <Feather
-                name={SETTINGS_NAV_ITEM.icon}
+                name={settingsNavItem.icon}
                 size={20}
-                color={isActive(SETTINGS_NAV_ITEM.path) ? colors.white : '#CBD5E1'}
+                color={isActive(settingsNavItem.path) ? colors.white : '#CBD5E1'}
               />
               <Text
                 style={[
                   styles.sidebarLabel,
-                  isActive(SETTINGS_NAV_ITEM.path) && styles.sidebarLabelActive,
+                  isActive(settingsNavItem.path) && styles.sidebarLabelActive,
                 ]}
               >
-                {SETTINGS_NAV_ITEM.label}
+                {settingsNavItem.label}
               </Text>
             </Pressable>
           </View>
@@ -244,7 +244,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           <View style={styles.modalOverlay}>
             <View style={styles.modalCard}>
               <View style={styles.modalHeaderRow}>
-                <Text style={styles.modalTitle}>Switch Business</Text>
+                <Text style={styles.modalTitle}>{t('common.switchBusiness', 'Switch Business')}</Text>
                 <Pressable
                   onPress={() => setBusinessPickerVisible(false)}
                   style={styles.modalCloseBtn}
@@ -293,7 +293,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           <View style={styles.modalOverlay}>
             <View style={styles.modalCard}>
               <View style={styles.modalHeaderRow}>
-                <Text style={styles.modalTitle}>Choose Language</Text>
+                <Text style={styles.modalTitle}>{t('common.language', 'Choose Language')}</Text>
                 <Pressable
                   onPress={() => setLangPickerVisible(false)}
                   style={styles.modalCloseBtn}
@@ -355,7 +355,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           },
         ]}
       >
-        {MOBILE_TABS.map((tab) => {
+        {mobileTabs.map((tab) => {
           const active = isTabActive(tab);
           return (
             <Pressable

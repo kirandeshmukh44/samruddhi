@@ -266,9 +266,25 @@ export default function InvoicesScreen({ type }: { type: 'sale' | 'purchase' }) 
     setSuccessModalOpen(true);
   };
 
-  const titleText = type === 'sale' ? 'New sale invoice' : 'New purchase bill';
-  const customerLabel = type === 'sale' ? 'Customer' : 'Supplier';
-  const customerPlaceholder = type === 'sale' ? '[Select customer]' : '[Select supplier]';
+  const titleText = type === 'sale' ? t('invoices.newSale', 'New sale invoice') : t('invoices.newPurchase', 'New purchase bill');
+  const customerLabel = type === 'sale' ? t('parties.customer', 'Customer') : t('parties.supplier', 'Supplier');
+  const customerPlaceholder = `[${customerLabel}]`;
+
+  const docTypes = useMemo(() => [
+    { key: 'tax_invoice' as DocumentType, label: t('invoices.taxInvoice', 'Tax Invoice'), desc: 'Standard GST tax invoice' },
+    { key: 'quotation' as DocumentType, label: t('invoices.quotation', 'Quotation'), desc: 'Commercial price quotation for buyer approval' },
+    { key: 'proforma' as DocumentType, label: t('invoices.proforma', 'Proforma / Estimate'), desc: 'Proforma estimate before official supply' },
+    { key: 'bill_of_supply' as DocumentType, label: t('invoices.billOfSupply', 'Bill of Supply (No GST)'), desc: 'Official Bill of Supply for exempt or non-GST supplies' },
+    { key: 'composition' as DocumentType, label: t('invoices.composition', 'Composition (Bill of Supply)'), desc: 'Composition scheme bill of supply (no tax collection)' },
+    { key: 'credit_note' as DocumentType, label: t('invoices.creditNote', 'Credit Note'), desc: 'GST credit adjustment note against issued invoice' },
+    { key: 'delivery_challan' as DocumentType, label: t('invoices.deliveryChallan', 'Delivery Challan'), desc: 'Delivery note for transit of goods without sale' },
+  ], [t]);
+
+  const supplyCategories = useMemo(() => [
+    { key: 'goods' as SupplyCategory, label: t('invoices.goods', 'Goods'), tip: 'Use a 4, 6 or 8-digit HSN code for physical commodities' },
+    { key: 'services' as SupplyCategory, label: t('invoices.services', 'Services'), tip: 'Use a SAC code (services accounting code) in the HSN/SAC column' },
+    { key: 'mixed' as SupplyCategory, label: t('invoices.mixed', 'Mixed'), tip: 'Ensure both Goods HSN and Services SAC codes are specified per row' },
+  ], [t]);
 
   return (
     <ScrollView style={styles.scrollRoot} contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
@@ -277,12 +293,12 @@ export default function InvoicesScreen({ type }: { type: 'sale' | 'purchase' }) 
         <View style={styles.topBarLeftGroup}>
           <Pressable style={styles.backButton} onPress={() => router.back()} accessibilityRole="button">
             <Feather name="arrow-left" size={18} color="#0F172A" />
-            <Text style={styles.backButtonText}>Back</Text>
+            <Text style={styles.backButtonText}>{t('common.back', 'Back')}</Text>
           </Pressable>
 
           <View style={styles.draftBadge}>
             <View style={styles.draftDot} />
-            <Text style={styles.draftBadgeText}>Draft — click to complete</Text>
+            <Text style={styles.draftBadgeText}>{t('invoices.draft', 'Draft — click to complete')}</Text>
           </View>
         </View>
 
@@ -293,7 +309,7 @@ export default function InvoicesScreen({ type }: { type: 'sale' | 'purchase' }) 
             accessibilityRole="button"
           >
             <Feather name="check" size={15} color="#FFFFFF" style={{ marginRight: 5 }} />
-            <Text style={styles.filledSaveBtnText}>Save</Text>
+            <Text style={styles.filledSaveBtnText}>{t('invoices.saveInvoice', 'Save')}</Text>
           </Pressable>
 
           <Pressable
@@ -302,7 +318,7 @@ export default function InvoicesScreen({ type }: { type: 'sale' | 'purchase' }) 
             accessibilityRole="button"
           >
             <Feather name="download" size={15} color="#1D4ED8" style={{ marginRight: 5 }} />
-            <Text style={styles.outlinedActionBtnText}>Save & Download</Text>
+            <Text style={styles.outlinedActionBtnText}>{t('invoices.saveAndDownload', 'Save & Download')}</Text>
           </Pressable>
 
           <Pressable
@@ -311,7 +327,7 @@ export default function InvoicesScreen({ type }: { type: 'sale' | 'purchase' }) 
             accessibilityRole="button"
           >
             <Feather name="printer" size={15} color="#475569" style={{ marginRight: 5 }} />
-            <Text style={[styles.outlinedActionBtnText, { color: '#475569' }]}>Print</Text>
+            <Text style={[styles.outlinedActionBtnText, { color: '#475569' }]}>{t('invoices.print', 'Print')}</Text>
           </Pressable>
 
           <Pressable
@@ -320,7 +336,7 @@ export default function InvoicesScreen({ type }: { type: 'sale' | 'purchase' }) 
             accessibilityRole="button"
           >
             <Feather name="message-circle" size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
-            <Text style={styles.whatsAppActionBtnText}>WhatsApp</Text>
+            <Text style={styles.whatsAppActionBtnText}>{t('invoices.whatsApp', 'WhatsApp')}</Text>
           </Pressable>
         </View>
       </View>
@@ -331,10 +347,10 @@ export default function InvoicesScreen({ type }: { type: 'sale' | 'purchase' }) 
         <Card style={styles.leftFormCard}>
           {/* Invoice Type Pills Selector (Matching Image 4) */}
           <View style={styles.docTypeSection}>
-            <Text style={styles.docTypeSectionLabel}>Invoice Type</Text>
+            <Text style={styles.docTypeSectionLabel}>{t('invoices.invoiceType', 'Invoice Type')}</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.docTypeScroll}>
               <View style={styles.docTypePillsRow}>
-                {DOC_TYPES.map((dt) => {
+                {docTypes.map((dt) => {
                   const isSelected = docType === dt.key;
                   return (
                     <Pressable
@@ -351,16 +367,16 @@ export default function InvoicesScreen({ type }: { type: 'sale' | 'purchase' }) 
               </View>
             </ScrollView>
             <Text style={styles.docTypeDescText}>
-              {DOC_TYPES.find((d) => d.key === docType)?.desc}
+              {docTypes.find((d) => d.key === docType)?.desc}
             </Text>
           </View>
 
           {/* This invoice is for: Segment (Goods vs Services vs Mixed) */}
           <View style={styles.categorySection}>
             <View style={styles.categoryHeaderRow}>
-              <Text style={styles.categoryLabel}>This invoice is for:</Text>
+              <Text style={styles.categoryLabel}>{t('invoices.invoiceFor', 'This invoice is for:')}</Text>
               <View style={styles.categoryPillsRow}>
-                {SUPPLY_CATEGORIES.map((cat) => {
+                {supplyCategories.map((cat) => {
                   const isSel = supplyCategory === cat.key;
                   return (
                     <Pressable
@@ -381,17 +397,17 @@ export default function InvoicesScreen({ type }: { type: 'sale' | 'purchase' }) 
             <View style={styles.categoryTipBox}>
               <Feather name="info" size={13} color="#1D4ED8" style={{ marginRight: 6 }} />
               <Text style={styles.categoryTipText}>
-                {SUPPLY_CATEGORIES.find((c) => c.key === supplyCategory)?.tip}
+                {supplyCategories.find((c) => c.key === supplyCategory)?.tip}
               </Text>
             </View>
           </View>
 
           {/* Billed To Section (Matching Image 4) */}
           <View style={styles.billedToCard}>
-            <Text style={styles.billedToTitle}>Billed To</Text>
+            <Text style={styles.billedToTitle}>{t('invoices.billedTo', 'Billed To')}</Text>
             <View style={[styles.formTopRow, isDesktop && styles.formTopRowDesktop]}>
               <View style={[styles.fieldCol, { flex: isDesktop ? 2 : undefined }]}>
-                <Text style={styles.fieldLabel}>CLIENT NAME</Text>
+                <Text style={styles.fieldLabel}>{t('invoices.clientName', 'CLIENT NAME')}</Text>
                 <Pressable
                   style={styles.selectField}
                   onPress={() => setPartyPickerOpen(true)}
@@ -640,16 +656,16 @@ export default function InvoicesScreen({ type }: { type: 'sale' | 'purchase' }) 
             accessibilityRole="button"
           >
             <Feather name="plus" size={16} color="#1D4ED8" style={{ marginRight: 6 }} />
-            <Text style={styles.addItemRowBtnText}>+ Add item row</Text>
+            <Text style={styles.addItemRowBtnText}>{t('invoices.addItem', '+ Add item row')}</Text>
           </Pressable>
         </Card>
 
         {/* Right White Card: Summary */}
         <Card style={styles.rightSummaryCard}>
-          <Text style={styles.summaryTitle}>Bill Summary</Text>
+          <Text style={styles.summaryTitle}>{t('invoices.billSummary', 'Bill Summary')}</Text>
 
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Subtotal (Taxable)</Text>
+            <Text style={styles.summaryLabel}>{t('common.subtotal', 'Subtotal')} ({t('invoices.taxable', 'Taxable')})</Text>
             <Text style={styles.summaryValue}>
               {formatMoney(totalBreakup.taxable)}
             </Text>
@@ -658,23 +674,23 @@ export default function InvoicesScreen({ type }: { type: 'sale' | 'purchase' }) 
           {isSameState ? (
             <>
               <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>CGST</Text>
+                <Text style={styles.summaryLabel}>{t('common.cgst', 'CGST')}</Text>
                 <Text style={styles.summaryValue}>{formatMoney(totalBreakup.cgst)}</Text>
               </View>
               <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>SGST</Text>
+                <Text style={styles.summaryLabel}>{t('common.sgst', 'SGST')}</Text>
                 <Text style={styles.summaryValue}>{formatMoney(totalBreakup.sgst)}</Text>
               </View>
             </>
           ) : (
             <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>IGST (Inter-state)</Text>
+              <Text style={styles.summaryLabel}>{t('common.igst', 'IGST')} (Inter-state)</Text>
               <Text style={styles.summaryValue}>{formatMoney(totalBreakup.igst)}</Text>
             </View>
           )}
 
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Discount (₹)</Text>
+            <Text style={styles.summaryLabel}>{t('common.discount', 'Discount')} (₹)</Text>
             <View style={styles.discountInputWrap}>
               <TextInput
                 value={String(discountRupees || '')}
@@ -689,12 +705,12 @@ export default function InvoicesScreen({ type }: { type: 'sale' | 'purchase' }) 
           <View style={styles.summaryDivider} />
 
           <View style={styles.grandTotalRow}>
-            <Text style={styles.grandTotalLabel}>Grand Total</Text>
+            <Text style={styles.grandTotalLabel}>{t('common.grandTotal', 'Grand Total')}</Text>
             <Text style={styles.grandTotalValue}>{formatMoney(grandTotalPaise)}</Text>
           </View>
 
           <View style={styles.summaryInputGroup}>
-            <Text style={styles.fieldLabel}>Payment Mode</Text>
+            <Text style={styles.fieldLabel}>{t('invoices.paymentMode', 'Payment Mode')}</Text>
             <Pressable
               style={styles.selectField}
               onPress={() => setModePickerOpen(true)}
@@ -705,7 +721,7 @@ export default function InvoicesScreen({ type }: { type: 'sale' | 'purchase' }) 
           </View>
 
           <View style={styles.summaryInputGroup}>
-            <Text style={styles.fieldLabel}>Amount Received (₹)</Text>
+            <Text style={styles.fieldLabel}>{t('invoices.amountReceived', 'Amount Received (₹)')}</Text>
             <View style={styles.inputField}>
               <TextInput
                 value={amountReceivedRupees}
@@ -722,7 +738,7 @@ export default function InvoicesScreen({ type }: { type: 'sale' | 'purchase' }) 
             onPress={() => handleSaveInvoice(false)}
           >
             <Text style={styles.filledActionBtnText}>
-              {type === 'sale' ? 'Save & Complete Invoice' : 'Save & Complete Bill'}
+              {type === 'sale' ? t('invoices.saveInvoice', 'Save & Complete Invoice') : t('invoices.saveInvoice', 'Save & Complete Bill')}
             </Text>
           </Pressable>
         </Card>

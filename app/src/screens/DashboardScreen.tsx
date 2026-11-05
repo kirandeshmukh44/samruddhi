@@ -24,9 +24,10 @@ import { formatMoney } from '../lib/money';
 import Card from '../components/Card';
 import { colors, fonts } from '../theme';
 import { mockParties } from '../services/mockData';
+import { setLanguage } from '../i18n';
 
 export default function DashboardScreen() {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const { width } = useWindowDimensions();
   const isDesktop = width >= 900;
@@ -68,16 +69,16 @@ export default function DashboardScreen() {
   const businessName = currentBusiness?.name || 'Gupta Traders';
 
   const quickActions = [
-    { label: 'Sale', path: '/sale', icon: 'file-text' as const },
-    { label: 'Purchase', path: '/purchase', icon: 'shopping-cart' as const },
-    { label: 'Payment', path: '/payments', icon: 'credit-card' as const },
-    { label: 'Reports', path: '/reports', icon: 'bar-chart-2' as const },
-    { label: 'GST Returns', path: '/gst-returns', icon: 'book-open' as const },
+    { label: t('dashboard.addSale', 'Sale'), path: '/sale', icon: 'file-text' as const },
+    { label: t('dashboard.addPurchase', 'Purchase'), path: '/purchase', icon: 'shopping-cart' as const },
+    { label: t('dashboard.addPayment', 'Payment'), path: '/payments', icon: 'credit-card' as const },
+    { label: t('dashboard.reports', 'Reports'), path: '/reports', icon: 'bar-chart-2' as const },
+    { label: t('dashboard.gstReturns', 'GST Returns'), path: '/gst-returns', icon: 'book-open' as const },
   ];
 
-  const cycleLang = () => {
+  const cycleLang = async () => {
     const next = i18n.language === 'en' ? 'hi' : i18n.language === 'hi' ? 'mr' : 'en';
-    i18n.changeLanguage(next);
+    await setLanguage(next);
   };
 
   const currentLangLabel =
@@ -104,8 +105,10 @@ export default function DashboardScreen() {
           {/* Desktop Title & BiLU ERP Status Badge */}
           <View style={[styles.desktopHeader, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
             <View>
-              <Text style={styles.desktopTitle}>Dashboard</Text>
-              <Text style={{ fontSize: 13, color: '#64748B', marginTop: 2 }}>Welcome back to BiLU ERP · {businessName}</Text>
+              <Text style={styles.desktopTitle}>{t('dashboard.title', 'Dashboard')}</Text>
+              <Text style={{ fontSize: 13, color: '#64748B', marginTop: 2 }}>
+                {t('dashboard.welcome', 'Welcome back to BiLU ERP')} · {businessName}
+              </Text>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#EFF6FF', paddingVertical: 6, paddingHorizontal: 12, borderRadius: 24, borderWidth: 1, borderColor: '#BFDBFE' }}>
               <Image
@@ -113,35 +116,37 @@ export default function DashboardScreen() {
                 style={{ width: 28, height: 28, borderRadius: 14, marginRight: 8 }}
                 resizeMode="contain"
               />
-              <Text style={{ fontSize: 13, fontFamily: fonts.bold, fontWeight: '700', color: '#1D4ED8' }}>BiLU ERP Active</Text>
+              <Text style={{ fontSize: 13, fontFamily: fonts.bold, fontWeight: '700', color: '#1D4ED8' }}>
+                BiLU ERP {t('common.active', 'Active')}
+              </Text>
             </View>
           </View>
 
         {/* 4 KPI cards in a row */}
         <View style={styles.kpiRow}>
           <Card style={styles.kpiCard}>
-            <Text style={styles.kpiLabel}>Today's sale</Text>
+            <Text style={styles.kpiLabel}>{t('dashboard.todaySales', "Today's sale")}</Text>
             <Text style={[styles.kpiValue, { color: colors.primary }]}>
               {stats ? formatMoney(stats.todaySales) : '₹ 0.00'}
             </Text>
           </Card>
 
           <Card style={styles.kpiCard}>
-            <Text style={styles.kpiLabel}>To collect</Text>
+            <Text style={styles.kpiLabel}>{t('dashboard.toCollect', 'To collect')}</Text>
             <Text style={[styles.kpiValue, { color: '#047857' }]}>
               {stats ? formatMoney(stats.toCollect) : '₹ 0.00'}
             </Text>
           </Card>
 
           <Card style={styles.kpiCard}>
-            <Text style={styles.kpiLabel}>To pay</Text>
+            <Text style={styles.kpiLabel}>{t('dashboard.toPay', 'To pay')}</Text>
             <Text style={[styles.kpiValue, { color: '#B91C1C' }]}>
               {stats ? formatMoney(stats.toPay) : '₹ 0.00'}
             </Text>
           </Card>
 
           <Card style={styles.kpiCard}>
-            <Text style={styles.kpiLabel}>Low stock items</Text>
+            <Text style={styles.kpiLabel}>{t('dashboard.lowStock', 'Low stock items')}</Text>
             <Text style={[styles.kpiValue, { color: colors.accent }]}>
               {stats ? stats.lowStockCount : lowStock.length}
             </Text>
@@ -168,20 +173,20 @@ export default function DashboardScreen() {
           {/* Recent transactions as a table (left) */}
           <View style={styles.tablePanel}>
             <View style={styles.panelHeaderRow}>
-              <Text style={styles.panelTitle}>Recent transactions</Text>
+              <Text style={styles.panelTitle}>{t('dashboard.recentInvoices', 'Recent transactions')}</Text>
               <Pressable onPress={() => router.push('/sale' as any)} accessibilityRole="button">
-                <Text style={styles.viewAllText}>View all</Text>
+                <Text style={styles.viewAllText}>{t('common.viewAll', 'View all')}</Text>
               </Pressable>
             </View>
 
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <Card style={[styles.tableCard, { minWidth: 680 }]}>
                 <View style={styles.tableHeader}>
-                  <Text style={[styles.th, { flex: 2.5 }]}>PARTY / INVOICE</Text>
-                  <Text style={[styles.th, { flex: 1.2 }]}>DATE</Text>
-                  <Text style={[styles.th, { flex: 1.2 }]}>TYPE</Text>
-                  <Text style={[styles.th, { flex: 1.5, textAlign: 'right' }]}>TOTAL</Text>
-                  <Text style={[styles.th, { flex: 1.2, textAlign: 'right' }]}>STATUS</Text>
+                  <Text style={[styles.th, { flex: 2.5 }]}>{t('dashboard.partyInvoice', 'PARTY / INVOICE')}</Text>
+                  <Text style={[styles.th, { flex: 1.2 }]}>{t('dashboard.dateCol', 'DATE')}</Text>
+                  <Text style={[styles.th, { flex: 1.2 }]}>{t('dashboard.typeCol', 'TYPE')}</Text>
+                  <Text style={[styles.th, { flex: 1.5, textAlign: 'right' }]}>{t('dashboard.totalCol', 'TOTAL')}</Text>
+                  <Text style={[styles.th, { flex: 1.2, textAlign: 'right' }]}>{t('dashboard.statusCol', 'STATUS')}</Text>
                 </View>
 
                 {recent.length > 0 ? (
@@ -196,14 +201,16 @@ export default function DashboardScreen() {
                         <Text style={styles.txInvoiceSub}>{tx.invoice_no}</Text>
                       </View>
                       <Text style={[styles.td, { flex: 1.2 }]}>{tx.date}</Text>
-                      <Text style={[styles.td, { flex: 1.2, textTransform: 'capitalize' }]}>{tx.type}</Text>
+                      <Text style={[styles.td, { flex: 1.2, textTransform: 'capitalize' }]}>
+                        {tx.type === 'sale' ? t('dashboard.addSale', 'Sale') : t('dashboard.addPurchase', 'Purchase')}
+                      </Text>
                       <Text style={[styles.td, { flex: 1.5, textAlign: 'right', fontFamily: fonts.semiBold, fontWeight: '600' }]}>
                         {formatMoney(tx.total)}
                       </Text>
                       <View style={{ flex: 1.2, alignItems: 'flex-end' }}>
                         <View style={[styles.statusBadge, tx.status === 'paid' ? styles.statusPaid : styles.statusUnpaid]}>
                           <Text style={[styles.statusText, tx.status === 'paid' ? styles.statusPaidText : styles.statusUnpaidText]}>
-                            {tx.status}
+                            {tx.status === 'paid' ? t('common.paid', 'Paid') : t('common.unpaid', 'Unpaid')}
                           </Text>
                         </View>
                       </View>
@@ -211,7 +218,7 @@ export default function DashboardScreen() {
                   ))
                 ) : (
                   <View style={styles.emptyTableRow}>
-                    <Text style={styles.emptyText}>No recent transactions</Text>
+                    <Text style={styles.emptyText}>{t('dashboard.noRecentTransactions', 'No recent transactions')}</Text>
                   </View>
                 )}
               </Card>
@@ -221,9 +228,9 @@ export default function DashboardScreen() {
           {/* Low stock panel (right) */}
           <View style={styles.lowStockSidePanel}>
             <View style={styles.panelHeaderRow}>
-              <Text style={styles.panelTitle}>Low-stock alert</Text>
+              <Text style={styles.panelTitle}>{t('dashboard.lowStockAlert', 'Low-stock alert')}</Text>
               <Pressable onPress={() => router.push('/items' as any)}>
-                <Text style={styles.viewAllText}>View items</Text>
+                <Text style={styles.viewAllText}>{t('dashboard.viewItems', 'View items')}</Text>
               </Pressable>
             </View>
 
@@ -233,7 +240,7 @@ export default function DashboardScreen() {
                   <View key={it.id} style={styles.lowStockRow}>
                     <View style={{ flex: 1 }}>
                       <Text style={styles.lowStockName}>{it.name}</Text>
-                      <Text style={styles.lowStockSub}>Limit: {it.low_stock_limit} {it.unit}</Text>
+                      <Text style={styles.lowStockSub}>{t('common.lowStock', 'Limit')}: {it.low_stock_limit} {it.unit}</Text>
                     </View>
                     <Text style={styles.lowStockQty}>{it.stock_qty} {it.unit}</Text>
                   </View>
@@ -241,7 +248,7 @@ export default function DashboardScreen() {
               ) : (
                 <View style={styles.emptyTableRow}>
                   <Feather name="check-circle" size={24} color="#047857" style={{ marginBottom: 6 }} />
-                  <Text style={styles.emptyText}>All stocks healthy</Text>
+                  <Text style={styles.emptyText}>{t('dashboard.allStocksHealthy', 'All stocks healthy')}</Text>
                 </View>
               )}
             </Card>
@@ -257,7 +264,7 @@ export default function DashboardScreen() {
           accessibilityRole="button"
         >
           <Feather name="plus" size={20} color="#0F172A" style={{ marginRight: 6 }} />
-          <Text style={styles.floatingSaleText}>+ New sale</Text>
+          <Text style={styles.floatingSaleText}>{t('dashboard.newSaleBtn', '+ New sale')}</Text>
         </Pressable>
       </View>
     );
@@ -303,7 +310,7 @@ export default function DashboardScreen() {
           </View>
 
           {/* "Today's sale" 13px, then amount 32px bold */}
-          <Text style={styles.todaySaleLabel}>Today's sale</Text>
+          <Text style={styles.todaySaleLabel}>{t('dashboard.todaySales', "Today's sale")}</Text>
           <Text style={styles.todaySaleValue}>
             {stats ? formatMoney(stats.todaySales) : '₹ 0.00'}
           </Text>
@@ -312,14 +319,14 @@ export default function DashboardScreen() {
         {/* Two white cards side by side overlapping header by 16px */}
         <View style={styles.overlapCardsRow}>
           <Card style={styles.overlapCard}>
-            <Text style={styles.overlapCardLabel}>To collect</Text>
+            <Text style={styles.overlapCardLabel}>{t('dashboard.toCollect', 'To collect')}</Text>
             <Text style={[styles.overlapCardValue, { color: '#047857' }]}>
               {stats ? formatMoney(stats.toCollect) : '₹ 0.00'}
             </Text>
           </Card>
 
           <Card style={styles.overlapCard}>
-            <Text style={styles.overlapCardLabel}>To pay</Text>
+            <Text style={styles.overlapCardLabel}>{t('dashboard.toPay', 'To pay')}</Text>
             <Text style={[styles.overlapCardValue, { color: '#B91C1C' }]}>
               {stats ? formatMoney(stats.toPay) : '₹ 0.00'}
             </Text>
@@ -348,8 +355,8 @@ export default function DashboardScreen() {
         <Card style={styles.chartCard}>
           <View style={styles.chartHeader}>
             <View>
-              <Text style={styles.chartTitle}>Sale Overview ({selectedMonth})</Text>
-              <Text style={styles.chartSub}>Total Sale: {monthDetails[selectedMonth].total} · {monthDetails[selectedMonth].bills} bills</Text>
+              <Text style={styles.chartTitle}>{t('dashboard.saleOverview', 'Sale Overview')} ({selectedMonth})</Text>
+              <Text style={styles.chartSub}>{t('common.total', 'Total Sale')}: {monthDetails[selectedMonth].total} · {monthDetails[selectedMonth].bills} {t('invoices.title', 'bills')}</Text>
             </View>
             <View style={styles.growthBadge}>
               <Feather name="trending-up" size={13} color="#047857" style={{ marginRight: 4 }} />
@@ -398,7 +405,7 @@ export default function DashboardScreen() {
           <Card style={styles.miniKpiCard}>
             <View style={styles.miniKpiTop}>
               <Feather name="briefcase" size={15} color="#1D4ED8" />
-              <Text style={styles.miniKpiLabel}>Cash In-Hand</Text>
+              <Text style={styles.miniKpiLabel}>{t('dashboard.cashInHand', 'Cash In-Hand')}</Text>
             </View>
             <Text style={styles.miniKpiVal}>₹ 14,500.00</Text>
           </Card>
@@ -406,7 +413,7 @@ export default function DashboardScreen() {
           <Card style={styles.miniKpiCard}>
             <View style={styles.miniKpiTop}>
               <Feather name="file-minus" size={15} color="#B91C1C" />
-              <Text style={styles.miniKpiLabel}>Expenses (Nov)</Text>
+              <Text style={styles.miniKpiLabel}>{t('dashboard.expenses', 'Expenses (Nov)')}</Text>
             </View>
             <Text style={[styles.miniKpiVal, { color: '#B91C1C' }]}>₹ 3,250.00</Text>
           </Card>
@@ -414,9 +421,9 @@ export default function DashboardScreen() {
 
         {/* Recent transactions section */}
         <View style={styles.sectionRow}>
-          <Text style={styles.recentSectionTitle}>Recent transactions</Text>
+          <Text style={styles.recentSectionTitle}>{t('dashboard.recentInvoices', 'Recent transactions')}</Text>
           <Pressable onPress={() => router.push('/sale' as any)} accessibilityRole="button">
-            <Text style={styles.viewAllLink}>View all</Text>
+            <Text style={styles.viewAllLink}>{t('common.viewAll', 'View all')}</Text>
           </Pressable>
         </View>
 
@@ -437,7 +444,7 @@ export default function DashboardScreen() {
                       {inv.party_name}
                     </Text>
                     <Text style={styles.invSubtitleText}>
-                      {inv.type === 'sale' ? 'Sale' : 'Purchase'} · {inv.invoice_no}
+                      {inv.type === 'sale' ? t('dashboard.addSale', 'Sale') : t('dashboard.addPurchase', 'Purchase')} · {inv.invoice_no}
                     </Text>
                   </View>
                   <Text style={styles.txAmountText}>{formatMoney(inv.total)}</Text>
@@ -448,7 +455,7 @@ export default function DashboardScreen() {
             <Card style={styles.txRowCard}>
               <View style={styles.txRowLeft}>
                 <Text style={styles.partyNameText}>Sharma Retail</Text>
-                <Text style={styles.invSubtitleText}>Sale · INV-001</Text>
+                <Text style={styles.invSubtitleText}>{t('dashboard.addSale', 'Sale')} · INV-001</Text>
               </View>
               <Text style={styles.txAmountText}>₹ 2,756.26</Text>
             </Card>
@@ -466,7 +473,7 @@ export default function DashboardScreen() {
         accessibilityRole="button"
       >
         <Feather name="plus" size={20} color="#0F172A" style={{ marginRight: 6 }} />
-        <Text style={styles.floatingSaleText}>+ New sale</Text>
+        <Text style={styles.floatingSaleText}>{t('dashboard.newSaleBtn', '+ New sale')}</Text>
       </Pressable>
 
       {/* Transaction Detail Modal */}
@@ -495,23 +502,25 @@ export default function DashboardScreen() {
             <View style={styles.detailDivider} />
 
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Invoice Type</Text>
-              <Text style={[styles.detailValue, { textTransform: 'capitalize' }]}>{selectedTx?.type}</Text>
+              <Text style={styles.detailLabel}>{t('invoices.invoiceType', 'Invoice Type')}</Text>
+              <Text style={[styles.detailValue, { textTransform: 'capitalize' }]}>
+                {selectedTx?.type === 'sale' ? t('dashboard.addSale', 'Sale') : t('dashboard.addPurchase', 'Purchase')}
+              </Text>
             </View>
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Total Amount</Text>
+              <Text style={styles.detailLabel}>{t('common.total', 'Total Amount')}</Text>
               <Text style={[styles.detailValue, { color: colors.primary, fontFamily: fonts.bold }]}>
                 {selectedTx ? formatMoney(selectedTx.total) : '₹ 0.00'}
               </Text>
             </View>
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Paid Amount</Text>
+              <Text style={styles.detailLabel}>{t('invoices.amountReceived', 'Paid Amount')}</Text>
               <Text style={[styles.detailValue, { color: '#047857' }]}>
                 {selectedTx ? formatMoney(selectedTx.paid_amount || 0) : '₹ 0.00'}
               </Text>
             </View>
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Balance Due</Text>
+              <Text style={styles.detailLabel}>{t('invoices.balanceDue', 'Balance Due')}</Text>
               <Text style={[styles.detailValue, { color: '#B91C1C', fontFamily: fonts.bold }]}>
                 {selectedTx ? formatMoney(Math.max(0, selectedTx.total - (selectedTx.paid_amount || 0))) : '₹ 0.00'}
               </Text>
@@ -526,7 +535,7 @@ export default function DashboardScreen() {
                 onPress={() => handleShareWhatsApp(selectedTx)}
               >
                 <Feather name="share-2" size={18} color="#047857" style={{ marginRight: 8 }} />
-                <Text style={styles.detailWhatsAppText}>Share on WhatsApp</Text>
+                <Text style={styles.detailWhatsAppText}>{t('parties.whatsappReminder', 'Share on WhatsApp')}</Text>
               </Pressable>
 
               <Pressable
@@ -540,7 +549,7 @@ export default function DashboardScreen() {
                 }}
               >
                 <Feather name="printer" size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
-                <Text style={styles.detailPrintText}>View / Print Invoice</Text>
+                <Text style={styles.detailPrintText}>{t('invoices.print', 'View / Print Invoice')}</Text>
               </Pressable>
             </View>
           </View>
@@ -557,7 +566,7 @@ export default function DashboardScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
             <View style={styles.modalHeaderRow}>
-              <Text style={styles.modalTitle}>Select Business</Text>
+              <Text style={styles.modalTitle}>{t('common.switchBusiness', 'Select Business')}</Text>
               <Pressable
                 onPress={() => setBusinessPickerVisible(false)}
                 style={styles.modalCloseBtn}

@@ -243,7 +243,7 @@ export default function SettingsScreen() {
       </Card>
 
       {/* Important Utilities & Data Protection (Real Vyapar Parity) */}
-      <Text style={styles.sectionHeader}>Data, Backup & Sync</Text>
+      <Text style={styles.sectionHeader}>{t('settings.dataBackup', 'Data, Backup & Sync')}</Text>
       <Card style={styles.menuCard}>
         <Pressable
           style={styles.menuItem}
@@ -253,7 +253,7 @@ export default function SettingsScreen() {
             <Feather name="database" size={18} color="#B45309" />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.menuTitle}>Backup / Restore</Text>
+            <Text style={styles.menuTitle}>{t('settings.dataBackup', 'Backup / Restore')}</Text>
             <Text style={styles.menuSub}>Create instant encrypted backup to device storage</Text>
           </View>
           <Feather name="download" size={18} color="#B45309" />
@@ -263,7 +263,7 @@ export default function SettingsScreen() {
 
         <View style={styles.switchRow}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.switchTitle}>Multi-Device Cloud Sync</Text>
+            <Text style={styles.switchTitle}>{t('settings.cloudSync', 'Multi-Device Cloud Sync')}</Text>
             <Text style={styles.switchSub}>Sync real-time between Android, iPhone & Desktop</Text>
           </View>
           <Switch
@@ -275,7 +275,7 @@ export default function SettingsScreen() {
       </Card>
 
       {/* Language Section */}
-      <Text style={styles.sectionHeader}>Language (भाषा)</Text>
+      <Text style={styles.sectionHeader}>{t('common.language', 'Language (भाषा)')}</Text>
       <Card style={styles.langCard}>
         {supportedLanguages.map((l) => {
           const isSelected = i18n.language === l.code;
@@ -299,11 +299,11 @@ export default function SettingsScreen() {
       </Card>
 
       {/* Preferences & Invoicing Settings */}
-      <Text style={styles.sectionHeader}>Invoice Preferences</Text>
+      <Text style={styles.sectionHeader}>{t('nav.settings', 'Invoice Preferences')}</Text>
       <Card style={styles.switchCard}>
         <View style={styles.switchRow}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.switchTitle}>Enable GST Billing</Text>
+            <Text style={styles.switchTitle}>{t('settings.enableGst', 'Enable GST Billing')}</Text>
             <Text style={styles.switchSub}>Apply CGST, SGST & IGST breakdown on bills</Text>
           </View>
           <Switch
@@ -317,7 +317,7 @@ export default function SettingsScreen() {
 
         <View style={styles.switchRow}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.switchTitle}>Auto Round-off to Nearest ₹</Text>
+            <Text style={styles.switchTitle}>{t('settings.autoRoundOff', 'Auto Round-off to Nearest ₹')}</Text>
             <Text style={styles.switchSub}>Automatic half-up rounding for invoice total</Text>
           </View>
           <Switch
@@ -331,7 +331,7 @@ export default function SettingsScreen() {
 
         <View style={styles.switchRow}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.switchTitle}>WhatsApp Payment Reminders</Text>
+            <Text style={styles.switchTitle}>{t('settings.whatsappReminders', 'WhatsApp Payment Reminders')}</Text>
             <Text style={styles.switchSub}>One-tap WhatsApp share on invoice creation</Text>
           </View>
           <Switch
@@ -351,7 +351,7 @@ export default function SettingsScreen() {
         }}
       >
         <Feather name="log-out" size={18} color="#B91C1C" style={{ marginRight: 8 }} />
-        <Text style={styles.signOutText}>Logout from BiLU ERP</Text>
+        <Text style={styles.signOutText}>{t('settings.logout', 'Logout from BiLU ERP')}</Text>
       </Pressable>
 
       <Text style={styles.versionText}>BiLU ERP v1.0.0 · Powered by Pravara Infotech Pvt. Ltd.</Text>

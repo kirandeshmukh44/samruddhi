@@ -26,6 +26,7 @@ type ReturnTab = 'gstr1' | 'gstr3b' | 'gstr2b' | 'tds' | 'guide';
 const GSTIN_REGEX = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
 
 export default function GstReturnsScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { width } = useWindowDimensions();
   const isDesktop = width >= 900;
@@ -273,7 +274,7 @@ export default function GstReturnsScreen() {
       {/* Top Header Row (Matching Image 1 & 2) */}
       <View style={styles.headerRow}>
         <View style={styles.titleWithInfo}>
-          <Text style={styles.pageTitle}>GST Returns</Text>
+          <Text style={styles.pageTitle}>{t('nav.gstReturns', 'GST Returns')}</Text>
           <View style={styles.infoCircle}>
             <Feather name="info" size={14} color="#64748B" />
           </View>

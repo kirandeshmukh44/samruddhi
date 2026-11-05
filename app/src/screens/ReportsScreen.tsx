@@ -17,13 +17,6 @@ import { colors, fonts } from '../theme';
 import { formatMoney } from '../lib/money';
 import { mockInvoices, mockParties, mockItems } from '../services/mockData';
 
-const PERIOD_OPTIONS = [
-  'This month',
-  'This quarter',
-  'This financial year',
-  'Custom range',
-];
-
 interface ReportItem {
   id: string;
   title: string;
@@ -31,49 +24,56 @@ interface ReportItem {
   icon: React.ComponentProps<typeof Feather>['name'];
 }
 
-const REPORT_CARDS: ReportItem[] = [
-  {
-    id: 'sales',
-    title: 'Sales report',
-    description: 'Detailed sale invoices, customer breakdown and tax details.',
-    icon: 'file-text',
-  },
-  {
-    id: 'purchase',
-    title: 'Purchase report',
-    description: 'Vendor bills, expense entries and input tax credit data.',
-    icon: 'shopping-cart',
-  },
-  {
-    id: 'party_statement',
-    title: 'Party statement',
-    description: 'Customer and supplier ledger balances, debits and credits.',
-    icon: 'users',
-  },
-  {
-    id: 'stock_summary',
-    title: 'Stock summary',
-    description: 'Closing stock valuation, low stock and item quantities.',
-    icon: 'package',
-  },
-  {
-    id: 'gst_summary',
-    title: 'GST summary',
-    description: 'GSTR-1, GSTR-3B monthly tax summary, CGST, SGST & IGST.',
-    icon: 'percent',
-  },
-  {
-    id: 'bill_profit',
-    title: 'Bill-wise profit',
-    description: 'Gross margin, net profitability analysis on every sale bill.',
-    icon: 'trending-up',
-  },
-];
-
 export default function ReportsScreen() {
   const { t } = useTranslation();
   const { width } = useWindowDimensions();
   const isDesktop = width >= 900;
+
+  const PERIOD_OPTIONS = [
+    t('reports.thisMonth', 'This month'),
+    t('reports.thisQuarter', 'This quarter'),
+    t('reports.thisYear', 'This financial year'),
+    'Custom range',
+  ];
+
+  const REPORT_CARDS: ReportItem[] = [
+    {
+      id: 'sales',
+      title: t('reports.salesReport', 'Sales report'),
+      description: 'Detailed sale invoices, customer breakdown and tax details.',
+      icon: 'file-text',
+    },
+    {
+      id: 'purchase',
+      title: t('reports.purchaseReport', 'Purchase report'),
+      description: 'Vendor bills, expense entries and input tax credit data.',
+      icon: 'shopping-cart',
+    },
+    {
+      id: 'party_statement',
+      title: t('reports.partyStatement', 'Party statement'),
+      description: 'Customer and supplier ledger balances, debits and credits.',
+      icon: 'users',
+    },
+    {
+      id: 'stock_summary',
+      title: t('reports.stockSummary', 'Stock summary'),
+      description: 'Closing stock valuation, low stock and item quantities.',
+      icon: 'package',
+    },
+    {
+      id: 'gst_summary',
+      title: t('reports.gstReport', 'GST summary'),
+      description: 'GSTR-1, GSTR-3B monthly tax summary, CGST, SGST & IGST.',
+      icon: 'percent',
+    },
+    {
+      id: 'bill_profit',
+      title: t('reports.billProfit', 'Bill-wise profit'),
+      description: 'Gross margin, net profitability analysis on every sale bill.',
+      icon: 'trending-up',
+    },
+  ];
 
   const [period, setPeriod] = useState('This month');
   const [periodModalOpen, setPeriodModalOpen] = useState(false);
@@ -117,7 +117,7 @@ export default function ReportsScreen() {
     <ScrollView style={styles.root} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
       {/* Header: h1 "Reports" and a period select on the right */}
       <View style={styles.headerRow}>
-        <Text style={styles.h1Title}>Reports</Text>
+        <Text style={styles.h1Title}>{t('reports.title', 'Reports')}</Text>
 
         <Pressable
           style={styles.periodSelectBtn}
@@ -132,28 +132,28 @@ export default function ReportsScreen() {
       {/* Row of 4 KPI cards: desktop row, mobile 2x2 */}
       <View style={[styles.kpiContainer, isDesktop ? styles.kpiRowDesktop : styles.kpiGridMobile]}>
         <Card style={styles.kpiCard}>
-          <Text style={styles.kpiLabel}>Total sale</Text>
+          <Text style={styles.kpiLabel}>{t('dashboard.todaySales', 'Total sale')}</Text>
           <Text style={[styles.kpiValue, { color: '#1D4ED8' }]}>
             {formatMoney(totalSalesPaise)}
           </Text>
         </Card>
 
         <Card style={styles.kpiCard}>
-          <Text style={styles.kpiLabel}>Total purchase</Text>
+          <Text style={styles.kpiLabel}>{t('dashboard.todayPurchases', 'Total purchase')}</Text>
           <Text style={[styles.kpiValue, { color: '#B91C1C' }]}>
             {formatMoney(totalPurchasesPaise)}
           </Text>
         </Card>
 
         <Card style={styles.kpiCard}>
-          <Text style={styles.kpiLabel}>Profit</Text>
+          <Text style={styles.kpiLabel}>{t('reports.profit', 'Profit')}</Text>
           <Text style={[styles.kpiValue, { color: '#047857' }]}>
             {formatMoney(profitPaise)}
           </Text>
         </Card>
 
         <Card style={styles.kpiCard}>
-          <Text style={styles.kpiLabel}>GST payable</Text>
+          <Text style={styles.kpiLabel}>{t('reports.gstPayable', 'GST payable')}</Text>
           <Text style={[styles.kpiValue, { color: '#F59E0B' }]}>
             {formatMoney(gstPayablePaise)}
           </Text>

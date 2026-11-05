@@ -67,6 +67,9 @@ export default function RootLayout() {
 
   useEffect(() => {
     loadLanguage();
+    if (Platform.OS === 'web' && typeof document !== 'undefined') {
+      document.title = 'BiLU ERP – Everything Your Business Needs';
+    }
   }, []);
 
   useEffect(() => {

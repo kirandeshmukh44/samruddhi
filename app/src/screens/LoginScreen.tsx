@@ -17,9 +17,10 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../context/AuthContext';
 import { colors, fonts } from '../theme';
+import { setLanguage } from '../i18n';
 
 export default function LoginScreen() {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
@@ -49,8 +50,8 @@ export default function LoginScreen() {
     return () => clearInterval(timer);
   }, []);
 
-  const setLang = (code: string) => {
-    i18n.changeLanguage(code);
+  const setLang = async (code: string) => {
+    await setLanguage(code);
   };
 
   const handleDemoFill = () => {
@@ -62,7 +63,7 @@ export default function LoginScreen() {
 
   const handleGetOtp = () => {
     if (!phone || phone.trim().length < 10) {
-      setError('Please enter a valid 10-digit mobile number');
+      setError(i18n.language === 'mr' ? 'कृपया वैध १०-अंकी मोबाईल नंबर टाका' : i18n.language === 'hi' ? 'कृपया वैध 10-अंकों का मोबाइल नंबर दर्ज करें' : 'Please enter a valid 10-digit mobile number');
       return;
     }
     setError('');
@@ -79,13 +80,13 @@ export default function LoginScreen() {
       setLoginModalOpen(false);
       router.replace('/');
     } else {
-      setError('Invalid OTP (Mock code is 123456)');
+      setError(i18n.language === 'mr' ? 'अवैध OTP (डेमो कोड: 123456)' : i18n.language === 'hi' ? 'अमान्य OTP (डेमो कोड: 123456)' : 'Invalid OTP (Mock code is 123456)');
     }
   };
 
   const handleEmailLogin = async () => {
     if (!email) {
-      setError('Please enter email address');
+      setError(i18n.language === 'mr' ? 'कृपया ईमेल पत्ता टाका' : 'Please enter email address');
       return;
     }
     const ok = await signInWithEmail(email, password || 'password');
@@ -93,33 +94,33 @@ export default function LoginScreen() {
       setLoginModalOpen(false);
       router.replace('/');
     } else {
-      setError('Invalid email or password');
+      setError(i18n.language === 'mr' ? 'अवैध ईमेल किंवा पासवर्ड' : 'Invalid email or password');
     }
   };
 
   const slides = [
     {
       id: 0,
-      title: 'Everything You Want In One Dashboard',
-      subtitle: 'विक्री, खरेदी, नफा आणि जीएसटीचा ताळेबंद एकाच शक्तिशाली डॅशबोर्डवर!',
+      title: i18n.language === 'mr' ? 'सर्व काही एकाच शक्तिशाली डॅशबोर्डवर' : i18n.language === 'hi' ? 'सब कुछ एक ही शक्तिशाली डैशबोर्ड पर' : 'Everything You Want In One Dashboard',
+      subtitle: i18n.language === 'mr' ? 'विक्री, खरेदी, नफा आणि जीएसटीचा ताळेबंद एकाच शक्तिशाली डॅशबोर्डवर!' : i18n.language === 'hi' ? 'बिक्री, खरीद, लाभ और जीएसटी का हिसाब एक ही जगह!' : 'Sales, purchases, profits and GST compliance all in one smart dashboard.',
       badge: 'All-in-one Hub',
     },
     {
       id: 1,
-      title: 'Manage All Your Items At One Place',
-      subtitle: 'दुकानातील सर्व साठा, बारकोडिंग आणि संपत आलेला माल (Low Stock) एका नजरेत.',
+      title: i18n.language === 'mr' ? 'दुकानातील सर्व वस्तू एकाच ठिकाणी व्यवस्थापित करा' : i18n.language === 'hi' ? 'दुकान का सारा सामान एक ही जगह प्रबंधित करें' : 'Manage All Your Items At One Place',
+      subtitle: i18n.language === 'mr' ? 'दुकानातील सर्व साठा, बारकोडिंग आणि संपत आलेला माल (Low Stock) एका नजरेत.' : i18n.language === 'hi' ? 'दुकान का पूरा स्टॉक, बारकोडिंग और कम स्टॉक की तुरंत जानकारी।' : 'Complete inventory, barcoding and instant low-stock alerts.',
       badge: 'Smart Inventory',
     },
     {
       id: 2,
-      title: 'Create Unlimited Invoices And Share Digitally',
-      subtitle: 'अमर्यादित GST बिले बनवा आणि १-क्लिकमध्ये WhatsApp वर शेअर करा.',
+      title: i18n.language === 'mr' ? 'अमर्यादित बिले बनवा आणि डिजिटल शेअर करा' : i18n.language === 'hi' ? 'असीमित बिल बनाएं और डिजिटल शेयर करें' : 'Create Unlimited Invoices And Share Digitally',
+      subtitle: i18n.language === 'mr' ? 'अमर्यादित GST बिले बनवा आणि १-क्लिकमध्ये WhatsApp वर शेअर करा.' : i18n.language === 'hi' ? 'असीमित GST बिल बनाएं और 1-क्लिक में WhatsApp पर भेजें।' : 'Create GST invoices and share instantly on WhatsApp with 1-click.',
       badge: 'WhatsApp Billing',
     },
     {
       id: 3,
-      title: 'Send Reminders And Get Paid Faster',
-      subtitle: 'ग्राहकांना उधारीचे WhatsApp मेसेज पाठवून वसुली ३ पट जलद करा.',
+      title: i18n.language === 'mr' ? 'पेमेंट आठवण पाठवून जलद वसुली करा' : i18n.language === 'hi' ? 'पेमेंट रिमाइंडर भेजें और तेजी से वसूली करें' : 'Send Reminders And Get Paid Faster',
+      subtitle: i18n.language === 'mr' ? 'ग्राहकांना उधारीचे WhatsApp मेसेज पाठवून वसुली ३ पट जलद करा.' : i18n.language === 'hi' ? 'ग्राहकों को WhatsApp रिमाइंडर भेजकर वसूली 3 गुना तेज करें।' : 'Send friendly WhatsApp payment reminders and collect dues faster.',
       badge: 'Payment Reminders',
     },
   ];
@@ -359,19 +360,19 @@ export default function LoginScreen() {
           }}
           accessibilityRole="button"
         >
-          <Text style={styles.useFreeBtnText}>Use BiLU ERP For Free</Text>
+          <Text style={styles.useFreeBtnText}>{t('login.useFree', 'Use BiLU ERP For Free')}</Text>
           <Feather name="arrow-right" size={18} color="#FFFFFF" style={{ marginLeft: 8 }} />
         </Pressable>
 
         <View style={styles.bottomLinkRow}>
-          <Text style={styles.bottomMuted}>Already have an account? </Text>
+          <Text style={styles.bottomMuted}>{t('login.alreadyAccount', 'Already have an account? ')}</Text>
           <Pressable
             onPress={() => {
               setLoginMode('otp');
               setLoginModalOpen(true);
             }}
           >
-            <Text style={styles.bottomLinkTeal}>Login / Switch</Text>
+            <Text style={styles.bottomLinkTeal}>{t('login.loginOrSwitch', 'Login / Switch')}</Text>
           </Pressable>
         </View>
       </View>
@@ -398,7 +399,7 @@ export default function LoginScreen() {
                 />
                 <View style={{ marginLeft: 10 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Text style={styles.sheetTitle}>Login to BiLU</Text>
+                    <Text style={styles.sheetTitle}>{t('login.title', 'Login to BiLU')}</Text>
                     <View style={styles.erpBadgePillMini}>
                       <Text style={styles.erpBadgePillTextMini}>ERP</Text>
                     </View>
@@ -418,13 +419,13 @@ export default function LoginScreen() {
               /* Mobile Number + OTP Form (Universal Login for all users) */
               <View style={styles.formContainer}>
                 <View style={styles.labelWithDemoRow}>
-                  <Text style={styles.inputLabel}>Mobile number</Text>
+                  <Text style={styles.inputLabel}>{t('login.phoneLabel', 'Mobile number')}</Text>
                   <Pressable
                     style={styles.demoFillChip}
                     onPress={handleDemoFill}
                   >
                     <Feather name="zap" size={12} color="#1D4ED8" />
-                    <Text style={styles.demoFillChipText}>Use Demo: 9876543210</Text>
+                    <Text style={styles.demoFillChipText}>{t('login.demoPrompt', 'Use Demo: 9876543210')}</Text>
                   </Pressable>
                 </View>
 
@@ -436,7 +437,7 @@ export default function LoginScreen() {
                       setPhone(val);
                       setError('');
                     }}
-                    placeholder="Enter 10-digit mobile number"
+                    placeholder={t('login.phonePlaceholder', 'Enter 10-digit mobile number')}
                     placeholderTextColor="#94A3B8"
                     keyboardType="phone-pad"
                     maxLength={10}
@@ -447,7 +448,7 @@ export default function LoginScreen() {
                 {otpSent && (
                   <View style={{ marginTop: 14 }}>
                     <View style={styles.labelWithDemoRow}>
-                      <Text style={styles.inputLabel}>Enter OTP</Text>
+                      <Text style={styles.inputLabel}>{t('login.otpLabel', 'Enter OTP')}</Text>
                       <Text style={styles.otpHintText}>Mock OTP: 123456</Text>
                     </View>
                     <View style={styles.inputBox}>
@@ -457,7 +458,7 @@ export default function LoginScreen() {
                           setOtp(val);
                           setError('');
                         }}
-                        placeholder="Enter 6-digit OTP (123456)"
+                        placeholder={t('login.otpPlaceholder', 'Enter 6-digit OTP (123456)')}
                         placeholderTextColor="#94A3B8"
                         keyboardType="number-pad"
                         maxLength={6}
@@ -478,7 +479,11 @@ export default function LoginScreen() {
                   disabled={sending}
                 >
                   <Text style={styles.continueBtnText}>
-                    {sending ? 'Please wait...' : otpSent ? 'Verify & Continue' : 'Get OTP'}
+                    {sending
+                      ? t('common.loading', 'Please wait...')
+                      : otpSent
+                      ? t('login.verifyAndContinue', 'Verify & Continue')
+                      : t('login.getOtp', 'Get OTP')}
                   </Text>
                 </Pressable>
 
@@ -490,18 +495,18 @@ export default function LoginScreen() {
                       setOtp('');
                     }}
                   >
-                    <Text style={styles.changePhoneText}>Change mobile number</Text>
+                    <Text style={styles.changePhoneText}>{t('login.changeMobile', 'Change mobile number')}</Text>
                   </Pressable>
                 )}
 
                 <View style={styles.switchModeRow}>
                   <Pressable onPress={() => setLoginMode('email')}>
-                    <Text style={styles.switchModeText}>Login with Email & Password</Text>
+                    <Text style={styles.switchModeText}>{t('login.loginWithEmail', 'Login with Email & Password')}</Text>
                   </Pressable>
                 </View>
 
                 <Text style={styles.termsText}>
-                  By continuing, you agree to Samruddhi Terms of Service and Privacy Policy.
+                  By continuing, you agree to BiLU ERP Terms of Service and Privacy Policy.
                 </Text>
               </View>
             ) : (

@@ -97,7 +97,7 @@ export default function PartiesScreen() {
     <View style={styles.screenRoot}>
       {/* White header with dynamic safe area inset for iPhone Dynamic Island and notch */}
       <View style={[styles.whiteHeader, { paddingTop: Math.max(insets.top, 16) + 12 }]}>
-        <Text style={styles.h1Title}>Parties</Text>
+        <Text style={styles.h1Title}>{t('parties.title', 'Parties')}</Text>
 
         {/* Search field */}
         <View style={styles.searchBox}>
@@ -105,7 +105,7 @@ export default function PartiesScreen() {
           <TextInput
             value={search}
             onChangeText={setSearch}
-            placeholder="Search party by name or mobile"
+            placeholder={t('parties.searchPlaceholder', 'Search party by name or mobile')}
             placeholderTextColor="#475569"
             style={styles.searchInput}
           />
@@ -128,7 +128,7 @@ export default function PartiesScreen() {
                 activeTab === 'customers' ? styles.tabBtnTextActive : styles.tabBtnTextOutlined,
               ]}
             >
-              Customers
+              {t('parties.customers', 'Customers')}
             </Text>
           </Pressable>
 
@@ -147,7 +147,7 @@ export default function PartiesScreen() {
                 activeTab === 'suppliers' ? styles.tabBtnTextActive : styles.tabBtnTextOutlined,
               ]}
             >
-              Suppliers
+              {t('parties.suppliers', 'Suppliers')}
             </Text>
           </Pressable>
         </View>
@@ -162,10 +162,10 @@ export default function PartiesScreen() {
         {/* Line "[N] parties" and "Total to collect/pay" */}
         <View style={styles.infoLine}>
           <Text style={styles.countText}>
-            [{filteredParties.length}] parties
+            [{filteredParties.length}] {t('parties.title', 'parties')}
           </Text>
           <Text style={styles.totalCollectLabel}>
-            {activeTab === 'customers' ? 'Total to collect: ' : 'Total to pay: '}
+            {activeTab === 'customers' ? `${t('dashboard.toCollect', 'To collect')}: ` : `${t('dashboard.toPay', 'To pay')}: `}
             <Text style={[styles.totalCollectAmount, activeTab === 'suppliers' && { color: '#B91C1C' }]}>
               {formatMoney(totalBalancePaise)}
             </Text>
@@ -177,11 +177,11 @@ export default function PartiesScreen() {
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <Card style={[styles.tableCard, { minWidth: 680 }]}>
               <View style={styles.tableHeader}>
-                <Text style={[styles.th, { flex: 3 }]}>PARTY NAME</Text>
-                <Text style={[styles.th, { flex: 2 }]}>PHONE</Text>
-                <Text style={[styles.th, { flex: 2 }]}>GSTIN</Text>
-                <Text style={[styles.th, { flex: 2, textAlign: 'right' }]}>BALANCE</Text>
-                <Text style={[styles.th, { flex: 1.5, textAlign: 'right' }]}>ACTION</Text>
+                <Text style={[styles.th, { flex: 3 }]}>{t('common.name', 'PARTY NAME')}</Text>
+                <Text style={[styles.th, { flex: 2 }]}>{t('common.phone', 'PHONE')}</Text>
+                <Text style={[styles.th, { flex: 2 }]}>{t('common.gstin', 'GSTIN')}</Text>
+                <Text style={[styles.th, { flex: 2, textAlign: 'right' }]}>{t('common.amount', 'BALANCE')}</Text>
+                <Text style={[styles.th, { flex: 1.5, textAlign: 'right' }]}>{t('common.actions', 'ACTION')}</Text>
               </View>
 
               {filteredParties.length > 0 ? (
@@ -217,7 +217,7 @@ export default function PartiesScreen() {
                       </Text>
                       <View style={{ flex: 1.5, alignItems: 'flex-end' }}>
                         <View style={styles.quickActionBtn}>
-                          <Text style={styles.quickActionText}>Ledger</Text>
+                          <Text style={styles.quickActionText}>{t('common.viewAll', 'Ledger')}</Text>
                         </View>
                       </View>
                     </Pressable>
@@ -225,7 +225,7 @@ export default function PartiesScreen() {
                 })
               ) : (
                 <View style={styles.emptyTable}>
-                  <Text style={styles.emptyTableText}>No parties found in this category</Text>
+                  <Text style={styles.emptyTableText}>{t('parties.noParties', 'No parties found in this category')}</Text>
                 </View>
               )}
             </Card>
@@ -247,10 +247,10 @@ export default function PartiesScreen() {
                   : '#475569';
 
                 const caption = isToCollect
-                  ? 'To collect'
+                  ? t('common.toCollect', 'To collect')
                   : isToPay
-                  ? 'To pay'
-                  : 'Settled';
+                  ? t('common.toPay', 'To pay')
+                  : t('common.done', 'Settled');
 
                 return (
                   <Pressable
@@ -280,7 +280,7 @@ export default function PartiesScreen() {
               })
             ) : (
               <View style={styles.emptyTable}>
-                <Text style={styles.emptyTableText}>No {activeTab} yet. Tap + Add party below.</Text>
+                <Text style={styles.emptyTableText}>{t('parties.noParties', 'No parties yet')}</Text>
               </View>
             )}
           </View>
@@ -297,7 +297,9 @@ export default function PartiesScreen() {
         accessibilityRole="button"
       >
         <Feather name="plus" size={20} color="#0F172A" style={{ marginRight: 6 }} />
-        <Text style={styles.floatingAddText}>+ Add party</Text>
+        <Text style={styles.floatingAddText}>
+          {activeTab === 'customers' ? t('parties.addCustomer', '+ Add Customer') : t('parties.addSupplier', '+ Add Supplier')}
+        </Text>
       </Pressable>
 
       {/* Party Ledger & Details Modal */}
