@@ -10,6 +10,7 @@ import {
   ScrollView,
   Linking,
   Platform,
+  Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -252,20 +253,27 @@ export default function DashboardScreen() {
         contentContainerStyle={styles.mobileScrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header block #0F766E, white text */}
+        {/* Header block BiLU ERP Brand Blue, white text */}
         <View style={[styles.mobileHeaderBlock, { paddingTop: Math.max(insets.top, 20) + 8 }]}>
-          {/* Row with business switcher on the left and 44x44 white language button on the right */}
+          {/* Row with BiLU logo + business switcher on the left and language button on the right */}
           <View style={styles.mobileTopRow}>
-            <Pressable
-              style={styles.businessSwitcherBtn}
-              onPress={() => setBusinessPickerVisible(true)}
-              accessibilityRole="button"
-            >
-              <Text style={styles.businessSwitcherText} numberOfLines={1}>
-                {businessName}
-              </Text>
-              <Feather name="chevron-down" size={16} color="#FFFFFF" style={{ marginLeft: 6 }} />
-            </Pressable>
+            <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 10 }}>
+              <Image
+                source={require('../../assets/images/bilu-icon.png')}
+                style={{ width: 34, height: 34, marginRight: 8, borderRadius: 8 }}
+                resizeMode="contain"
+              />
+              <Pressable
+                style={styles.businessSwitcherBtn}
+                onPress={() => setBusinessPickerVisible(true)}
+                accessibilityRole="button"
+              >
+                <Text style={styles.businessSwitcherText} numberOfLines={1}>
+                  {businessName}
+                </Text>
+                <Feather name="chevron-down" size={16} color="#FFFFFF" style={{ marginLeft: 6 }} />
+              </Pressable>
+            </View>
 
             <Pressable
               style={styles.langBtnWhite}
@@ -312,7 +320,7 @@ export default function DashboardScreen() {
               onPress={() => router.push(tile.path as any)}
               accessibilityRole="button"
             >
-              <Feather name={tile.icon} size={24} color="#0F766E" />
+              <Feather name={tile.icon} size={24} color="#1D4ED8" />
               <Text style={styles.tileLabel}>{tile.label}</Text>
             </Pressable>
           ))}
@@ -357,7 +365,7 @@ export default function DashboardScreen() {
         <View style={styles.cashExpensesRow}>
           <Card style={styles.miniKpiCard}>
             <View style={styles.miniKpiTop}>
-              <Feather name="briefcase" size={15} color="#0F766E" />
+              <Feather name="briefcase" size={15} color="#1D4ED8" />
               <Text style={styles.miniKpiLabel}>Cash In-Hand</Text>
             </View>
             <Text style={styles.miniKpiVal}>₹ 14,500.00</Text>
@@ -575,7 +583,7 @@ const styles = StyleSheet.create({
     paddingBottom: 90,
   },
   mobileHeaderBlock: {
-    backgroundColor: '#0F766E',
+    backgroundColor: '#1D4ED8',
     marginHorizontal: -20,
     marginTop: -20,
     paddingTop: 24,
@@ -596,7 +604,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 14,
     minHeight: 44,
-    maxWidth: '75%',
+    flex: 1,
   },
   businessSwitcherText: {
     color: '#FFFFFF',
@@ -615,7 +623,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   langBtnWhiteText: {
-    color: '#0F766E',
+    color: '#1D4ED8',
     fontSize: 15,
     fontFamily: fonts.bold,
     fontWeight: '700',
@@ -708,7 +716,7 @@ const styles = StyleSheet.create({
   chartSub: {
     fontSize: 13,
     fontFamily: fonts.medium,
-    color: '#0F766E',
+    color: '#1D4ED8',
     marginTop: 2,
   },
   growthBadge: {
@@ -753,10 +761,10 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   barFillPeak: {
-    backgroundColor: '#0F766E',
+    backgroundColor: '#1D4ED8',
   },
   barFillCurrent: {
-    backgroundColor: '#14B8A6',
+    backgroundColor: '#7C3AED',
   },
   monthLabel: {
     fontSize: 12,
@@ -817,7 +825,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: fonts.semiBold,
     fontWeight: '600',
-    color: '#0F766E',
+    color: '#1D4ED8',
   },
   recentRowsList: {
     gap: 10,
@@ -960,7 +968,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: fonts.semiBold,
     fontWeight: '600',
-    color: '#0F766E',
+    color: '#1D4ED8',
   },
   desktopSplit: {
     flexDirection: 'row',
@@ -989,7 +997,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: fonts.semiBold,
     fontWeight: '600',
-    color: '#0F766E',
+    color: '#1D4ED8',
   },
   tableCard: {
     padding: 0,
@@ -1141,7 +1149,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   modalOptionActive: {
-    backgroundColor: '#F0FDFA',
+    backgroundColor: '#EFF6FF',
   },
   modalOptionText: {
     fontSize: 14,
@@ -1149,7 +1157,7 @@ const styles = StyleSheet.create({
     color: '#0F172A',
   },
   modalOptionTextActive: {
-    color: '#0F766E',
+    color: '#1D4ED8',
     fontFamily: fonts.semiBold,
     fontWeight: '600',
   },
@@ -1232,7 +1240,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 48,
     borderRadius: 12,
-    backgroundColor: '#0F766E',
+    backgroundColor: '#1D4ED8',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

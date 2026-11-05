@@ -73,7 +73,7 @@ def generate_invoice_pdf(invoice: Invoice, business: Business) -> bytes:
         parent=styles["Normal"],
         fontSize=18,
         fontName="Helvetica-Bold",
-        textColor=colors.HexColor("#0F766E"),
+        textColor=colors.HexColor("#1D4ED8"),
     )
     bold_style = ParagraphStyle("Bold", parent=styles["Normal"], fontName="Helvetica-Bold", fontSize=9)
     normal_style = ParagraphStyle("NormalText", parent=styles["Normal"], fontSize=9)
@@ -85,7 +85,7 @@ def generate_invoice_pdf(invoice: Invoice, business: Business) -> bytes:
     header_data = [
         [
             Paragraph(f"<b>{business.name}</b><br/>{business.address or ''}<br/>GSTIN: {business.gstin or 'N/A'}<br/>State: {business.state}", normal_style),
-            Paragraph(f"<font size=14 color='#0F766E'><b>TAX INVOICE</b></font><br/><b>Invoice No:</b> {invoice.invoice_no}<br/><b>Date:</b> {invoice.date}<br/><b>Type:</b> {invoice.type.upper()}", normal_style),
+            Paragraph(f"<font size=14 color='#1D4ED8'><b>TAX INVOICE</b></font><br/><b>Invoice No:</b> {invoice.invoice_no}<br/><b>Date:</b> {invoice.date}<br/><b>Type:</b> {invoice.type.upper()}", normal_style),
         ],
         [
             Paragraph(f"<b>Bill To:</b><br/>{party.name if party else 'Cash Customer'}<br/>Phone: {party.phone if party else '-'}<br/>GSTIN: {party.gstin if party and party.gstin else 'N/A'}<br/>State: {party.state if party else business.state}", normal_style),

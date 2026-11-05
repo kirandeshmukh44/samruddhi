@@ -462,7 +462,7 @@ const styles = StyleSheet.create({
     minHeight: 44,
     paddingHorizontal: 18,
     borderRadius: 10,
-    backgroundColor: '#0F766E',
+    backgroundColor: '#1D4ED8',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -531,8 +531,8 @@ const styles = StyleSheet.create({
     borderColor: '#CBD5E1',
   },
   filterPillActive: {
-    backgroundColor: '#0F766E',
-    borderColor: '#0F766E',
+    backgroundColor: '#1D4ED8',
+    borderColor: '#1D4ED8',
   },
   filterPillText: {
     fontSize: 13,
@@ -749,8 +749,8 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   partyChipSelected: {
-    backgroundColor: '#0F766E',
-    borderColor: '#0F766E',
+    backgroundColor: '#1D4ED8',
+    borderColor: '#1D4ED8',
   },
   partyChipText: {
     fontSize: 13,
@@ -786,8 +786,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   modeChipSelected: {
-    backgroundColor: '#0F766E',
-    borderColor: '#0F766E',
+    backgroundColor: '#1D4ED8',
+    borderColor: '#1D4ED8',
   },
   modeChipText: {
     fontSize: 11,

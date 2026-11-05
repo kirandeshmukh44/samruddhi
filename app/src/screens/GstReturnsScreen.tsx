@@ -162,7 +162,7 @@ export default function GstReturnsScreen() {
       gstin: currentBusiness?.gstin || '27ABCDE1234F1Z5',
       fp: '102026', // October 2026
       version: 'GSTR1_v2.0',
-      hash: 'hash-samruddhi-v1',
+      hash: 'hash-bilu-erp-v1',
       cur_gt: totalTaxable / 100,
       b2b: b2bInvoices.map((inv) => {
         const party = mockParties.find((p) => p.id === inv.party_id);
@@ -355,8 +355,8 @@ export default function GstReturnsScreen() {
         </Card>
 
         <Card style={[styles.kpiCard, styles.kpiCardHighlight]}>
-          <Text style={[styles.kpiLabel, { color: '#0F766E' }]}>NET PAYABLE</Text>
-          <Text style={[styles.kpiNumber, { color: '#0F766E' }]}>{formatMoney(netPayable)}</Text>
+          <Text style={[styles.kpiLabel, { color: '#1D4ED8' }]}>NET PAYABLE</Text>
+          <Text style={[styles.kpiNumber, { color: '#1D4ED8' }]}>{formatMoney(netPayable)}</Text>
         </Card>
       </View>
 
@@ -830,8 +830,8 @@ const styles = StyleSheet.create({
     borderColor: '#E2E8F0',
   },
   kpiCardHighlight: {
-    borderColor: '#0F766E',
-    backgroundColor: '#F0FDFA',
+    borderColor: '#1D4ED8',
+    backgroundColor: '#EFF6FF',
   },
   kpiLabel: {
     fontSize: 11,
@@ -994,7 +994,7 @@ const styles = StyleSheet.create({
   tdCellBadge: {
     fontSize: 11,
     fontFamily: fonts.bold,
-    color: '#0F766E',
+    color: '#1D4ED8',
   },
   tdCellNumber: {
     fontSize: 13,
@@ -1132,3 +1132,4 @@ const styles = StyleSheet.create({
     gap: 16,
   },
 });
+

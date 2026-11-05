@@ -12,6 +12,8 @@ export default function Root({ children }: { children: ReactNode }) {
         <meta charSet="utf-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <title>BiLU ERP – Everything Your Business Needs</title>
+        <meta name="description" content="BiLU ERP - Modern GST Billing, Inventory & Financial Management powered by Pravara Infotech" />
 
         {/*
           Disable body scrolling on web. This makes ScrollView components work closer to how they do on native.

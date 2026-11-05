@@ -1,20 +1,24 @@
 // app/src/theme.ts
-// Design tokens for Vyapar matching the exact specification.
+// Design tokens for BiLU ERP by Pravara Infotech matching the official brand identity.
 
 export const colors = {
-  primary: '#0F766E',
-  sidebar: '#0B3B38',
-  primaryDark: '#0B3B38',
-  accent: '#F59E0B',
-  bg: '#F4F6FA',
+  primary: '#1D4ED8', // BiLU Vibrant Royal Blue
+  primaryElectric: '#0284FE', // BiLU Electric Blue
+  primaryDark: '#0B132B', // BiLU Deep Navy
+  sidebar: '#0B132B', // BiLU Modern Dark Navy Sidebar
+  sidebarActive: '#1D4ED8',
+  secondary: '#7C3AED', // BiLU Royal Purple (from ERP badge & gradient)
+  accent: '#8B5CF6', // BiLU Violet
+  cyanSwoosh: '#0EA5E9', // BiLU Cyan Swoosh
+  bg: '#F8FAFC',
   card: '#FFFFFF',
   white: '#FFFFFF',
   border: '#E2E8F0',
   inputBorder: '#CBD5E1',
   text: '#0F172A',
-  muted: '#475569',
-  success: '#047857',
-  danger: '#B91C1C',
+  muted: '#64748B',
+  success: '#16A34A',
+  danger: '#DC2626',
 };
 
 export const spacing = {

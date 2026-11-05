@@ -137,7 +137,7 @@ export default function SettingsScreen() {
             setBizModalOpen(true);
           }}
         >
-          <Feather name="edit-3" size={18} color="#0F766E" />
+          <Feather name="edit-3" size={18} color="#1D4ED8" />
         </Pressable>
       </Card>
 
@@ -148,8 +148,8 @@ export default function SettingsScreen() {
           style={styles.menuItem}
           onPress={() => router.push('/reports' as any)}
         >
-          <View style={[styles.iconWrap, { backgroundColor: '#F0FDFA' }]}>
-            <Feather name="bar-chart-2" size={18} color="#0F766E" />
+          <View style={[styles.iconWrap, { backgroundColor: '#EFF6FF' }]}>
+            <Feather name="bar-chart-2" size={18} color="#1D4ED8" />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.menuTitle}>Reports & Ledger</Text>
@@ -269,7 +269,7 @@ export default function SettingsScreen() {
           <Switch
             value={cloudSyncActive}
             onValueChange={setCloudSyncActive}
-            trackColor={{ false: '#CBD5E1', true: '#0F766E' }}
+            trackColor={{ false: '#CBD5E1', true: '#1D4ED8' }}
           />
         </View>
       </Card>
@@ -289,7 +289,7 @@ export default function SettingsScreen() {
                 {l.label}
               </Text>
               {isSelected ? (
-                <Feather name="check-circle" size={18} color="#0F766E" />
+                <Feather name="check-circle" size={18} color="#1D4ED8" />
               ) : (
                 <Feather name="circle" size={18} color="#CBD5E1" />
               )}
@@ -309,7 +309,7 @@ export default function SettingsScreen() {
           <Switch
             value={enableGst}
             onValueChange={setEnableGst}
-            trackColor={{ false: '#CBD5E1', true: '#0F766E' }}
+            trackColor={{ false: '#CBD5E1', true: '#1D4ED8' }}
           />
         </View>
 
@@ -323,7 +323,7 @@ export default function SettingsScreen() {
           <Switch
             value={autoRoundOff}
             onValueChange={setAutoRoundOff}
-            trackColor={{ false: '#CBD5E1', true: '#0F766E' }}
+            trackColor={{ false: '#CBD5E1', true: '#1D4ED8' }}
           />
         </View>
 
@@ -337,7 +337,7 @@ export default function SettingsScreen() {
           <Switch
             value={smsAlerts}
             onValueChange={setSmsAlerts}
-            trackColor={{ false: '#CBD5E1', true: '#0F766E' }}
+            trackColor={{ false: '#CBD5E1', true: '#1D4ED8' }}
           />
         </View>
       </Card>
@@ -351,10 +351,10 @@ export default function SettingsScreen() {
         }}
       >
         <Feather name="log-out" size={18} color="#B91C1C" style={{ marginRight: 8 }} />
-        <Text style={styles.signOutText}>Logout from Samruddhi</Text>
+        <Text style={styles.signOutText}>Logout from BiLU ERP</Text>
       </Pressable>
 
-      <Text style={styles.versionText}>SAMRUDDHI – समृद्धी v1.0.0 · Developed by Pravara Infotech</Text>
+      <Text style={styles.versionText}>BiLU ERP v1.0.0 · Powered by Pravara Infotech Pvt. Ltd.</Text>
 
       {/* Add / Edit Business Profile Modal */}
       {/* Business Profile Modal */}
@@ -483,7 +483,7 @@ export default function SettingsScreen() {
                   <Text style={styles.bizOptionSub}>{b.gstin || 'Unregistered'} · {b.state || 'Maharashtra'}</Text>
                 </View>
                 {currentBusiness?.id === b.id && (
-                  <Feather name="check" size={18} color="#0F766E" />
+                  <Feather name="check" size={18} color="#1D4ED8" />
                 )}
               </Pressable>
             ))}
@@ -499,7 +499,7 @@ export default function SettingsScreen() {
                 setBizModalOpen(true);
               }}
             >
-              <Feather name="plus" size={16} color="#0F766E" style={{ marginRight: 6 }} />
+              <Feather name="plus" size={16} color="#1D4ED8" style={{ marginRight: 6 }} />
               <Text style={styles.addNewBizText}>+ Add New Business</Text>
             </Pressable>
           </View>
@@ -683,7 +683,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#0F766E',
+    backgroundColor: '#1D4ED8',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -703,15 +703,15 @@ const styles = StyleSheet.create({
     color: '#0F172A',
   },
   switchPill: {
-    backgroundColor: '#F0FDFA',
+    backgroundColor: '#EFF6FF',
     borderWidth: 1,
-    borderColor: '#0F766E',
+    borderColor: '#1D4ED8',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 6,
   },
   switchPillText: {
-    color: '#0F766E',
+    color: '#1D4ED8',
     fontSize: 11,
     fontFamily: fonts.semiBold,
     fontWeight: '600',
@@ -719,7 +719,7 @@ const styles = StyleSheet.create({
   gstinText: {
     fontSize: 12,
     fontFamily: fonts.medium,
-    color: '#0F766E',
+    color: '#1D4ED8',
     marginTop: 2,
   },
   phoneText: {
@@ -797,7 +797,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   langRowSelected: {
-    backgroundColor: '#F0FDFA',
+    backgroundColor: '#EFF6FF',
   },
   langLabel: {
     fontSize: 15,
@@ -805,7 +805,7 @@ const styles = StyleSheet.create({
     color: '#0F172A',
   },
   langLabelSelected: {
-    color: '#0F766E',
+    color: '#1D4ED8',
     fontFamily: fonts.bold,
     fontWeight: '700',
   },
@@ -919,7 +919,7 @@ const styles = StyleSheet.create({
     height: 44,
     paddingHorizontal: 20,
     borderRadius: 10,
-    backgroundColor: '#0F766E',
+    backgroundColor: '#1D4ED8',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -942,7 +942,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#F1F5F9',
   },
   bizOptionActive: {
-    backgroundColor: '#F0FDFA',
+    backgroundColor: '#EFF6FF',
   },
   bizOptionName: {
     fontSize: 15,
@@ -951,7 +951,7 @@ const styles = StyleSheet.create({
     color: '#0F172A',
   },
   bizOptionNameActive: {
-    color: '#0F766E',
+    color: '#1D4ED8',
   },
   bizOptionSub: {
     fontSize: 12,
@@ -962,7 +962,7 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#0F766E',
+    borderColor: '#1D4ED8',
     borderStyle: 'dashed',
     flexDirection: 'row',
     alignItems: 'center',
@@ -970,7 +970,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   addNewBizText: {
-    color: '#0F766E',
+    color: '#1D4ED8',
     fontSize: 14,
     fontFamily: fonts.semiBold,
     fontWeight: '600',
@@ -1035,7 +1035,7 @@ const styles = StyleSheet.create({
   saveExpenseBtn: {
     height: 44,
     borderRadius: 10,
-    backgroundColor: '#0F766E',
+    backgroundColor: '#1D4ED8',
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 12,
@@ -1096,7 +1096,7 @@ const styles = StyleSheet.create({
   closeFullBtn: {
     height: 44,
     borderRadius: 10,
-    backgroundColor: '#0F766E',
+    backgroundColor: '#1D4ED8',
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 16,

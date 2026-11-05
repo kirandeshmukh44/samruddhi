@@ -9,6 +9,7 @@ import {
   TextInput,
   Modal,
   Platform,
+  Image,
   useWindowDimensions,
 } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
@@ -105,6 +106,24 @@ export default function Shell({ children }: { children: React.ReactNode }) {
       <View style={styles.wideRoot}>
         {/* Left Sidebar */}
         <View style={styles.sidebar}>
+          {/* BiLU ERP Brand Logo Header (from User Images) */}
+          <View style={styles.sidebarBrandHeader}>
+            <Image
+              source={require('../../assets/images/bilu-icon.png')}
+              style={styles.sidebarLogoImg}
+              resizeMode="contain"
+            />
+            <View style={{ marginLeft: 10 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Text style={styles.sidebarBrandTitle}>BiLU</Text>
+                <View style={styles.erpBadgeSidebar}>
+                  <Text style={styles.erpBadgeSidebarText}>ERP</Text>
+                </View>
+              </View>
+              <Text style={styles.sidebarBrandSubtitle}>Pravara Infotech</Text>
+            </View>
+          </View>
+
           {/* Business switcher button */}
           <Pressable
             style={styles.businessSwitcher}
@@ -367,13 +386,52 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg,
   },
   sidebar: {
-    width: 240,
-    backgroundColor: colors.sidebar, // #0B3B38
-    paddingTop: 20,
+    width: 250,
+    backgroundColor: colors.sidebar, // #0B132B
+    paddingTop: 16,
     paddingBottom: 20,
     paddingHorizontal: 12,
     flexDirection: 'column',
     justifyContent: 'space-between',
+  },
+  sidebarBrandHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+    marginBottom: 16,
+  },
+  sidebarLogoImg: {
+    width: 36,
+    height: 36,
+    borderRadius: 8,
+  },
+  sidebarBrandTitle: {
+    fontSize: 20,
+    fontFamily: fonts.bold,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    letterSpacing: 0.5,
+  },
+  erpBadgeSidebar: {
+    backgroundColor: '#7C3AED', // BiLU ERP Royal Purple
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+    marginLeft: 6,
+  },
+  erpBadgeSidebarText: {
+    color: '#FFFFFF',
+    fontFamily: fonts.bold,
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  sidebarBrandSubtitle: {
+    fontSize: 11,
+    color: '#94A3B8',
+    marginTop: 1,
   },
   businessSwitcher: {
     minHeight: 44,
@@ -405,7 +463,7 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   sidebarItemActive: {
-    backgroundColor: colors.primary, // #0F766E
+    backgroundColor: '#1D4ED8', // BiLU Royal Blue
   },
   sidebarLabel: {
     fontSize: fontSizes.md,

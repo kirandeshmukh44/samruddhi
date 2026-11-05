@@ -22,8 +22,8 @@ from app.routers import (
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    title="SAMRUDDHI API – समृद्धी",
-    description="Secure GST billing and business management backend for Indian small businesses by Pravara Infotech",
+    title="BiLU ERP API",
+    description="Secure GST billing, accounting, and ERP backend for Indian businesses by Pravara Infotech Pvt. Ltd.",
     version="1.0.0",
 )
 
@@ -92,8 +92,9 @@ app.include_router(admin.router)
 @app.get("/")
 def root():
     return {
-        "app": "SAMRUDDHI API – समृद्धी",
-        "tagline": "व्यवसायाची प्रगती, आता अधिक सोपी! by Pravara Infotech",
+        "app": "BiLU ERP API",
+        "tagline": "Everything Your Business Needs",
+        "powered_by": "Pravara Infotech Pvt. Ltd.",
         "version": "1.0.0",
         "docs": "/docs",
         "health": "/health",

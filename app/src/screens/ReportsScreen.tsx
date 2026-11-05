@@ -133,7 +133,7 @@ export default function ReportsScreen() {
       <View style={[styles.kpiContainer, isDesktop ? styles.kpiRowDesktop : styles.kpiGridMobile]}>
         <Card style={styles.kpiCard}>
           <Text style={styles.kpiLabel}>Total sale</Text>
-          <Text style={[styles.kpiValue, { color: '#0F766E' }]}>
+          <Text style={[styles.kpiValue, { color: '#1D4ED8' }]}>
             {formatMoney(totalSalesPaise)}
           </Text>
         </Card>
@@ -174,7 +174,7 @@ export default function ReportsScreen() {
             <Card style={styles.reportCard}>
               <View style={styles.reportCardTop}>
                 <View style={styles.reportIconBox}>
-                  <Feather name={report.icon} size={20} color="#0F766E" />
+                  <Feather name={report.icon} size={20} color="#1D4ED8" />
                 </View>
                 <Feather name="arrow-up-right" size={18} color="#94A3B8" />
               </View>
@@ -218,7 +218,7 @@ export default function ReportsScreen() {
                 >
                   {opt}
                 </Text>
-                {period === opt && <Feather name="check" size={18} color="#0F766E" />}
+                {period === opt && <Feather name="check" size={18} color="#1D4ED8" />}
               </Pressable>
             ))}
           </View>
@@ -248,7 +248,7 @@ export default function ReportsScreen() {
                   style={styles.exportCsvBtn}
                   onPress={() => activeReport && handleExportCsv(activeReport.title)}
                 >
-                  <Feather name="download" size={14} color="#0F766E" style={{ marginRight: 4 }} />
+                  <Feather name="download" size={14} color="#1D4ED8" style={{ marginRight: 4 }} />
                   <Text style={styles.exportCsvText}>Export CSV</Text>
                 </Pressable>
 
@@ -512,7 +512,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   modalOptionActive: {
-    backgroundColor: '#F0FDFA',
+    backgroundColor: '#EFF6FF',
   },
   modalOptionText: {
     fontSize: 14,
@@ -520,7 +520,7 @@ const styles = StyleSheet.create({
     color: '#0F172A',
   },
   modalOptionTextActive: {
-    color: '#0F766E',
+    color: '#1D4ED8',
     fontFamily: fonts.semiBold,
     fontWeight: '600',
   },
@@ -558,14 +558,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#0F766E',
-    backgroundColor: '#F0FDFA',
+    borderColor: '#1D4ED8',
+    backgroundColor: '#EFF6FF',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
   },
   exportCsvText: {
-    color: '#0F766E',
+    color: '#1D4ED8',
     fontSize: 13,
     fontFamily: fonts.semiBold,
     fontWeight: '600',
@@ -653,7 +653,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: fonts.bold,
     fontWeight: '700',
-    color: '#0F766E',
+    color: '#1D4ED8',
   },
   mobileReportBtmRow: {
     flexDirection: 'row',

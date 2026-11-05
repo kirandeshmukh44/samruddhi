@@ -9,6 +9,7 @@ import {
   useWindowDimensions,
   ScrollView,
   Modal,
+  Image,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -120,12 +121,19 @@ export default function LoginScreen() {
       {/* Top Header: Brand Logo + Language Pill */}
       <View style={styles.topHeader}>
         <View style={styles.brandRow}>
-          <View style={styles.mintBadge}>
-            <Text style={styles.mintBadgeText}>स</Text>
-          </View>
-          <View style={{ marginLeft: 8 }}>
-            <Text style={styles.brandNameMr}>समृद्धी</Text>
-            <Text style={styles.brandNameEn}>SAMRUDDHI</Text>
+          <Image
+            source={require('../../assets/images/bilu-icon.png')}
+            style={styles.brandLogoImg}
+            resizeMode="contain"
+          />
+          <View style={{ marginLeft: 10 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={styles.brandNameBiLU}>BiLU</Text>
+              <View style={styles.erpBadgePill}>
+                <Text style={styles.erpBadgePillText}>ERP</Text>
+              </View>
+            </View>
+            <Text style={styles.brandTagline}>Everything Your Business Needs</Text>
           </View>
         </View>
 
@@ -172,9 +180,9 @@ export default function LoginScreen() {
                   <Text style={[styles.kpiBoxVal, { color: '#047857' }]}>₹ 12,000</Text>
                   <Text style={styles.kpiBoxTrend}>↑ +18.4%</Text>
                 </View>
-                <View style={[styles.kpiBox, { backgroundColor: '#F0FDFA' }]}>
+                <View style={[styles.kpiBox, { backgroundColor: '#EFF6FF' }]}>
                   <Text style={styles.kpiBoxLabel}>You'll Get</Text>
-                  <Text style={[styles.kpiBoxVal, { color: '#0F766E' }]}>₹ 12,000</Text>
+                  <Text style={[styles.kpiBoxVal, { color: '#1D4ED8' }]}>₹ 12,000</Text>
                   <Text style={styles.kpiBoxTrend}>To Collect</Text>
                 </View>
                 <View style={[styles.kpiBox, { backgroundColor: '#FEF3C7' }]}>
@@ -196,7 +204,7 @@ export default function LoginScreen() {
             <View style={styles.visualCard}>
               <View style={styles.itemMockRow}>
                 <View style={styles.itemIconWrap}>
-                  <Feather name="box" size={20} color="#0F766E" />
+                  <Feather name="box" size={20} color="#1D4ED8" />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.itemMockName}>Basmati Rice 25kg</Text>
@@ -209,7 +217,7 @@ export default function LoginScreen() {
 
               <View style={styles.itemMockRow}>
                 <View style={styles.itemIconWrap}>
-                  <Feather name="box" size={20} color="#0F766E" />
+                  <Feather name="box" size={20} color="#1D4ED8" />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.itemMockName}>Refined Oil 1L</Text>
@@ -222,7 +230,7 @@ export default function LoginScreen() {
 
               <View style={styles.itemMockRow}>
                 <View style={styles.itemIconWrap}>
-                  <Feather name="box" size={20} color="#0F766E" />
+                  <Feather name="box" size={20} color="#1D4ED8" />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.itemMockName}>Wheat Flour 10kg</Text>
@@ -343,7 +351,7 @@ export default function LoginScreen() {
           }}
           accessibilityRole="button"
         >
-          <Text style={styles.useFreeBtnText}>Use Samruddhi For Free</Text>
+          <Text style={styles.useFreeBtnText}>Use BiLU ERP For Free</Text>
           <Feather name="arrow-right" size={18} color="#FFFFFF" style={{ marginLeft: 8 }} />
         </Pressable>
 
@@ -372,15 +380,22 @@ export default function LoginScreen() {
             {/* Sheet Handle */}
             <View style={styles.sheetHandle} />
 
-            {/* Header: Logo + "Login to Samruddhi" */}
+            {/* Header: Logo + "Login to BiLU ERP" */}
             <View style={styles.sheetHeader}>
               <View style={styles.sheetBrandRow}>
-                <View style={styles.sheetLogoBadge}>
-                  <Text style={styles.sheetLogoBadgeText}>स</Text>
-                </View>
-                <View>
-                  <Text style={styles.sheetTitle}>Login to Samruddhi</Text>
-                  <Text style={styles.sheetSub}>व्यवसायाची प्रगती, आता अधिक सोपी!</Text>
+                <Image
+                  source={require('../../assets/images/bilu-icon.png')}
+                  style={{ width: 40, height: 40 }}
+                  resizeMode="contain"
+                />
+                <View style={{ marginLeft: 10 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Text style={styles.sheetTitle}>Login to BiLU</Text>
+                    <View style={styles.erpBadgePillMini}>
+                      <Text style={styles.erpBadgePillTextMini}>ERP</Text>
+                    </View>
+                  </View>
+                  <Text style={styles.sheetSub}>Powered by Pravara Infotech Pvt. Ltd.</Text>
                 </View>
               </View>
 
@@ -400,7 +415,7 @@ export default function LoginScreen() {
                     style={styles.demoFillChip}
                     onPress={handleDemoFill}
                   >
-                    <Feather name="zap" size={12} color="#0F766E" />
+                    <Feather name="zap" size={12} color="#1D4ED8" />
                     <Text style={styles.demoFillChipText}>Use Demo: 9876543210</Text>
                   </Pressable>
                 </View>
@@ -552,33 +567,49 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  mintBadge: {
-    width: 38,
-    height: 38,
-    borderRadius: 10,
-    backgroundColor: '#CCFBF1',
-    alignItems: 'center',
-    justifyContent: 'center',
+  brandLogoImg: {
+    width: 44,
+    height: 44,
+    borderRadius: 8,
   },
-  mintBadgeText: {
-    fontSize: 20,
+  brandNameBiLU: {
+    fontSize: 22,
     fontFamily: fonts.bold,
-    fontWeight: '800',
-    color: '#0F766E',
-  },
-  brandNameMr: {
-    fontSize: 16,
-    fontFamily: fonts.bold,
-    fontWeight: '700',
+    fontWeight: '900',
     color: '#0F172A',
-    lineHeight: 18,
+    letterSpacing: 0.5,
   },
-  brandNameEn: {
+  erpBadgePill: {
+    backgroundColor: '#7C3AED', // BiLU ERP Royal Purple
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+    marginLeft: 6,
+  },
+  erpBadgePillText: {
+    color: '#FFFFFF',
+    fontFamily: fonts.bold,
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  brandTagline: {
     fontSize: 11,
-    fontFamily: fonts.semiBold,
-    fontWeight: '600',
-    color: '#0F766E',
-    letterSpacing: 0.8,
+    fontFamily: fonts.medium,
+    color: '#1D4ED8',
+    letterSpacing: 0.3,
+  },
+  erpBadgePillMini: {
+    backgroundColor: '#7C3AED',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 5,
+    marginLeft: 6,
+  },
+  erpBadgePillTextMini: {
+    color: '#FFFFFF',
+    fontFamily: fonts.bold,
+    fontSize: 10,
+    fontWeight: '700',
   },
   langPillsWrap: {
     flexDirection: 'row',
@@ -593,7 +624,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   langPillActive: {
-    backgroundColor: '#0F766E',
+    backgroundColor: '#1D4ED8',
   },
   langPillText: {
     fontSize: 12,
@@ -778,7 +809,7 @@ const styles = StyleSheet.create({
   invoiceMockAmt: {
     fontSize: 13,
     fontFamily: fonts.bold,
-    color: '#0F766E',
+    color: '#1D4ED8',
   },
   invoiceMockGst: {
     fontSize: 10,
@@ -874,7 +905,7 @@ const styles = StyleSheet.create({
   },
   dotActive: {
     width: 24,
-    backgroundColor: '#0F766E',
+    backgroundColor: '#1D4ED8',
   },
   dotInactive: {
     width: 8,
@@ -895,13 +926,13 @@ const styles = StyleSheet.create({
     maxWidth: 420,
     height: 52,
     borderRadius: 14,
-    backgroundColor: '#0F766E',
+    backgroundColor: '#1D4ED8',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#0F766E',
+    shadowColor: '#1D4ED8',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.25,
     shadowRadius: 8,
     elevation: 4,
   },
@@ -923,7 +954,7 @@ const styles = StyleSheet.create({
   bottomLinkTeal: {
     fontSize: 13,
     fontFamily: fonts.bold,
-    color: '#0F766E',
+    color: '#1D4ED8',
   },
 
   // Bottom Sheet Modal
@@ -961,7 +992,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 10,
-    backgroundColor: '#CCFBF1',
+    backgroundColor: '#EFF6FF',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 10,
@@ -969,7 +1000,7 @@ const styles = StyleSheet.create({
   sheetLogoBadgeText: {
     fontSize: 18,
     fontFamily: fonts.bold,
-    color: '#0F766E',
+    color: '#1D4ED8',
     fontWeight: '800',
   },
   sheetTitle: {
@@ -1004,31 +1035,31 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
-    backgroundColor: '#F0FDFA',
+    backgroundColor: '#EFF6FF',
     borderWidth: 1,
-    borderColor: '#99F6E4',
+    borderColor: '#BFDBFE',
   },
   demoFillChipText: {
     fontSize: 11,
     fontFamily: fonts.semiBold,
     fontWeight: '600',
-    color: '#0F766E',
+    color: '#1D4ED8',
   },
   otpHintText: {
     fontSize: 12,
     fontFamily: fonts.medium,
-    color: '#0F766E',
+    color: '#1D4ED8',
   },
   changePhoneText: {
     fontSize: 13,
     fontFamily: fonts.medium,
-    color: '#0F766E',
+    color: '#1D4ED8',
     textDecorationLine: 'underline',
   },
   continueBtn: {
     height: 50,
     borderRadius: 12,
-    backgroundColor: '#0F766E',
+    backgroundColor: '#1D4ED8',
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 4,
@@ -1089,7 +1120,7 @@ const styles = StyleSheet.create({
   },
   switchModeText: {
     fontSize: 13,
-    color: '#0F766E',
+    color: '#1D4ED8',
     fontFamily: fonts.medium,
   },
 });

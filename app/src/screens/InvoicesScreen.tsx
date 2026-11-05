@@ -301,7 +301,7 @@ export default function InvoicesScreen({ type }: { type: 'sale' | 'purchase' }) 
             onPress={() => handleSaveInvoice(true)}
             accessibilityRole="button"
           >
-            <Feather name="download" size={15} color="#0F766E" style={{ marginRight: 5 }} />
+            <Feather name="download" size={15} color="#1D4ED8" style={{ marginRight: 5 }} />
             <Text style={styles.outlinedActionBtnText}>Save & Download</Text>
           </Pressable>
 
@@ -379,7 +379,7 @@ export default function InvoicesScreen({ type }: { type: 'sale' | 'purchase' }) 
             </View>
 
             <View style={styles.categoryTipBox}>
-              <Feather name="info" size={13} color="#0F766E" style={{ marginRight: 6 }} />
+              <Feather name="info" size={13} color="#1D4ED8" style={{ marginRight: 6 }} />
               <Text style={styles.categoryTipText}>
                 {SUPPLY_CATEGORIES.find((c) => c.key === supplyCategory)?.tip}
               </Text>
@@ -480,7 +480,7 @@ export default function InvoicesScreen({ type }: { type: 'sale' | 'purchase' }) 
                         >
                           {item.name}
                         </Text>
-                        <Feather name="chevron-down" size={16} color="#0F766E" />
+                        <Feather name="chevron-down" size={16} color="#1D4ED8" />
                       </Pressable>
 
                       <Pressable
@@ -639,7 +639,7 @@ export default function InvoicesScreen({ type }: { type: 'sale' | 'purchase' }) 
             onPress={addItemRow}
             accessibilityRole="button"
           >
-            <Feather name="plus" size={16} color="#0F766E" style={{ marginRight: 6 }} />
+            <Feather name="plus" size={16} color="#1D4ED8" style={{ marginRight: 6 }} />
             <Text style={styles.addItemRowBtnText}>+ Add item row</Text>
           </Pressable>
         </Card>
@@ -837,7 +837,7 @@ export default function InvoicesScreen({ type }: { type: 'sale' | 'purchase' }) 
                     </Text>
                   </View>
                   {selectedPartyId === party.id && (
-                    <Feather name="check" size={18} color="#0F766E" />
+                    <Feather name="check" size={18} color="#1D4ED8" />
                   )}
                 </Pressable>
               ))}
@@ -948,7 +948,7 @@ export default function InvoicesScreen({ type }: { type: 'sale' | 'purchase' }) 
                   {mode}
                 </Text>
                 {paymentMode === mode && (
-                  <Feather name="check" size={18} color="#0F766E" />
+                  <Feather name="check" size={18} color="#1D4ED8" />
                 )}
               </Pressable>
             ))}
@@ -1151,7 +1151,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   categoryPillSelected: {
-    backgroundColor: '#0F766E',
+    backgroundColor: '#1D4ED8',
   },
   categoryPillText: {
     fontSize: 12,
@@ -1168,13 +1168,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 6,
     paddingHorizontal: 10,
-    backgroundColor: '#F0FDFA',
+    backgroundColor: '#EFF6FF',
     borderRadius: 6,
   },
   categoryTipText: {
     fontSize: 12,
     fontFamily: fonts.medium,
-    color: '#0F766E',
+    color: '#1D4ED8',
   },
 
   // Billed To Section
@@ -1214,14 +1214,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#0F766E',
+    borderColor: '#1D4ED8',
     backgroundColor: '#FFFFFF',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
   },
   outlinedActionBtnText: {
-    color: '#0F766E',
+    color: '#1D4ED8',
     fontSize: 13,
     fontFamily: fonts.semiBold,
     fontWeight: '600',
@@ -1231,7 +1231,7 @@ const styles = StyleSheet.create({
     minHeight: 42,
     paddingHorizontal: 16,
     borderRadius: 10,
-    backgroundColor: '#0F766E',
+    backgroundColor: '#1D4ED8',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1475,7 +1475,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: fonts.bold,
     fontWeight: '700',
-    color: '#0F766E',
+    color: '#1D4ED8',
     marginTop: 6,
   },
 
@@ -1483,14 +1483,14 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#0F766E',
+    borderColor: '#1D4ED8',
     borderStyle: 'dashed',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
   },
   addItemRowBtnText: {
-    color: '#0F766E',
+    color: '#1D4ED8',
     fontSize: 14,
     fontFamily: fonts.semiBold,
     fontWeight: '600',
@@ -1554,7 +1554,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: fonts.bold,
     fontWeight: '700',
-    color: '#0F766E',
+    color: '#1D4ED8',
   },
   summaryInputGroup: {
     marginTop: 12,
@@ -1622,7 +1622,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#F1F5F9',
   },
   modalOptionActive: {
-    backgroundColor: '#F0FDFA',
+    backgroundColor: '#EFF6FF',
   },
   modalOptionText: {
     fontSize: 14,
@@ -1631,7 +1631,7 @@ const styles = StyleSheet.create({
     color: '#0F172A',
   },
   modalOptionTextActive: {
-    color: '#0F766E',
+    color: '#1D4ED8',
   },
   modalOptionSub: {
     fontSize: 12,
@@ -1643,7 +1643,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: fonts.bold,
     fontWeight: '700',
-    color: '#0F766E',
+    color: '#1D4ED8',
   },
 
   // Invoice Saved Modal
@@ -1686,7 +1686,7 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontFamily: fonts.bold,
     fontWeight: '700',
-    color: '#0F766E',
+    color: '#1D4ED8',
     marginVertical: 14,
   },
   modalActionButtons: {
@@ -1713,7 +1713,7 @@ const styles = StyleSheet.create({
   modalDoneBtn: {
     height: 44,
     borderRadius: 10,
-    backgroundColor: '#0F766E',
+    backgroundColor: '#1D4ED8',
     alignItems: 'center',
     justifyContent: 'center',
   },

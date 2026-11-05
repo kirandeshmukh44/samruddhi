@@ -570,7 +570,7 @@ const styles = StyleSheet.create({
     minHeight: 44,
     paddingHorizontal: 16,
     borderRadius: 10,
-    backgroundColor: '#0F766E',
+    backgroundColor: '#1D4ED8',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -617,7 +617,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   pillChipActive: {
-    backgroundColor: '#0F766E',
+    backgroundColor: '#1D4ED8',
   },
   pillChipOutlined: {
     backgroundColor: '#FFFFFF',
@@ -862,7 +862,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: fonts.bold,
     fontWeight: '700',
-    color: '#0F766E',
+    color: '#1D4ED8',
     marginTop: 4,
   },
   priceRow: {
@@ -883,7 +883,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: fonts.bold,
     fontWeight: '700',
-    color: '#0F766E',
+    color: '#1D4ED8',
   },
   purchasePriceVal: {
     fontSize: 15,
@@ -925,8 +925,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   adjustTypeBtnActive: {
-    backgroundColor: '#F0FDFA',
-    borderColor: '#0F766E',
+    backgroundColor: '#EFF6FF',
+    borderColor: '#1D4ED8',
   },
   adjustTypeText: {
     fontSize: 13,
@@ -934,7 +934,7 @@ const styles = StyleSheet.create({
     color: '#64748B',
   },
   adjustTypeTextActive: {
-    color: '#0F766E',
+    color: '#1D4ED8',
     fontFamily: fonts.bold,
     fontWeight: '700',
   },
@@ -956,7 +956,7 @@ const styles = StyleSheet.create({
     height: 44,
     paddingHorizontal: 16,
     borderRadius: 10,
-    backgroundColor: '#0F766E',
+    backgroundColor: '#1D4ED8',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1039,7 +1039,7 @@ const styles = StyleSheet.create({
     height: 44,
     paddingHorizontal: 20,
     borderRadius: 10,
-    backgroundColor: '#0F766E',
+    backgroundColor: '#1D4ED8',
     alignItems: 'center',
     justifyContent: 'center',
   },
