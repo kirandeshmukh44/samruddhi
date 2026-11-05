@@ -1,5 +1,5 @@
 // app/src/types.ts
-// Shared TypeScript types for Vyapar.
+// Shared TypeScript types for BiLU ERP by Pravara Infotech.
 
 export type UserRole = 'admin' | 'owner';
 export type UserPlan = 'free' | 'premium';

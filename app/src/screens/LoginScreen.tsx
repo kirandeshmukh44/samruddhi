@@ -174,7 +174,7 @@ export default function LoginScreen() {
         {/* Animated Visual Card for current active slide */}
         <View style={styles.visualCardArea}>
           {activeSlide === 0 && (
-            /* Slide 1 Visual: Dashboard Mockup (Matching Vyapar Screenshot 2) */
+            /* Slide 1 Visual: Dashboard Mockup (BiLU ERP Interactive Showcase) */
             <View style={styles.visualCard}>
               <View style={styles.miniCardHeader}>
                 <Text style={styles.miniCardTitle}>Dashboard Preview</Text>
@@ -209,7 +209,7 @@ export default function LoginScreen() {
           )}
 
           {activeSlide === 1 && (
-            /* Slide 2 Visual: Items & Stock Mockup (Matching Vyapar Screenshot 3) */
+            /* Slide 2 Visual: Items & Stock Mockup (BiLU ERP Interactive Showcase) */
             <View style={styles.visualCard}>
               <View style={styles.itemMockRow}>
                 <View style={styles.itemIconWrap}>
@@ -253,7 +253,7 @@ export default function LoginScreen() {
           )}
 
           {activeSlide === 2 && (
-            /* Slide 3 Visual: GST Invoice & WhatsApp Sharing (Matching Vyapar Screenshot 4) */
+            /* Slide 3 Visual: GST Invoice & WhatsApp Sharing (BiLU ERP Interactive Showcase) */
             <View style={styles.visualCard}>
               <View style={styles.waShareBanner}>
                 <Feather name="share-2" size={16} color="#047857" style={{ marginRight: 6 }} />
@@ -279,7 +279,7 @@ export default function LoginScreen() {
           )}
 
           {activeSlide === 3 && (
-            /* Slide 4 Visual: Payment Reminders (Matching Vyapar Screenshot 5) */
+            /* Slide 4 Visual: Payment Reminders (BiLU ERP Interactive Showcase) */
             <View style={styles.visualCard}>
               <View style={styles.reminderMockRow}>
                 <View style={styles.avatarMock}>
@@ -347,7 +347,7 @@ export default function LoginScreen() {
         </View>
       </ScrollView>
 
-      {/* Sticky Bottom Actions (Vyapar Style) */}
+      {/* Sticky Bottom Actions */}
       <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 16) }]}>
         <Pressable
           style={({ pressed }) => [
@@ -377,7 +377,7 @@ export default function LoginScreen() {
         </View>
       </View>
 
-      {/* Modern 1-Tap Login & Quick Access Bottom Sheet Modal (Vyapar Parity) */}
+      {/* Modern 1-Tap Login & Quick Access Bottom Sheet Modal */}
       <Modal
         visible={loginModalOpen}
         transparent

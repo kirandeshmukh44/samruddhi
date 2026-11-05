@@ -39,7 +39,7 @@ export default function SettingsScreen() {
   // Switch Business Modal
   const [switchModalOpen, setSwitchModalOpen] = useState(false);
 
-  // Expenses State (Vyapar Feature Parity)
+  // Expenses State (BiLU ERP Feature)
   const [expenseModalOpen, setExpenseModalOpen] = useState(false);
   const [expenses, setExpenses] = useState([
     { id: 'exp-1', category: 'Shop Rent', amount: 15000, date: '01 Nov', note: 'Monthly shop lease' },
@@ -51,7 +51,7 @@ export default function SettingsScreen() {
   const [newExpAmount, setNewExpAmount] = useState('');
   const [newExpNote, setNewExpNote] = useState('');
 
-  // Cash & Bank State (Vyapar Feature Parity)
+  // Cash & Bank State (BiLU ERP Feature)
   const [cashBankModalOpen, setCashBankModalOpen] = useState(false);
   const [cashInHand, setCashInHand] = useState(14500);
   const [bankAccounts, setBankAccounts] = useState([
@@ -59,7 +59,7 @@ export default function SettingsScreen() {
     { id: 'b-2', bankName: 'State Bank of India', accountNo: '...9012', balance: 18350 },
   ]);
 
-  // Backup & Restore State (Vyapar Feature Parity)
+  // Backup & Restore State (BiLU ERP Feature)
   const [backupSuccessModal, setBackupSuccessModal] = useState(false);
   const [cloudSyncActive, setCloudSyncActive] = useState(true);
 
@@ -192,7 +192,7 @@ export default function SettingsScreen() {
 
         <View style={styles.divider} />
 
-        {/* Expenses Tracker (Vyapar Parity) */}
+        {/* Expenses Tracker */}
         <Pressable
           style={styles.menuItem}
           onPress={() => setExpenseModalOpen(true)}
@@ -208,7 +208,7 @@ export default function SettingsScreen() {
         </Pressable>
       </Card>
 
-      {/* Cash & Bank Management Section (Real Vyapar Parity) */}
+      {/* Cash & Bank Management Section */}
       <Text style={styles.sectionHeader}>Cash & Bank</Text>
       <Card style={styles.menuCard}>
         <Pressable
@@ -242,7 +242,7 @@ export default function SettingsScreen() {
         </Pressable>
       </Card>
 
-      {/* Important Utilities & Data Protection (Real Vyapar Parity) */}
+      {/* Important Utilities & Data Protection */}
       <Text style={styles.sectionHeader}>{t('settings.dataBackup', 'Data, Backup & Sync')}</Text>
       <Card style={styles.menuCard}>
         <Pressable
@@ -506,7 +506,7 @@ export default function SettingsScreen() {
         </View>
       </Modal>
 
-      {/* Expenses Management Modal (Vyapar Parity) */}
+      {/* Expenses Management Modal */}
       <Modal
         visible={expenseModalOpen}
         transparent
@@ -576,7 +576,7 @@ export default function SettingsScreen() {
         </View>
       </Modal>
 
-      {/* Cash & Bank Modal (Vyapar Parity) */}
+      {/* Cash & Bank Modal */}
       <Modal
         visible={cashBankModalOpen}
         transparent
@@ -625,7 +625,7 @@ export default function SettingsScreen() {
         </View>
       </Modal>
 
-      {/* Backup Success Modal (Vyapar Parity) */}
+      {/* Backup Success Modal */}
       <Modal
         visible={backupSuccessModal}
         transparent

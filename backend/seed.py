@@ -28,7 +28,7 @@ def run_seed():
     db = SessionLocal()
     try:
         # Check if already seeded
-        admin_user = db.query(User).filter(User.email == "admin@samruddhi.com").first()
+        admin_user = db.query(User).filter(User.email == "admin@biluerp.com").first()
         if admin_user:
             print("Database already seeded.")
             return
@@ -38,7 +38,7 @@ def run_seed():
         # 1. Admin user
         admin = User(
             name="Platform Admin",
-            email="admin@samruddhi.com",
+            email="admin@biluerp.com",
             phone="9000000000",
             password_hash=get_password_hash("Admin@123"),
             role=UserRole.admin.value,
@@ -51,7 +51,7 @@ def run_seed():
         # 2. Demo owner
         demo_owner = User(
             name="Ramesh Gupta",
-            email="owner@samruddhi.com",
+            email="owner@biluerp.com",
             phone="9876543210",
             password_hash=get_password_hash("Owner@123"),
             role=UserRole.owner.value,

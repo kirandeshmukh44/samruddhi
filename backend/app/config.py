@@ -5,8 +5,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Settings:
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./samruddhi.db")
-    JWT_SECRET: str = os.getenv("JWT_SECRET", os.getenv("SECRET_KEY", "samruddhi-secret-key-production-change"))
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./bilu_erp.db")
+    JWT_SECRET: str = os.getenv("JWT_SECRET", os.getenv("SECRET_KEY", "bilu-erp-production-secret-key-change"))
     JWT_ALGORITHM: str = os.getenv("JWT_ALGORITHM", "HS256")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "1440"))
     APP_NAME: str = "BiLU ERP API"

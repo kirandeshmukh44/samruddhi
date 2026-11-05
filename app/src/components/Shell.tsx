@@ -135,6 +135,19 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             </Text>
           </Pressable>
 
+          {/* + New Invoice prominent button matching Image 3 */}
+          <Pressable
+            style={({ pressed }) => [
+              styles.sidebarNewInvoiceBtn,
+              pressed && { opacity: 0.88, transform: [{ scale: 0.98 }] },
+            ]}
+            onPress={() => router.push('/sale' as any)}
+            accessibilityRole="button"
+          >
+            <Feather name="plus-circle" size={18} color="#FFFFFF" />
+            <Text style={styles.sidebarNewInvoiceText}>{t('invoices.newSale', '+ New Invoice')}</Text>
+          </Pressable>
+
           {/* Navigation Links */}
           <ScrollView
             style={styles.sidebarNavScroll}
@@ -462,6 +475,28 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.base,
     fontFamily: fonts.semiBold,
     fontWeight: '600',
+  },
+  sidebarNewInvoiceBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 44,
+    backgroundColor: '#2563EB', // BiLU Vibrant Blue
+    borderRadius: radii.md,
+    gap: 8,
+    marginBottom: spacing.lg,
+    shadowColor: '#2563EB',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  sidebarNewInvoiceText: {
+    color: '#FFFFFF',
+    fontSize: fontSizes.md,
+    fontFamily: fonts.semiBold,
+    fontWeight: '700',
+    letterSpacing: 0.3,
   },
   sidebarNavScroll: {
     flex: 1,

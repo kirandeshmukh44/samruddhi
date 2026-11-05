@@ -735,7 +735,7 @@ const styles = StyleSheet.create({
     color: '#0F172A',
   },
 
-  // Sales Trend Chart (Real Vyapar Feature)
+  // Sales Trend Chart (BiLU ERP Feature)
   chartCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 14,

@@ -1,4 +1,4 @@
-# backend/tests/test_samruddhi.py
+# backend/tests/test_bilu_erp.py
 import pytest
 from datetime import date
 from decimal import Decimal
@@ -23,7 +23,7 @@ from app.services.gst import calculate_line, calculate_round_off
 from app.security import get_password_hash, create_access_token
 
 # Temporary SQLite test DB
-TEST_DATABASE_URL = "sqlite:///./test_samruddhi.db"
+TEST_DATABASE_URL = "sqlite:///./test_bilu_erp.db"
 engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -122,7 +122,7 @@ def create_test_user_and_business(db, email, phone, state="Maharashtra", plan="f
 # ---------------- INVOICE & STOCK TESTS ----------------
 def test_invoice_creation_stock_and_numbering():
     db = TestingSessionLocal()
-    user, business, token = create_test_user_and_business(db, "owner1@vyapar.com", "9800000001")
+    user, business, token = create_test_user_and_business(db, "owner1@biluerp.com", "9800000001")
 
     # Add item with stock = 10 units (10,000 thousandths)
     item = Item(
@@ -197,7 +197,7 @@ def test_invoice_creation_stock_and_numbering():
 # ---------------- PAYMENTS FIFO ALLOCATION ----------------
 def test_payments_fifo_allocation():
     db = TestingSessionLocal()
-    user, business, token = create_test_user_and_business(db, "owner2@vyapar.com", "9800000002")
+    user, business, token = create_test_user_and_business(db, "owner2@biluerp.com", "9800000002")
 
     item = Item(
         business_id=business.id,
@@ -251,7 +251,7 @@ def test_payments_fifo_allocation():
 # ---------------- FREE PLAN LIMITS ----------------
 def test_free_plan_limits():
     db = TestingSessionLocal()
-    user, business, token = create_test_user_and_business(db, "free@vyapar.com", "9800000003", plan="free")
+    user, business, token = create_test_user_and_business(db, "free@biluerp.com", "9800000003", plan="free")
     headers = {"Authorization": f"Bearer {token}"}
 
     # Attempt to create 2nd business on free plan -> Should return 403
@@ -264,8 +264,8 @@ def test_free_plan_limits():
 # ---------------- TENANT ISOLATION ----------------
 def test_tenant_isolation():
     db = TestingSessionLocal()
-    user_a, bus_a, token_a = create_test_user_and_business(db, "usera@vyapar.com", "9800000004")
-    user_b, bus_b, token_b = create_test_user_and_business(db, "userb@vyapar.com", "9800000005")
+    user_a, bus_a, token_a = create_test_user_and_business(db, "usera@biluerp.com", "9800000004")
+    user_b, bus_b, token_b = create_test_user_and_business(db, "userb@biluerp.com", "9800000005")
 
     # User A tries to access User B's business endpoints -> Should return 403
     headers_a = {"Authorization": f"Bearer {token_a}"}

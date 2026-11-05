@@ -76,8 +76,8 @@
 
 ### Step 1: Clone the Repository
 ```bash
-git clone https://github.com/kirandeshmukh44/samruddhi.git
-cd samruddhi
+git clone https://github.com/kirandeshmukh44/bilu-erp.git
+cd bilu-erp
 ```
 
 ---
@@ -142,9 +142,9 @@ cd samruddhi
 
 | Role | Email / Phone | Password / OTP | Default Business |
 | :--- | :--- | :--- | :--- |
-| **Business Owner** | `owner@vyapar.com` किंवा कोणताही 10-अंकी मोबाइल | `Owner@123` किंवा `123456` | **Gupta Traders** |
+| **Business Owner** | `owner@biluerp.com` किंवा कोणताही 10-अंकी मोबाइल | `Owner@123` किंवा `123456` | **Gupta Traders** |
 | **Kiran Deshmukh** | `9422000159` / `9876543210` | `123456` | **Gupta Traders** |
-| **Platform Admin** | `admin@vyapar.com` / `9000000000` | `Admin@123` | **Platform Administrator** |
+| **Platform Admin** | `admin@biluerp.com` / `9000000000` | `Admin@123` | **Platform Administrator** |
 
 ---
 
@@ -333,6 +333,6 @@ cd samruddhi
 ## 7. Developer & Maintenance Contacts
 
 - **Lead Development Team:** Pravara Infotech Pvt. Ltd.
-- **Repository:** `https://github.com/kirandeshmukh44/samruddhi.git`
+- **Repository:** `https://github.com/kirandeshmukh44/bilu-erp.git`
 - **Product:** BiLU ERP – *Everything Your Business Needs*
 

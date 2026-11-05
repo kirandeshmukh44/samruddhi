@@ -75,9 +75,9 @@ npx expo start
 
 | Role | Mobile / Email | Password / OTP | Default Business |
 | :--- | :--- | :--- | :--- |
-| **Business Owner** | `9876543210` / `owner@vyapar.com` | `123456` / `Owner@123` | **Gupta Traders** |
+| **Business Owner** | `9876543210` / `owner@biluerp.com` | `123456` / `Owner@123` | **Gupta Traders** |
 | **Kiran Deshmukh** | `9422000159` | `123456` | **Gupta Traders** |
-| **Platform Admin** | `9000000000` / `admin@vyapar.com` | `123456` / `Admin@123` | **Platform Admin** |
+| **Platform Admin** | `9000000000` / `admin@biluerp.com` | `123456` / `Admin@123` | **Platform Admin** |
 
 ---
 

@@ -1,6 +1,7 @@
-# Vyapar GST Billing Backend
+# BiLU ERP GST Billing Backend
+### Powered by Pravara Infotech Pvt. Ltd.
 
-A complete, production-ready FastAPI backend for **Vyapar**, a GST billing and accounting app for Indian small businesses.
+A complete, production-ready FastAPI backend for **BiLU ERP**, a GST billing, accounting, and inventory management solution for Indian businesses.
 
 ---
 
@@ -45,7 +46,7 @@ copy .env.example .env
 ```
 
 ### 4. Seed the Database
-Seeds the database with an Admin (`admin@vyapar.com`), Demo Owner (`owner@vyapar.com`), Gupta Traders, 6 parties, 10 grocery items, and sample invoices:
+Seeds the database with an Admin (`admin@biluerp.com`), Demo Owner (`owner@biluerp.com`), Gupta Traders, 6 parties, 10 grocery items, and sample invoices:
 ```powershell
 python seed.py
 ```
@@ -69,8 +70,8 @@ python -m pytest -v
 
 | Role | Email / Phone | Password | Plan |
 |---|---|---|---|
-| **Platform Admin** | `admin@vyapar.com` / `9000000000` | `Admin@123` | Premium |
-| **Demo Business Owner** | `owner@vyapar.com` / `9876543210` | `Owner@123` | Free |
+| **Platform Admin** | `admin@biluerp.com` / `9000000000` | `Admin@123` | Premium |
+| **Demo Business Owner** | `owner@biluerp.com` / `9876543210` | `Owner@123` | Free |
 | **Mobile OTP Login** | Any 10-digit phone | `123456` (Mock OTP) | Free |
 
 ---
