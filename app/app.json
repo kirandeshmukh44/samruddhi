@@ -8,9 +8,11 @@
     "scheme": "app",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.pravarainfotech.biluerp"
     },
     "android": {
+      "package": "com.pravarainfotech.biluerp",
       "adaptiveIcon": {
         "backgroundColor": "#FFFFFF",
         "foregroundImage": "./assets/images/bilu-badge.png",

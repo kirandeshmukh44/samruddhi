@@ -38,3 +38,11 @@ npm-debug.*
 yarn-debug.*
 yarn-error.*
 
+# Desktop Builds & Releases
+release/
+app/release/
+*.exe
+*.blockmap
+*.7z
+
+

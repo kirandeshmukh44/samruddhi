@@ -1,6 +1,8 @@
 {
-  "name": "app",
+  "name": "bilu-erp",
   "version": "1.0.0",
+  "description": "BiLU ERP – Everything Your Business Needs. Powered by Pravara Infotech Pvt. Ltd.",
+  "author": "Pravara Infotech Pvt. Ltd.",
   "main": "expo-router/entry",
   "dependencies": {
     "@expo-google-fonts/inter": "^0.4.2",
@@ -29,13 +31,66 @@
   },
   "devDependencies": {
     "@types/react": "~19.3.0",
+    "eas-cli": "^14.1.3",
+    "electron": "^45.2.3",
+    "electron-builder": "^26.18.0",
     "typescript": "~6.0.3"
   },
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "build:web": "npx expo export -p web",
+    "build:apk": "npx eas build -p android --profile preview",
+    "build:ios": "npx eas build -p ios --profile preview",
+    "electron": "electron electron-main.js",
+    "dist:win": "electron-builder --win",
+    "dist:win:portable": "electron-builder --win portable"
+  },
+  "build": {
+    "appId": "com.pravarainfotech.biluerp",
+    "productName": "BiLU ERP",
+    "copyright": "Copyright © 2026 Pravara Infotech Pvt. Ltd.",
+    "nodeGypRebuild": false,
+    "npmRebuild": false,
+    "extraMetadata": {
+      "main": "electron-main.js",
+      "dependencies": {}
+    },
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron-main.js",
+      "assets/images/bilu-badge.png",
+      "!node_modules/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/images/bilu-badge.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "BiLU ERP"
+    }
   },
   "private": true
 }

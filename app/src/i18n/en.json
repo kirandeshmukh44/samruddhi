@@ -1,5 +1,7 @@
 {
-  "app": { "name": "BiLU ERP" },
+  "app": {
+    "name": "BiLU ERP"
+  },
   "nav": {
     "dashboard": "Dashboard",
     "sale": "Sale invoices",
