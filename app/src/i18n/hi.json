@@ -1,11 +1,13 @@
 {
-  "app": { "name": "BiLU ERP" },
+  "app": {
+    "name": "BiLU ERP"
+  },
   "nav": {
     "dashboard": "डैशबोर्ड",
     "sale": "बिक्री बिल",
     "purchase": "खरीद बिल",
-    "parties": "पार्टियां / ग्राहक",
-    "items": "सामान व स्टॉक",
+    "parties": "पार्टियाँ",
+    "items": "आइटम्स",
     "payments": "भुगतान",
     "reports": "रिपोर्ट्स",
     "gstReturns": "जीएसटी रिटर्न्स",
@@ -78,7 +80,7 @@
     "addPayment": "पेमेंट",
     "reports": "रिपोर्ट्स",
     "gstReturns": "जीएसटी रिटर्न्स",
-    "newSaleBtn": "+ नई बिक्री",
+    "newSaleBtn": "नई बिक्री",
     "lowStockAlert": "कम स्टॉक चेतावनी",
     "viewItems": "आइटम देखें",
     "allStocksHealthy": "सभी स्टॉक पर्याप्त हैं",

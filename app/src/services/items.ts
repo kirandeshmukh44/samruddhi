@@ -6,13 +6,12 @@ import { Item } from '../types';
 import safeStorage from '../lib/storage';
 
 const ITEMS_STORAGE_KEY = 'bilu_items_data_v2';
-const LEGACY_ITEMS_KEY = 'samruddhi_items_data';
 let items = [...mockItems];
 
 // Auto-load persisted items on startup
 const loadStoredItems = async () => {
   try {
-    const data = (await safeStorage.getItem(ITEMS_STORAGE_KEY)) || (await safeStorage.getItem(LEGACY_ITEMS_KEY));
+    const data = await safeStorage.getItem(ITEMS_STORAGE_KEY);
     if (data) {
       const parsed = JSON.parse(data);
       if (Array.isArray(parsed) && parsed.length > 0) {

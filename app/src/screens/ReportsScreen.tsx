@@ -90,14 +90,16 @@ export default function ReportsScreen() {
   // Live filtered dataset by period
   const bizInvoices = invoices.filter((i) => i.business_id === businessId);
   const periodInvoices = filterInvoicesByPeriod(bizInvoices, period);
+  const bizParties = parties.filter((p) => p.business_id === businessId);
+  const bizItems = items.filter((it) => it.business_id === businessId);
 
-  const totalSalesPaise = periodInvoices
-    .filter((i) => i.type === 'sale')
-    .reduce((sum, i) => sum + i.total, 0);
+  const salesInvoices = periodInvoices.filter((i) => i.type === 'sale');
+  const purchaseInvoices = periodInvoices.filter((i) => i.type === 'purchase');
 
-  const totalPurchasesPaise = periodInvoices
-    .filter((i) => i.type === 'purchase')
-    .reduce((sum, i) => sum + i.total, 0);
+  const totalSalesPaise = salesInvoices.reduce((sum, i) => sum + i.total, 0);
+  const totalPurchasesPaise = purchaseInvoices.reduce((sum, i) => sum + i.total, 0);
+  const totalSalesTaxPaise = salesInvoices.reduce((sum, i) => sum + (i.cgst + i.sgst + i.igst), 0);
+  const totalPurchaseTaxPaise = purchaseInvoices.reduce((sum, i) => sum + (i.cgst + i.sgst + i.igst), 0);
 
   const totalExpensesPaise = expenses
     .filter((e) => e.business_id === businessId)
@@ -110,31 +112,64 @@ export default function ReportsScreen() {
     .filter((i) => i.type === 'sale')
     .reduce((sum, i) => sum + (i.cgst + i.sgst + i.igst), 0);
 
+  // Stock Summary aggregates
+  const totalStockValuationPaise = bizItems.reduce((sum, it) => sum + (it.stock_qty * it.purchase_price), 0);
+  const lowStockCount = bizItems.filter((it) => it.stock_qty <= it.low_stock_limit).length;
+
+  // Party Ledger aggregates
+  const totalReceivablesPaise = bizParties.reduce((sum, p) => {
+    const bal = getPartyOutstanding(p, invoices);
+    return bal > 0 ? sum + bal : sum;
+  }, 0);
+  const totalPayablesPaise = bizParties.reduce((sum, p) => {
+    const bal = getPartyOutstanding(p, invoices);
+    return bal < 0 ? sum + Math.abs(bal) : sum;
+  }, 0);
+
+  // GST aggregates
+  const totalTaxablePaise = salesInvoices.reduce((sum, i) => sum + i.subtotal, 0);
+  const totalCgstPaise = salesInvoices.reduce((sum, i) => sum + i.cgst, 0);
+  const totalSgstPaise = salesInvoices.reduce((sum, i) => sum + i.sgst, 0);
+  const totalIgstPaise = salesInvoices.reduce((sum, i) => sum + i.igst, 0);
+  const netGstPayablePaise = Math.max(0, totalSalesTaxPaise - totalPurchaseTaxPaise);
+
   const handleExportCsv = (reportTitle: string) => {
     let csvHeader = '';
     let csvRows = '';
 
     if (activeReport?.id === 'stock_summary') {
       csvHeader = 'Item Name,HSN,Unit,Stock Qty,Sale Price,Purchase Price,Valuation\n';
-      csvRows = items
-        .filter((it) => it.business_id === businessId)
+      csvRows = bizItems
         .map((it) => `${it.name},${it.hsn || '-'},${it.unit},${it.stock_qty},${it.sale_price / 100},${it.purchase_price / 100},${(it.stock_qty * it.purchase_price) / 100}`)
         .join('\n');
-    } else if (activeReport?.id === 'party_ledger') {
+    } else if (activeReport?.id === 'party_statement') {
       csvHeader = 'Party Name,Phone,GSTIN,Type,Outstanding Balance\n';
-      csvRows = parties
-        .filter((p) => p.business_id === businessId)
+      csvRows = bizParties
         .map((p) => `${p.name},${p.phone || '-'},${p.gstin || '-'},${p.type},${getPartyOutstanding(p, invoices) / 100}`)
+        .join('\n');
+    } else if (activeReport?.id === 'purchase') {
+      csvHeader = 'Bill No,Supplier,Date,Taxable,ITC Credit,Total,Status\n';
+      csvRows = purchaseInvoices
+        .map((i) => `${i.invoice_no},${i.party_name || '-'},${formatDate(i.date)},${i.subtotal / 100},${(i.cgst + i.sgst + i.igst) / 100},${i.total / 100},${i.status}`)
         .join('\n');
     } else if (activeReport?.id === 'gst_summary') {
       csvHeader = 'Invoice No,Party,Date,Taxable,CGST,SGST,IGST,Total Tax\n';
-      csvRows = periodInvoices
-        .filter((i) => i.type === 'sale')
+      csvRows = salesInvoices
         .map((i) => `${i.invoice_no},${i.party_name || '-'},${formatDate(i.date)},${i.subtotal / 100},${i.cgst / 100},${i.sgst / 100},${i.igst / 100},${(i.cgst + i.sgst + i.igst) / 100}`)
+        .join('\n');
+    } else if (activeReport?.id === 'bill_profit') {
+      csvHeader = 'Invoice No,Customer,Date,Sale Amount,Estimated Cost,Gross Profit,Margin Percent\n';
+      csvRows = salesInvoices
+        .map((i) => {
+          const cost = Math.round(i.subtotal * 0.72);
+          const profit = i.subtotal - cost;
+          const margin = i.subtotal > 0 ? Math.round((profit / i.subtotal) * 100) : 0;
+          return `${i.invoice_no},${i.party_name || '-'},${formatDate(i.date)},${i.subtotal / 100},${cost / 100},${profit / 100},${margin}%`;
+        })
         .join('\n');
     } else {
       csvHeader = 'Invoice No,Party,Type,Date,Taxable,Total,Paid,Status\n';
-      csvRows = periodInvoices
+      csvRows = salesInvoices
         .map((i) => `${i.invoice_no},${i.party_name || '-'},${i.type},${formatDate(i.date)},${i.subtotal / 100},${i.total / 100},${(i.paid_amount || 0) / 100},${i.status}`)
         .join('\n');
     }
@@ -305,84 +340,479 @@ export default function ReportsScreen() {
               </View>
             </View>
 
-            {/* Responsive Report Content: Mobile Cards vs Desktop Table */}
+            {/* Responsive Report Content: Dedicated Views for Each Report Type */}
             <ScrollView style={{ flex: 1, marginTop: 14 }} showsVerticalScrollIndicator={false}>
-              {width < 768 ? (
-                /* Mobile Card View: Clean, spacious, zero text wrapping */
-                <View style={styles.mobileReportList}>
-                  {periodInvoices.map((inv) => {
-                    const isPaid = inv.status === 'paid';
-                    const isPartial = inv.status === 'partial';
-                    const statusBg = isPaid ? '#DCFCE7' : isPartial ? '#FEF3C7' : '#FEE2E2';
-                    const statusColor = isPaid ? '#15803D' : isPartial ? '#92400E' : '#B91C1C';
+              {/* 1. STOCK SUMMARY REPORT */}
+              {activeReport?.id === 'stock_summary' && (
+                <View>
+                  {/* Summary Bar */}
+                  <View style={styles.reportSummaryStrip}>
+                    <View style={styles.reportSummaryBox}>
+                      <Text style={styles.reportSummaryBoxLabel}>Total Valuation</Text>
+                      <Text style={[styles.reportSummaryBoxVal, { color: '#1D4ED8' }]}>{formatMoney(totalStockValuationPaise)}</Text>
+                      <Text style={styles.reportSummaryBoxSub}>{bizItems.length} Products</Text>
+                    </View>
+                    <View style={styles.reportSummaryBox}>
+                      <Text style={styles.reportSummaryBoxLabel}>Low Stock Alerts</Text>
+                      <Text style={[styles.reportSummaryBoxVal, { color: lowStockCount > 0 ? '#B91C1C' : '#047857' }]}>
+                        {lowStockCount} Items
+                      </Text>
+                      <Text style={styles.reportSummaryBoxSub}>Need Reordering</Text>
+                    </View>
+                  </View>
 
-                    return (
-                      <View key={inv.id} style={styles.mobileReportCard}>
-                        <View style={styles.mobileReportTopRow}>
-                          <Text style={styles.mobileReportInvNo}>{inv.invoice_no}</Text>
-                          <View style={[styles.reportBadge, { backgroundColor: statusBg }]}>
-                            <Text style={[styles.reportBadgeText, { color: statusColor }]}>
-                              {inv.status.toUpperCase()}
-                            </Text>
+                  {/* List / Table */}
+                  {width < 768 ? (
+                    <View style={styles.mobileReportList}>
+                      {bizItems.map((item) => {
+                        const isLow = item.stock_qty <= item.low_stock_limit;
+                        const valuation = item.stock_qty * item.purchase_price;
+                        return (
+                          <View key={item.id} style={styles.mobileReportCard}>
+                            <View style={styles.mobileReportTopRow}>
+                              <Text style={styles.mobileReportInvNo}>{item.name}</Text>
+                              <View style={[styles.reportBadge, { backgroundColor: isLow ? '#FEE2E2' : '#DCFCE7' }]}>
+                                <Text style={[styles.reportBadgeText, { color: isLow ? '#B91C1C' : '#15803D' }]}>
+                                  {isLow ? `LOW: ${item.stock_qty} LEFT` : 'IN STOCK'}
+                                </Text>
+                              </View>
+                            </View>
+
+                            <View style={styles.mobileReportMidRow}>
+                              <Text style={styles.mobileReportParty}>
+                                Stock: <Text style={{ fontWeight: '700', color: '#0F172A' }}>{item.stock_qty} {item.unit}</Text>
+                              </Text>
+                              <Text style={styles.mobileReportAmount}>{formatMoney(valuation)}</Text>
+                            </View>
+
+                            <View style={styles.subRowDetails}>
+                              <Text style={styles.subRowKey}>Purchase: {formatMoney(item.purchase_price)}</Text>
+                              <Text style={styles.subRowKey}>Sale: {formatMoney(item.sale_price)}</Text>
+                            </View>
+                          </View>
+                        );
+                      })}
+                    </View>
+                  ) : (
+                    <ScrollView horizontal showsHorizontalScrollIndicator={true}>
+                      <View style={{ minWidth: 700 }}>
+                        <View style={styles.reportTableHeader}>
+                          <Text style={[styles.rth, { width: 180 }]}>ITEM NAME</Text>
+                          <Text style={[styles.rth, { width: 100 }]}>HSN</Text>
+                          <Text style={[styles.rth, { width: 100, textAlign: 'right' }]}>CURRENT QTY</Text>
+                          <Text style={[styles.rth, { width: 120, textAlign: 'right' }]}>PURCHASE RATE</Text>
+                          <Text style={[styles.rth, { width: 120, textAlign: 'right' }]}>SALE RATE</Text>
+                          <Text style={[styles.rth, { width: 130, textAlign: 'right' }]}>VALUATION</Text>
+                          <Text style={[styles.rth, { width: 100, textAlign: 'right' }]}>STATUS</Text>
+                        </View>
+                        {bizItems.map((item) => {
+                          const isLow = item.stock_qty <= item.low_stock_limit;
+                          const valuation = item.stock_qty * item.purchase_price;
+                          return (
+                            <View key={item.id} style={styles.reportTableRow}>
+                              <Text style={[styles.rtdBold, { width: 180 }]} numberOfLines={1}>{item.name}</Text>
+                              <Text style={[styles.rtd, { width: 100 }]}>{item.hsn || '-'}</Text>
+                              <Text style={[styles.rtd, { width: 100, textAlign: 'right' }]}>{item.stock_qty} {item.unit}</Text>
+                              <Text style={[styles.rtd, { width: 120, textAlign: 'right' }]}>{formatMoney(item.purchase_price)}</Text>
+                              <Text style={[styles.rtd, { width: 120, textAlign: 'right' }]}>{formatMoney(item.sale_price)}</Text>
+                              <Text style={[styles.rtdBold, { width: 130, textAlign: 'right', color: '#1D4ED8' }]}>{formatMoney(valuation)}</Text>
+                              <Text style={[styles.rtd, { width: 100, textAlign: 'right', color: isLow ? '#B91C1C' : '#047857', fontWeight: '600' }]}>
+                                {isLow ? 'Low Stock' : 'In Stock'}
+                              </Text>
+                            </View>
+                          );
+                        })}
+                      </View>
+                    </ScrollView>
+                  )}
+                </View>
+              )}
+
+              {/* 2. PARTY STATEMENT REPORT */}
+              {activeReport?.id === 'party_statement' && (
+                <View>
+                  {/* Summary Bar */}
+                  <View style={styles.reportSummaryStrip}>
+                    <View style={styles.reportSummaryBox}>
+                      <Text style={styles.reportSummaryBoxLabel}>To Collect (Receivables)</Text>
+                      <Text style={[styles.reportSummaryBoxVal, { color: '#047857' }]}>{formatMoney(totalReceivablesPaise)}</Text>
+                      <Text style={styles.reportSummaryBoxSub}>From Customers</Text>
+                    </View>
+                    <View style={styles.reportSummaryBox}>
+                      <Text style={styles.reportSummaryBoxLabel}>To Pay (Payables)</Text>
+                      <Text style={[styles.reportSummaryBoxVal, { color: '#B91C1C' }]}>{formatMoney(totalPayablesPaise)}</Text>
+                      <Text style={styles.reportSummaryBoxSub}>To Suppliers</Text>
+                    </View>
+                  </View>
+
+                  {/* List / Table */}
+                  {width < 768 ? (
+                    <View style={styles.mobileReportList}>
+                      {bizParties.map((party) => {
+                        const bal = getPartyOutstanding(party, invoices);
+                        const isCollect = bal > 0;
+                        const isPay = bal < 0;
+                        return (
+                          <View key={party.id} style={styles.mobileReportCard}>
+                            <View style={styles.mobileReportTopRow}>
+                              <Text style={styles.mobileReportInvNo}>{party.name}</Text>
+                              <View style={[styles.reportBadge, { backgroundColor: '#EFF6FF' }]}>
+                                <Text style={[styles.reportBadgeText, { color: '#1D4ED8' }]}>{party.type.toUpperCase()}</Text>
+                              </View>
+                            </View>
+
+                            <View style={styles.mobileReportMidRow}>
+                              <Text style={styles.mobileReportParty}>{party.phone || 'No phone'} · {party.gstin || 'Unregistered'}</Text>
+                              <View style={[styles.reportBadge, { backgroundColor: isCollect ? '#DCFCE7' : isPay ? '#FEE2E2' : '#F1F5F9' }]}>
+                                <Text style={[styles.reportBadgeText, { color: isCollect ? '#15803D' : isPay ? '#B91C1C' : '#64748B' }]}>
+                                  {isCollect ? `TO COLLECT: ${formatMoney(bal)}` : isPay ? `TO PAY: ${formatMoney(Math.abs(bal))}` : 'SETTLED ₹0'}
+                                </Text>
+                              </View>
+                            </View>
+                          </View>
+                        );
+                      })}
+                    </View>
+                  ) : (
+                    <ScrollView horizontal showsHorizontalScrollIndicator={true}>
+                      <View style={{ minWidth: 700 }}>
+                        <View style={styles.reportTableHeader}>
+                          <Text style={[styles.rth, { width: 180 }]}>PARTY NAME</Text>
+                          <Text style={[styles.rth, { width: 100 }]}>TYPE</Text>
+                          <Text style={[styles.rth, { width: 120 }]}>PHONE</Text>
+                          <Text style={[styles.rth, { width: 140 }]}>GSTIN</Text>
+                          <Text style={[styles.rth, { width: 150, textAlign: 'right' }]}>OUTSTANDING</Text>
+                        </View>
+                        {bizParties.map((party) => {
+                          const bal = getPartyOutstanding(party, invoices);
+                          const isCollect = bal > 0;
+                          const isPay = bal < 0;
+                          return (
+                            <View key={party.id} style={styles.reportTableRow}>
+                              <Text style={[styles.rtdBold, { width: 180 }]} numberOfLines={1}>{party.name}</Text>
+                              <Text style={[styles.rtd, { width: 100, textTransform: 'capitalize' }]}>{party.type}</Text>
+                              <Text style={[styles.rtd, { width: 120 }]}>{party.phone || '-'}</Text>
+                              <Text style={[styles.rtd, { width: 140 }]}>{party.gstin || 'Unregistered'}</Text>
+                              <Text style={[styles.rtdBold, { width: 150, textAlign: 'right', color: isCollect ? '#047857' : isPay ? '#B91C1C' : '#64748B' }]}>
+                                {isCollect ? `+ ${formatMoney(bal)}` : isPay ? `- ${formatMoney(Math.abs(bal))}` : '₹ 0.00'}
+                              </Text>
+                            </View>
+                          );
+                        })}
+                      </View>
+                    </ScrollView>
+                  )}
+                </View>
+              )}
+
+              {/* 3. PURCHASE REPORT */}
+              {activeReport?.id === 'purchase' && (
+                <View>
+                  {/* Summary Bar */}
+                  <View style={styles.reportSummaryStrip}>
+                    <View style={styles.reportSummaryBox}>
+                      <Text style={styles.reportSummaryBoxLabel}>Total Purchases</Text>
+                      <Text style={[styles.reportSummaryBoxVal, { color: '#B91C1C' }]}>{formatMoney(totalPurchasesPaise)}</Text>
+                      <Text style={styles.reportSummaryBoxSub}>{purchaseInvoices.length} Bills</Text>
+                    </View>
+                    <View style={styles.reportSummaryBox}>
+                      <Text style={styles.reportSummaryBoxLabel}>ITC Credit Eligible</Text>
+                      <Text style={[styles.reportSummaryBoxVal, { color: '#0284C7' }]}>{formatMoney(totalPurchaseTaxPaise)}</Text>
+                      <Text style={styles.reportSummaryBoxSub}>Tax offset</Text>
+                    </View>
+                  </View>
+
+                  {/* List / Table */}
+                  {width < 768 ? (
+                    <View style={styles.mobileReportList}>
+                      {purchaseInvoices.map((inv) => (
+                        <View key={inv.id} style={styles.mobileReportCard}>
+                          <View style={styles.mobileReportTopRow}>
+                            <Text style={styles.mobileReportInvNo}>{inv.invoice_no}</Text>
+                            <View style={[styles.reportBadge, { backgroundColor: inv.status === 'paid' ? '#DCFCE7' : '#FEE2E2' }]}>
+                              <Text style={[styles.reportBadgeText, { color: inv.status === 'paid' ? '#15803D' : '#B91C1C' }]}>
+                                {inv.status.toUpperCase()}
+                              </Text>
+                            </View>
+                          </View>
+                          <View style={styles.mobileReportMidRow}>
+                            <Text style={styles.mobileReportParty} numberOfLines={1}>{inv.party_name || 'Supplier'}</Text>
+                            <Text style={[styles.mobileReportAmount, { color: '#B91C1C' }]}>{formatMoney(inv.total)}</Text>
+                          </View>
+                          <View style={styles.subRowDetails}>
+                            <Text style={styles.subRowKey}>Taxable: {formatMoney(inv.subtotal)}</Text>
+                            <Text style={styles.subRowKey}>ITC: {formatMoney(inv.cgst + inv.sgst + inv.igst)}</Text>
                           </View>
                         </View>
-
-                        <View style={styles.mobileReportMidRow}>
-                          <Text style={styles.mobileReportParty} numberOfLines={1}>
-                            {inv.party_name || 'Customer'}
-                          </Text>
-                          <Text style={styles.mobileReportAmount}>
-                            {formatMoney(inv.total)}
-                          </Text>
-                        </View>
-
-                        <View style={styles.mobileReportBtmRow}>
-                          <Feather name="calendar" size={13} color="#64748B" style={{ marginRight: 6 }} />
-                          <Text style={styles.mobileReportDate}>{formatDate(inv.date)}</Text>
-                        </View>
-                      </View>
-                    );
-                  })}
-                </View>
-              ) : (
-                /* Desktop Table View with horizontal protection */
-                <ScrollView horizontal showsHorizontalScrollIndicator={true}>
-                  <View style={{ minWidth: 700 }}>
-                    <View style={styles.reportTableHeader}>
-                      <Text style={[styles.rth, { width: 140 }]} numberOfLines={1}>INVOICE / REF</Text>
-                      <Text style={[styles.rth, { width: 200 }]} numberOfLines={1}>PARTY NAME</Text>
-                      <Text style={[styles.rth, { width: 120 }]} numberOfLines={1}>DATE</Text>
-                      <Text style={[styles.rth, { width: 130, textAlign: 'right' }]} numberOfLines={1}>AMOUNT</Text>
-                      <Text style={[styles.rth, { width: 110, textAlign: 'right' }]} numberOfLines={1}>STATUS</Text>
+                      ))}
                     </View>
-
-                    {periodInvoices.map((inv) => (
-                      <View key={inv.id} style={styles.reportTableRow}>
-                        <Text style={[styles.rtdBold, { width: 140 }]} numberOfLines={1}>{inv.invoice_no}</Text>
-                        <Text style={[styles.rtd, { width: 200 }]} numberOfLines={1}>{inv.party_name || 'Customer'}</Text>
-                        <Text style={[styles.rtd, { width: 120 }]} numberOfLines={1}>{formatDate(inv.date)}</Text>
-                        <Text style={[styles.rtdBold, { width: 130, textAlign: 'right' }]} numberOfLines={1}>
-                          {formatMoney(inv.total)}
-                        </Text>
-                        <Text
-                          style={[
-                            styles.rtd,
-                            {
-                              width: 110,
-                              textAlign: 'right',
-                              color: inv.status === 'paid' ? '#047857' : inv.status === 'partial' ? '#B45309' : '#B91C1C',
-                              fontWeight: '600',
-                              textTransform: 'capitalize',
-                            },
-                          ]}
-                          numberOfLines={1}
-                        >
-                          {inv.status}
-                        </Text>
+                  ) : (
+                    <ScrollView horizontal showsHorizontalScrollIndicator={true}>
+                      <View style={{ minWidth: 700 }}>
+                        <View style={styles.reportTableHeader}>
+                          <Text style={[styles.rth, { width: 140 }]}>BILL NO</Text>
+                          <Text style={[styles.rth, { width: 180 }]}>SUPPLIER</Text>
+                          <Text style={[styles.rth, { width: 110 }]}>DATE</Text>
+                          <Text style={[styles.rth, { width: 120, textAlign: 'right' }]}>TAXABLE</Text>
+                          <Text style={[styles.rth, { width: 110, textAlign: 'right' }]}>ITC (TAX)</Text>
+                          <Text style={[styles.rth, { width: 120, textAlign: 'right' }]}>TOTAL</Text>
+                          <Text style={[styles.rth, { width: 90, textAlign: 'right' }]}>STATUS</Text>
+                        </View>
+                        {purchaseInvoices.map((inv) => (
+                          <View key={inv.id} style={styles.reportTableRow}>
+                            <Text style={[styles.rtdBold, { width: 140 }]}>{inv.invoice_no}</Text>
+                            <Text style={[styles.rtd, { width: 180 }]}>{inv.party_name || 'Supplier'}</Text>
+                            <Text style={[styles.rtd, { width: 110 }]}>{formatDate(inv.date)}</Text>
+                            <Text style={[styles.rtd, { width: 120, textAlign: 'right' }]}>{formatMoney(inv.subtotal)}</Text>
+                            <Text style={[styles.rtd, { width: 110, textAlign: 'right', color: '#0284C7' }]}>{formatMoney(inv.cgst + inv.sgst + inv.igst)}</Text>
+                            <Text style={[styles.rtdBold, { width: 120, textAlign: 'right', color: '#B91C1C' }]}>{formatMoney(inv.total)}</Text>
+                            <Text style={[styles.rtd, { width: 90, textAlign: 'right', textTransform: 'capitalize' }]}>{inv.status}</Text>
+                          </View>
+                        ))}
                       </View>
-                    ))}
+                    </ScrollView>
+                  )}
+                </View>
+              )}
+
+              {/* 4. GST SUMMARY REPORT */}
+              {activeReport?.id === 'gst_summary' && (
+                <View>
+                  {/* Summary Bar */}
+                  <View style={styles.reportSummaryStrip}>
+                    <View style={styles.reportSummaryBox}>
+                      <Text style={styles.reportSummaryBoxLabel}>Taxable Sales</Text>
+                      <Text style={[styles.reportSummaryBoxVal, { color: '#0F172A' }]}>{formatMoney(totalTaxablePaise)}</Text>
+                      <Text style={styles.reportSummaryBoxSub}>Turnover</Text>
+                    </View>
+                    <View style={styles.reportSummaryBox}>
+                      <Text style={styles.reportSummaryBoxLabel}>Output GST</Text>
+                      <Text style={[styles.reportSummaryBoxVal, { color: '#1D4ED8' }]}>{formatMoney(totalSalesTaxPaise)}</Text>
+                      <Text style={styles.reportSummaryBoxSub}>Collected</Text>
+                    </View>
+                    <View style={styles.reportSummaryBox}>
+                      <Text style={styles.reportSummaryBoxLabel}>Net Payable</Text>
+                      <Text style={[styles.reportSummaryBoxVal, { color: '#B91C1C' }]}>{formatMoney(netGstPayablePaise)}</Text>
+                      <Text style={styles.reportSummaryBoxSub}>After ITC</Text>
+                    </View>
                   </View>
-                </ScrollView>
+
+                  {/* Tax Breakdown Card */}
+                  <View style={styles.taxBreakdownCard}>
+                    <Text style={styles.taxBreakdownHeader}>GSTR-1 Monthly Tax Split</Text>
+                    <View style={styles.taxBreakdownRow}>
+                      <Text style={styles.taxBreakdownLabel}>CGST (Central Tax 9%):</Text>
+                      <Text style={styles.taxBreakdownVal}>{formatMoney(totalCgstPaise)}</Text>
+                    </View>
+                    <View style={styles.taxBreakdownRow}>
+                      <Text style={styles.taxBreakdownLabel}>SGST (State Tax 9%):</Text>
+                      <Text style={styles.taxBreakdownVal}>{formatMoney(totalSgstPaise)}</Text>
+                    </View>
+                    <View style={styles.taxBreakdownRow}>
+                      <Text style={styles.taxBreakdownLabel}>IGST (Inter-state Tax 18%):</Text>
+                      <Text style={styles.taxBreakdownVal}>{formatMoney(totalIgstPaise)}</Text>
+                    </View>
+                  </View>
+
+                  {/* Invoice Tax Details */}
+                  {width < 768 ? (
+                    <View style={styles.mobileReportList}>
+                      {salesInvoices.map((inv) => (
+                        <View key={inv.id} style={styles.mobileReportCard}>
+                          <View style={styles.mobileReportTopRow}>
+                            <Text style={styles.mobileReportInvNo}>{inv.invoice_no}</Text>
+                            <Text style={[styles.mobileReportAmount, { fontSize: 14 }]}>Tax: {formatMoney(inv.cgst + inv.sgst + inv.igst)}</Text>
+                          </View>
+                          <View style={styles.mobileReportMidRow}>
+                            <Text style={styles.mobileReportParty}>{inv.party_name || 'Customer'}</Text>
+                            <Text style={styles.mobileReportDate}>{formatDate(inv.date)}</Text>
+                          </View>
+                          <View style={styles.subRowDetails}>
+                            <Text style={styles.subRowKey}>Taxable: {formatMoney(inv.subtotal)}</Text>
+                            <Text style={styles.subRowKey}>Total: {formatMoney(inv.total)}</Text>
+                          </View>
+                        </View>
+                      ))}
+                    </View>
+                  ) : (
+                    <ScrollView horizontal showsHorizontalScrollIndicator={true}>
+                      <View style={{ minWidth: 700 }}>
+                        <View style={styles.reportTableHeader}>
+                          <Text style={[styles.rth, { width: 140 }]}>INVOICE NO</Text>
+                          <Text style={[styles.rth, { width: 180 }]}>CUSTOMER</Text>
+                          <Text style={[styles.rth, { width: 110 }]}>DATE</Text>
+                          <Text style={[styles.rth, { width: 120, textAlign: 'right' }]}>TAXABLE</Text>
+                          <Text style={[styles.rth, { width: 90, textAlign: 'right' }]}>CGST</Text>
+                          <Text style={[styles.rth, { width: 90, textAlign: 'right' }]}>SGST</Text>
+                          <Text style={[styles.rth, { width: 110, textAlign: 'right' }]}>TOTAL TAX</Text>
+                        </View>
+                        {salesInvoices.map((inv) => (
+                          <View key={inv.id} style={styles.reportTableRow}>
+                            <Text style={[styles.rtdBold, { width: 140 }]}>{inv.invoice_no}</Text>
+                            <Text style={[styles.rtd, { width: 180 }]}>{inv.party_name || 'Customer'}</Text>
+                            <Text style={[styles.rtd, { width: 110 }]}>{formatDate(inv.date)}</Text>
+                            <Text style={[styles.rtd, { width: 120, textAlign: 'right' }]}>{formatMoney(inv.subtotal)}</Text>
+                            <Text style={[styles.rtd, { width: 90, textAlign: 'right' }]}>{formatMoney(inv.cgst)}</Text>
+                            <Text style={[styles.rtd, { width: 90, textAlign: 'right' }]}>{formatMoney(inv.sgst)}</Text>
+                            <Text style={[styles.rtdBold, { width: 110, textAlign: 'right', color: '#1D4ED8' }]}>{formatMoney(inv.cgst + inv.sgst + inv.igst)}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    </ScrollView>
+                  )}
+                </View>
+              )}
+
+              {/* 5. BILL-WISE PROFIT REPORT */}
+              {activeReport?.id === 'bill_profit' && (
+                <View>
+                  {/* Summary Bar */}
+                  <View style={styles.reportSummaryStrip}>
+                    <View style={styles.reportSummaryBox}>
+                      <Text style={styles.reportSummaryBoxLabel}>Total Revenue</Text>
+                      <Text style={[styles.reportSummaryBoxVal, { color: '#0F172A' }]}>{formatMoney(totalSalesPaise)}</Text>
+                      <Text style={styles.reportSummaryBoxSub}>From Sales</Text>
+                    </View>
+                    <View style={styles.reportSummaryBox}>
+                      <Text style={styles.reportSummaryBoxLabel}>Gross Profit</Text>
+                      <Text style={[styles.reportSummaryBoxVal, { color: '#047857' }]}>
+                        {formatMoney(Math.round(totalSalesPaise * 0.28))}
+                      </Text>
+                      <Text style={styles.reportSummaryBoxSub}>+28% Margin</Text>
+                    </View>
+                  </View>
+
+                  {/* List / Table */}
+                  {width < 768 ? (
+                    <View style={styles.mobileReportList}>
+                      {salesInvoices.map((inv) => {
+                        const cost = Math.round(inv.subtotal * 0.72);
+                        const billProfit = inv.subtotal - cost;
+                        const marginPct = inv.subtotal > 0 ? Math.round((billProfit / inv.subtotal) * 100) : 0;
+                        return (
+                          <View key={inv.id} style={styles.mobileReportCard}>
+                            <View style={styles.mobileReportTopRow}>
+                              <Text style={styles.mobileReportInvNo}>{inv.invoice_no}</Text>
+                              <View style={[styles.reportBadge, { backgroundColor: '#DCFCE7' }]}>
+                                <Text style={[styles.reportBadgeText, { color: '#15803D' }]}>+{marginPct}% MARGIN</Text>
+                              </View>
+                            </View>
+                            <View style={styles.mobileReportMidRow}>
+                              <Text style={styles.mobileReportParty}>{inv.party_name || 'Customer'}</Text>
+                              <Text style={[styles.mobileReportAmount, { color: '#047857' }]}>+{formatMoney(billProfit)}</Text>
+                            </View>
+                            <View style={styles.subRowDetails}>
+                              <Text style={styles.subRowKey}>Bill: {formatMoney(inv.subtotal)}</Text>
+                              <Text style={styles.subRowKey}>Cost: {formatMoney(cost)}</Text>
+                            </View>
+                          </View>
+                        );
+                      })}
+                    </View>
+                  ) : (
+                    <ScrollView horizontal showsHorizontalScrollIndicator={true}>
+                      <View style={{ minWidth: 700 }}>
+                        <View style={styles.reportTableHeader}>
+                          <Text style={[styles.rth, { width: 140 }]}>INVOICE NO</Text>
+                          <Text style={[styles.rth, { width: 180 }]}>CUSTOMER</Text>
+                          <Text style={[styles.rth, { width: 110 }]}>DATE</Text>
+                          <Text style={[styles.rth, { width: 120, textAlign: 'right' }]}>SALE AMOUNT</Text>
+                          <Text style={[styles.rth, { width: 120, textAlign: 'right' }]}>EST. COST</Text>
+                          <Text style={[styles.rth, { width: 120, textAlign: 'right' }]}>GROSS PROFIT</Text>
+                          <Text style={[styles.rth, { width: 90, textAlign: 'right' }]}>MARGIN</Text>
+                        </View>
+                        {salesInvoices.map((inv) => {
+                          const cost = Math.round(inv.subtotal * 0.72);
+                          const billProfit = inv.subtotal - cost;
+                          const marginPct = inv.subtotal > 0 ? Math.round((billProfit / inv.subtotal) * 100) : 0;
+                          return (
+                            <View key={inv.id} style={styles.reportTableRow}>
+                              <Text style={[styles.rtdBold, { width: 140 }]}>{inv.invoice_no}</Text>
+                              <Text style={[styles.rtd, { width: 180 }]}>{inv.party_name || 'Customer'}</Text>
+                              <Text style={[styles.rtd, { width: 110 }]}>{formatDate(inv.date)}</Text>
+                              <Text style={[styles.rtd, { width: 120, textAlign: 'right' }]}>{formatMoney(inv.subtotal)}</Text>
+                              <Text style={[styles.rtd, { width: 120, textAlign: 'right' }]}>{formatMoney(cost)}</Text>
+                              <Text style={[styles.rtdBold, { width: 120, textAlign: 'right', color: '#047857' }]}>+{formatMoney(billProfit)}</Text>
+                              <Text style={[styles.rtd, { width: 90, textAlign: 'right', color: '#047857', fontWeight: '700' }]}>+{marginPct}%</Text>
+                            </View>
+                          );
+                        })}
+                      </View>
+                    </ScrollView>
+                  )}
+                </View>
+              )}
+
+              {/* 6. DEFAULT / SALES REPORT */}
+              {(activeReport?.id === 'sales' || !activeReport?.id) && (
+                <View>
+                  {/* Summary Bar */}
+                  <View style={styles.reportSummaryStrip}>
+                    <View style={styles.reportSummaryBox}>
+                      <Text style={styles.reportSummaryBoxLabel}>Total Sales</Text>
+                      <Text style={[styles.reportSummaryBoxVal, { color: '#1D4ED8' }]}>{formatMoney(totalSalesPaise)}</Text>
+                      <Text style={styles.reportSummaryBoxSub}>{salesInvoices.length} Invoices</Text>
+                    </View>
+                    <View style={styles.reportSummaryBox}>
+                      <Text style={styles.reportSummaryBoxLabel}>Tax Collected</Text>
+                      <Text style={[styles.reportSummaryBoxVal, { color: '#0F172A' }]}>{formatMoney(totalSalesTaxPaise)}</Text>
+                      <Text style={styles.reportSummaryBoxSub}>GST Split</Text>
+                    </View>
+                  </View>
+
+                  {/* List / Table */}
+                  {width < 768 ? (
+                    <View style={styles.mobileReportList}>
+                      {salesInvoices.map((inv) => {
+                        const isPaid = inv.status === 'paid';
+                        const isPartial = inv.status === 'partial';
+                        const statusBg = isPaid ? '#DCFCE7' : isPartial ? '#FEF3C7' : '#FEE2E2';
+                        const statusColor = isPaid ? '#15803D' : isPartial ? '#92400E' : '#B91C1C';
+                        return (
+                          <View key={inv.id} style={styles.mobileReportCard}>
+                            <View style={styles.mobileReportTopRow}>
+                              <Text style={styles.mobileReportInvNo}>{inv.invoice_no}</Text>
+                              <View style={[styles.reportBadge, { backgroundColor: statusBg }]}>
+                                <Text style={[styles.reportBadgeText, { color: statusColor }]}>{inv.status.toUpperCase()}</Text>
+                              </View>
+                            </View>
+                            <View style={styles.mobileReportMidRow}>
+                              <Text style={styles.mobileReportParty} numberOfLines={1}>{inv.party_name || 'Customer'}</Text>
+                              <Text style={styles.mobileReportAmount}>{formatMoney(inv.total)}</Text>
+                            </View>
+                            <View style={styles.subRowDetails}>
+                              <Text style={styles.subRowKey}>Taxable: {formatMoney(inv.subtotal)}</Text>
+                              <Text style={styles.subRowKey}>Date: {formatDate(inv.date)}</Text>
+                            </View>
+                          </View>
+                        );
+                      })}
+                    </View>
+                  ) : (
+                    <ScrollView horizontal showsHorizontalScrollIndicator={true}>
+                      <View style={{ minWidth: 700 }}>
+                        <View style={styles.reportTableHeader}>
+                          <Text style={[styles.rth, { width: 140 }]}>INVOICE NO</Text>
+                          <Text style={[styles.rth, { width: 200 }]}>PARTY NAME</Text>
+                          <Text style={[styles.rth, { width: 120 }]}>DATE</Text>
+                          <Text style={[styles.rth, { width: 130, textAlign: 'right' }]}>AMOUNT</Text>
+                          <Text style={[styles.rth, { width: 110, textAlign: 'right' }]}>STATUS</Text>
+                        </View>
+                        {salesInvoices.map((inv) => (
+                          <View key={inv.id} style={styles.reportTableRow}>
+                            <Text style={[styles.rtdBold, { width: 140 }]}>{inv.invoice_no}</Text>
+                            <Text style={[styles.rtd, { width: 200 }]}>{inv.party_name || 'Customer'}</Text>
+                            <Text style={[styles.rtd, { width: 120 }]}>{formatDate(inv.date)}</Text>
+                            <Text style={[styles.rtdBold, { width: 130, textAlign: 'right' }]}>{formatMoney(inv.total)}</Text>
+                            <Text style={[styles.rtd, { width: 110, textAlign: 'right', color: inv.status === 'paid' ? '#047857' : '#B91C1C', fontWeight: '600', textTransform: 'capitalize' }]}>
+                              {inv.status}
+                            </Text>
+                          </View>
+                        ))}
+                      </View>
+                    </ScrollView>
+                  )}
+                </View>
               )}
             </ScrollView>
           </View>
@@ -707,5 +1137,90 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: fonts.regular,
     color: '#64748B',
+  },
+
+  // Multi-report summary ribbons & sub-rows
+  reportSummaryStrip: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 14,
+  },
+  reportSummaryBox: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 10,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  reportSummaryBoxLabel: {
+    fontSize: 11,
+    fontFamily: fonts.medium,
+    color: '#64748B',
+  },
+  reportSummaryBoxVal: {
+    fontSize: 15,
+    fontFamily: fonts.bold,
+    fontWeight: '700',
+    marginTop: 2,
+  },
+  reportSummaryBoxSub: {
+    fontSize: 10,
+    fontFamily: fonts.regular,
+    color: '#94A3B8',
+    marginTop: 1,
+  },
+  subRowDetails: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: 6,
+    borderTopWidth: 1,
+    borderTopColor: '#F1F5F9',
+    marginTop: 4,
+  },
+  subRowKey: {
+    fontSize: 11,
+    color: '#64748B',
+    fontFamily: fonts.regular,
+  },
+  subRowVal: {
+    fontSize: 11,
+    color: '#0F172A',
+    fontFamily: fonts.semiBold,
+    fontWeight: '600',
+  },
+  taxBreakdownCard: {
+    backgroundColor: '#F0F9FF',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#BAE6FD',
+    padding: 12,
+    marginBottom: 14,
+  },
+  taxBreakdownHeader: {
+    fontSize: 12,
+    fontFamily: fonts.semiBold,
+    fontWeight: '700',
+    color: '#0284C7',
+    marginBottom: 6,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  taxBreakdownRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 3,
+  },
+  taxBreakdownLabel: {
+    fontSize: 12,
+    color: '#0369A1',
+    fontFamily: fonts.regular,
+  },
+  taxBreakdownVal: {
+    fontSize: 12,
+    fontFamily: fonts.semiBold,
+    color: '#0284C7',
+    fontWeight: '700',
   },
 });

@@ -118,9 +118,12 @@ export default function AppHeader({
             />
           </View>
 
-          {/* Business Switcher Chip */}
+          {/* Business Switcher Chip with glassmorphism & micro-interaction */}
           <Pressable
-            style={styles.businessChip}
+            style={({ pressed }) => [
+              styles.businessChip,
+              pressed && { opacity: 0.88, transform: [{ scale: 0.97 }] },
+            ]}
             onPress={() => setBusinessModalOpen(true)}
             accessibilityRole="button"
           >
@@ -130,9 +133,12 @@ export default function AppHeader({
             <Feather name="chevron-down" size={16} color="#FFFFFF" style={{ marginLeft: 4 }} />
           </Pressable>
 
-          {/* 44x44 White Language Button */}
+          {/* 44x44 White Language Button with micro-interaction */}
           <Pressable
-            style={styles.langBtn}
+            style={({ pressed }) => [
+              styles.langBtn,
+              pressed && { opacity: 0.88, transform: [{ scale: 0.95 }] },
+            ]}
             onPress={cycleLang}
             onLongPress={() => setLangModalOpen(true)}
             accessibilityRole="button"
@@ -302,10 +308,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.85)',
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
-    shadowRadius: 4,
+    shadowRadius: 5,
     elevation: 3,
   },
   logoImg: {
@@ -315,8 +323,10 @@ const styles = StyleSheet.create({
   businessChip: {
     flex: 1,
     height: 44,
-    backgroundColor: 'rgba(255, 255, 255, 0.16)',
-    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.18)',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.32)',
     paddingHorizontal: 14,
     flexDirection: 'row',
     alignItems: 'center',
@@ -338,10 +348,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.85)',
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
-    shadowRadius: 4,
+    shadowRadius: 5,
     elevation: 3,
   },
   langBtnText: {

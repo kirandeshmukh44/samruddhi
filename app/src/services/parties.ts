@@ -6,13 +6,12 @@ import { Party } from '../types';
 import safeStorage from '../lib/storage';
 
 const PARTIES_STORAGE_KEY = 'bilu_parties_data_v2';
-const LEGACY_PARTIES_KEY = 'samruddhi_parties_data';
 let parties = [...mockParties];
 
 // Auto-load persisted parties on startup
 const loadStoredParties = async () => {
   try {
-    const data = (await safeStorage.getItem(PARTIES_STORAGE_KEY)) || (await safeStorage.getItem(LEGACY_PARTIES_KEY));
+    const data = await safeStorage.getItem(PARTIES_STORAGE_KEY);
     if (data) {
       const parsed = JSON.parse(data);
       if (Array.isArray(parsed) && parsed.length > 0) {

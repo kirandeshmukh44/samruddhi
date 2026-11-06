@@ -98,100 +98,158 @@ export default function PaymentsScreen() {
         }
       />
 
-      {/* Summary KPI Cards: Total In vs Total Out */}
-      <View style={styles.kpiRow}>
-        <Card style={styles.kpiCard}>
-          <View style={styles.kpiIconWrapIn}>
-            <Feather name="arrow-down-left" size={20} color="#047857" />
-          </View>
-          <View>
-            <Text style={styles.kpiLabel}>{t('payments.received', 'Total Received')}</Text>
-            <Text style={[styles.kpiValue, { color: '#047857' }]}>{formatMoney(totalIn)}</Text>
-          </View>
-        </Card>
-
-        <Card style={styles.kpiCard}>
-          <View style={styles.kpiIconWrapOut}>
-            <Feather name="arrow-up-right" size={20} color="#B91C1C" />
-          </View>
-          <View>
-            <Text style={styles.kpiLabel}>{t('payments.paid', 'Total Paid')}</Text>
-            <Text style={[styles.kpiValue, { color: '#B91C1C' }]}>{formatMoney(totalOut)}</Text>
-          </View>
-        </Card>
-      </View>
-
-      {/* Filter Tabs: All, Money In, Money Out */}
-      <View style={styles.filterPillsRow}>
-        <Pressable
-          style={[styles.filterPill, activeTab === 'all' && styles.filterPillActive]}
-          onPress={() => setActiveTab('all')}
-        >
-          <Text style={[styles.filterPillText, activeTab === 'all' && styles.filterPillTextActive]}>
-            All Transactions ({payments.length})
-          </Text>
-        </Pressable>
-
-        <Pressable
-          style={[styles.filterPill, activeTab === 'in' && styles.filterPillActive]}
-          onPress={() => setActiveTab('in')}
-        >
-          <Text style={[styles.filterPillText, activeTab === 'in' && styles.filterPillTextActive]}>
-            Money In (Received)
-          </Text>
-        </Pressable>
-
-        <Pressable
-          style={[styles.filterPill, activeTab === 'out' && styles.filterPillActive]}
-          onPress={() => setActiveTab('out')}
-        >
-          <Text style={[styles.filterPillText, activeTab === 'out' && styles.filterPillTextActive]}>
-            Money Out (Paid)
-          </Text>
-        </Pressable>
-      </View>
-
-      {/* Payment Records: Desktop Table vs Mobile Cards */}
-      {isDesktop ? (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <Card style={[styles.tableCard, { minWidth: 680 }]}>
-            <View style={styles.tableHeader}>
-              <Text style={[styles.th, { flex: 2.5 }]}>PARTY NAME</Text>
-              <Text style={[styles.th, { flex: 1.5 }]}>DATE</Text>
-              <Text style={[styles.th, { flex: 1.5 }]}>PAYMENT MODE</Text>
-              <Text style={[styles.th, { flex: 2 }]}>NOTE / REF</Text>
-              <Text style={[styles.th, { flex: 2, textAlign: 'right' }]}>AMOUNT (₹)</Text>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ padding: 20, paddingBottom: 95 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Summary KPI Cards: Total In vs Total Out */}
+        <View style={styles.kpiRow}>
+          <Card style={styles.kpiCard}>
+            <View style={styles.kpiIconWrapIn}>
+              <Feather name="arrow-down-left" size={20} color="#047857" />
             </View>
+            <View>
+              <Text style={styles.kpiLabel}>{t('payments.received', 'Total Received')}</Text>
+              <Text style={[styles.kpiValue, { color: '#047857' }]}>{formatMoney(totalIn)}</Text>
+            </View>
+          </Card>
 
+          <Card style={styles.kpiCard}>
+            <View style={styles.kpiIconWrapOut}>
+              <Feather name="arrow-up-right" size={20} color="#B91C1C" />
+            </View>
+            <View>
+              <Text style={styles.kpiLabel}>{t('payments.paid', 'Total Paid')}</Text>
+              <Text style={[styles.kpiValue, { color: '#B91C1C' }]}>{formatMoney(totalOut)}</Text>
+            </View>
+          </Card>
+        </View>
+
+        {/* Filter Tabs: All, Money In, Money Out */}
+        <View style={styles.filterPillsRow}>
+          <Pressable
+            style={[styles.filterPill, activeTab === 'all' && styles.filterPillActive]}
+            onPress={() => setActiveTab('all')}
+          >
+            <Text style={[styles.filterPillText, activeTab === 'all' && styles.filterPillTextActive]}>
+              All Transactions ({payments.length})
+            </Text>
+          </Pressable>
+
+          <Pressable
+            style={[styles.filterPill, activeTab === 'in' && styles.filterPillActive]}
+            onPress={() => setActiveTab('in')}
+          >
+            <Text style={[styles.filterPillText, activeTab === 'in' && styles.filterPillTextActive]}>
+              Money In (Received)
+            </Text>
+          </Pressable>
+
+          <Pressable
+            style={[styles.filterPill, activeTab === 'out' && styles.filterPillActive]}
+            onPress={() => setActiveTab('out')}
+          >
+            <Text style={[styles.filterPillText, activeTab === 'out' && styles.filterPillTextActive]}>
+              Money Out (Paid)
+            </Text>
+          </Pressable>
+        </View>
+
+        {/* Payment Records: Desktop Table vs Mobile Cards */}
+        {isDesktop ? (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <Card style={[styles.tableCard, { minWidth: 680 }]}>
+              <View style={styles.tableHeader}>
+                <Text style={[styles.th, { flex: 2.5 }]}>PARTY NAME</Text>
+                <Text style={[styles.th, { flex: 1.5 }]}>DATE</Text>
+                <Text style={[styles.th, { flex: 1.5 }]}>PAYMENT MODE</Text>
+                <Text style={[styles.th, { flex: 2 }]}>NOTE / REF</Text>
+                <Text style={[styles.th, { flex: 2, textAlign: 'right' }]}>AMOUNT (₹)</Text>
+              </View>
+
+              {filteredPayments.length > 0 ? (
+                filteredPayments.map((p) => {
+                  const party = parties.find((pt) => pt.id === p.party_id);
+                  const isIn = p.direction === 'in';
+                  return (
+                    <View key={p.id} style={styles.tableRow}>
+                      <View style={{ flex: 2.5 }}>
+                        <Text style={styles.tdBold}>{party?.name || 'Cash Customer'}</Text>
+                        <Text style={styles.tdSub}>{isIn ? 'From Customer' : 'To Supplier'}</Text>
+                      </View>
+                      <Text style={[styles.td, { flex: 1.5 }]}>{formatDate(p.date)}</Text>
+                      <View style={{ flex: 1.5 }}>
+                        <View style={styles.modeBadge}>
+                          <Text style={styles.modeBadgeText}>{p.mode.toUpperCase()}</Text>
+                        </View>
+                      </View>
+                      <Text style={[styles.tdSub, { flex: 2 }]} numberOfLines={1}>
+                        {p.note || '-'}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.tdBold,
+                          { flex: 2, textAlign: 'right', color: isIn ? '#047857' : '#B91C1C' },
+                        ]}
+                      >
+                        {isIn ? '+ ' : '- '}
+                        {formatMoney(p.amount)}
+                      </Text>
+                    </View>
+                  );
+                })
+              ) : (
+                <View style={styles.emptyBox}>
+                  <Text style={styles.emptyText}>No payment entries recorded yet</Text>
+                </View>
+              )}
+            </Card>
+          </ScrollView>
+        ) : (
+          <View style={styles.mobileCardsList}>
             {filteredPayments.length > 0 ? (
               filteredPayments.map((p) => {
                 const party = parties.find((pt) => pt.id === p.party_id);
                 const isIn = p.direction === 'in';
                 return (
-                  <View key={p.id} style={styles.tableRow}>
-                    <View style={{ flex: 2.5 }}>
-                      <Text style={styles.tdBold}>{party?.name || 'Cash Customer'}</Text>
-                      <Text style={styles.tdSub}>{isIn ? 'From Customer' : 'To Supplier'}</Text>
-                    </View>
-                    <Text style={[styles.td, { flex: 1.5 }]}>{formatDate(p.date)}</Text>
-                    <View style={{ flex: 1.5 }}>
-                      <View style={styles.modeBadge}>
-                        <Text style={styles.modeBadgeText}>{p.mode.toUpperCase()}</Text>
+                  <Card key={p.id} style={styles.mobileCard}>
+                    <View style={styles.mobileCardLeft}>
+                      <View
+                        style={[
+                          styles.mobileIconWrap,
+                          { backgroundColor: isIn ? '#DCFCE7' : '#FEE2E2' },
+                        ]}
+                      >
+                        <Feather
+                          name={isIn ? 'arrow-down-left' : 'arrow-up-right'}
+                          size={18}
+                          color={isIn ? '#047857' : '#B91C1C'}
+                        />
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.mobilePartyName}>{party?.name || 'Cash Customer'}</Text>
+                        <Text style={styles.mobileDateSub}>
+                          {formatDate(p.date)} · {p.mode.toUpperCase()}
+                        </Text>
                       </View>
                     </View>
-                    <Text style={[styles.tdSub, { flex: 2 }]} numberOfLines={1}>
-                      {p.note || '-'}
-                    </Text>
-                    <Text
-                      style={[
-                        styles.tdBold,
-                        { flex: 2, textAlign: 'right', color: isIn ? '#047857' : '#B91C1C' },
-                      ]}
-                    >
-                      {isIn ? '+ ' : '- '}
-                      {formatMoney(p.amount)}
-                    </Text>
-                  </View>
+
+                    <View style={{ alignItems: 'flex-end' }}>
+                      <Text
+                        style={[
+                          styles.mobileAmount,
+                          { color: isIn ? '#047857' : '#B91C1C' },
+                        ]}
+                      >
+                        {isIn ? '+ ' : '- '}
+                        {formatMoney(p.amount)}
+                      </Text>
+                      <Text style={styles.mobileDirectionBadge}>
+                        {isIn ? 'RECEIVED' : 'PAID OUT'}
+                      </Text>
+                    </View>
+                  </Card>
                 );
               })
             ) : (
@@ -199,61 +257,9 @@ export default function PaymentsScreen() {
                 <Text style={styles.emptyText}>No payment entries recorded yet</Text>
               </View>
             )}
-          </Card>
-        </ScrollView>
-      ) : (
-        <View style={styles.mobileCardsList}>
-          {filteredPayments.length > 0 ? (
-            filteredPayments.map((p) => {
-              const party = parties.find((pt) => pt.id === p.party_id);
-              const isIn = p.direction === 'in';
-              return (
-                <Card key={p.id} style={styles.mobileCard}>
-                  <View style={styles.mobileCardLeft}>
-                    <View
-                      style={[
-                        styles.mobileIconWrap,
-                        { backgroundColor: isIn ? '#DCFCE7' : '#FEE2E2' },
-                      ]}
-                    >
-                      <Feather
-                        name={isIn ? 'arrow-down-left' : 'arrow-up-right'}
-                        size={18}
-                        color={isIn ? '#047857' : '#B91C1C'}
-                      />
-                    </View>
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.mobilePartyName}>{party?.name || 'Cash Customer'}</Text>
-                      <Text style={styles.mobileDateSub}>
-                        {formatDate(p.date)} · {p.mode.toUpperCase()}
-                      </Text>
-                    </View>
-                  </View>
-
-                  <View style={{ alignItems: 'flex-end' }}>
-                    <Text
-                      style={[
-                        styles.mobileAmount,
-                        { color: isIn ? '#047857' : '#B91C1C' },
-                      ]}
-                    >
-                      {isIn ? '+ ' : '- '}
-                      {formatMoney(p.amount)}
-                    </Text>
-                    <Text style={styles.mobileDirectionBadge}>
-                      {isIn ? 'RECEIVED' : 'PAID OUT'}
-                    </Text>
-                  </View>
-                </Card>
-              );
-            })
-          ) : (
-            <View style={styles.emptyBox}>
-              <Text style={styles.emptyText}>No payment entries recorded yet</Text>
-            </View>
-          )}
-        </View>
-      )}
+          </View>
+        )}
+      </ScrollView>
 
       {/* Record Payment Modal */}
       <Modal

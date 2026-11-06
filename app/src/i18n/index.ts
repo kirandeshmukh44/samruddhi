@@ -8,7 +8,6 @@ import hi from './hi.json';
 import mr from './mr.json';
 
 const LANGUAGE_KEY = 'bilu_language';
-const LEGACY_LANG_KEY = 'samruddhi_language';
 
 export const supportedLanguages = [
   { code: 'en', label: 'English' },
@@ -31,7 +30,7 @@ i18n.use(initReactI18next).init({
 // Load persisted language on startup.
 export async function loadLanguage() {
   try {
-    const saved = (await safeStorage.getItem(LANGUAGE_KEY)) || (await safeStorage.getItem(LEGACY_LANG_KEY));
+    const saved = await safeStorage.getItem(LANGUAGE_KEY);
     if (saved && ['en', 'hi', 'mr'].includes(saved)) {
       await i18n.changeLanguage(saved);
     }

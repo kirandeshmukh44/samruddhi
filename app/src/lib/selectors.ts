@@ -20,6 +20,7 @@ export interface BankAccount {
   bankName: string;
   accountNo: string;
   balance: number; // paise
+  ifsc?: string;
 }
 
 /**

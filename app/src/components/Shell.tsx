@@ -48,8 +48,8 @@ export default function Shell({ children }: { children: React.ReactNode }) {
     { key: 'dashboard', label: t('nav.dashboard', 'Dashboard'), path: '/', icon: 'home' },
     { key: 'sale', label: t('nav.sale', 'Sale invoices'), path: '/sale', icon: 'file-text' },
     { key: 'purchase', label: t('nav.purchase', 'Purchase bills'), path: '/purchase', icon: 'shopping-cart' },
-    { key: 'parties', label: t('nav.parties', 'Parties / Clients'), path: '/parties', icon: 'users' },
-    { key: 'items', label: t('nav.items', 'Items & Products'), path: '/items', icon: 'package' },
+    { key: 'parties', label: t('nav.parties', 'Parties'), path: '/parties', icon: 'users' },
+    { key: 'items', label: t('nav.items', 'Items'), path: '/items', icon: 'package' },
     { key: 'payments', label: t('nav.payments', 'Payments'), path: '/payments', icon: 'credit-card' },
     { key: 'reports', label: t('nav.reports', 'Reports'), path: '/reports', icon: 'bar-chart-2' },
     { key: 'gst-returns', label: t('nav.gstReturns', 'GST Returns'), path: '/gst-returns', icon: 'book-open' },
@@ -136,7 +136,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             accessibilityRole="button"
           >
             <Feather name="plus-circle" size={18} color="#FFFFFF" />
-            <Text style={styles.sidebarNewInvoiceText}>{t('invoices.newSale', '+ New Invoice')}</Text>
+            <Text style={styles.sidebarNewInvoiceText}>{t('invoices.newSale', 'New Invoice')}</Text>
           </Pressable>
 
           {/* Navigation Links */}
@@ -337,56 +337,52 @@ export default function Shell({ children }: { children: React.ReactNode }) {
   }
 
   // Mobile Shell (< 900px)
-  // AppHeader extends behind the status bar on every screen with insets.top handled internally
-  const topPadding = 0;
   // Dynamic bottom padding to clear Android soft navigation buttons and iPhone home indicator
-  const bottomPadding = Math.max(insets.bottom, 12);
+  const navBottomOffset = Math.max(insets.bottom, 12);
 
   return (
     <View style={styles.mobileRoot}>
       {/* Content Area */}
-      <View style={[styles.mobileContentArea, { paddingTop: topPadding }]}>
+      <View style={styles.mobileContentArea}>
         {children}
       </View>
 
-      {/* Bottom Tab Bar with safe bottom inset */}
+      {/* Floating Glass Bottom Navigation (Image 1: Design 5 - Expanding Label) */}
       <View
+        pointerEvents="box-none"
         style={[
-          styles.mobileTabBar,
-          {
-            paddingBottom: bottomPadding,
-            minHeight: 56 + bottomPadding,
-          },
+          styles.floatingNavWrapper,
+          { bottom: navBottomOffset },
         ]}
       >
-        {mobileTabs.map((tab) => {
-          const active = isTabActive(tab);
-          return (
-            <Pressable
-              key={tab.key}
-              onPress={() => router.push(tab.path as any)}
-              style={({ pressed }) => [
-                styles.mobileTabItem,
-                pressed && { opacity: 0.7, transform: [{ scale: 0.92 }] },
-              ]}
-              accessibilityRole="tab"
-            >
-              <Feather
-                name={tab.icon}
-                size={22}
-                color={active ? colors.primary : colors.muted}
-              />
-              <Text
-                style={[
-                  styles.mobileTabLabel,
-                  active ? styles.mobileTabLabelActive : styles.mobileTabLabelInactive,
+        <View style={styles.floatingNavBar}>
+          {mobileTabs.map((tab) => {
+            const active = isTabActive(tab);
+            return (
+              <Pressable
+                key={tab.key}
+                onPress={() => router.push(tab.path as any)}
+                style={({ pressed }) => [
+                  active ? styles.tabItemActive : styles.tabItemInactive,
+                  pressed && { opacity: 0.82, transform: [{ scale: 0.94 }] },
                 ]}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: active }}
               >
-                {tab.label}
-              </Text>
-            </Pressable>
-          );
-        })}
+                <Feather
+                  name={tab.icon}
+                  size={active ? 18 : 22}
+                  color={active ? '#FFFFFF' : '#64748B'}
+                />
+                {active && (
+                  <Text style={styles.tabActiveLabel} numberOfLines={1}>
+                    {tab.label}
+                  </Text>
+                )}
+              </Pressable>
+            );
+          })}
+        </View>
       </View>
     </View>
   );
@@ -586,33 +582,65 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.bg,
   },
-  mobileTabBar: {
-    flexDirection: 'row',
-    backgroundColor: colors.white,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    paddingTop: 8,
+  // Mobile Floating Navigation (Image 1: Design 5 - Expanding Label)
+  floatingNavWrapper: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
     alignItems: 'center',
+    zIndex: 999,
   },
-  mobileTabItem: {
-    flex: 1,
+  floatingNavBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(255, 255, 255, 0.94)',
+    borderRadius: 32,
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.90)',
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.12,
+    shadowRadius: 20,
+    elevation: 12,
+    maxWidth: 400,
+    width: '92%',
+    ...(Platform.OS === 'web'
+      ? ({
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        } as any)
+      : {}),
+  },
+  tabItemActive: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1D4ED8',
+    height: 44,
+    paddingHorizontal: 16,
+    borderRadius: 22,
+    gap: 8,
+    shadowColor: '#1D4ED8',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  tabActiveLabel: {
+    color: '#FFFFFF',
+    fontFamily: fonts.semiBold,
+    fontWeight: '600',
+    fontSize: 13,
+  },
+  tabItemInactive: {
+    height: 44,
+    minWidth: 44,
+    paddingHorizontal: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 44,
-    gap: 3,
-  },
-  mobileTabLabel: {
-    fontSize: 12,
-  },
-  mobileTabLabelActive: {
-    color: colors.primary,
-    fontFamily: fonts.bold,
-    fontWeight: '700',
-  },
-  mobileTabLabelInactive: {
-    color: colors.muted,
-    fontFamily: fonts.regular,
-    fontWeight: '400',
+    borderRadius: 22,
   },
 
   // Modals

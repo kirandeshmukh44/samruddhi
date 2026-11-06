@@ -6,9 +6,7 @@ import { Invoice, Payment } from '../types';
 import safeStorage from '../lib/storage';
 
 const INVOICES_STORAGE_KEY = 'bilu_invoices_data_v2';
-const LEGACY_INVOICES_KEY = 'samruddhi_invoices_data';
 const PAYMENTS_STORAGE_KEY = 'bilu_payments_data_v2';
-const LEGACY_PAYMENTS_KEY = 'samruddhi_payments_data';
 
 let invoices = [...mockInvoices];
 let payments = [...mockPayments];
@@ -16,7 +14,7 @@ let payments = [...mockPayments];
 // Auto-load persisted invoices & payments on startup
 const loadStoredData = async () => {
   try {
-    const invData = (await safeStorage.getItem(INVOICES_STORAGE_KEY)) || (await safeStorage.getItem(LEGACY_INVOICES_KEY));
+    const invData = await safeStorage.getItem(INVOICES_STORAGE_KEY);
     if (invData) {
       const parsed = JSON.parse(invData);
       if (Array.isArray(parsed) && parsed.length > 0) {
@@ -25,7 +23,7 @@ const loadStoredData = async () => {
       }
     }
 
-    const payData = (await safeStorage.getItem(PAYMENTS_STORAGE_KEY)) || (await safeStorage.getItem(LEGACY_PAYMENTS_KEY));
+    const payData = await safeStorage.getItem(PAYMENTS_STORAGE_KEY);
     if (payData) {
       const parsedPay = JSON.parse(payData);
       if (Array.isArray(parsedPay) && parsedPay.length > 0) {

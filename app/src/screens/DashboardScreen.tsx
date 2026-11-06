@@ -33,6 +33,79 @@ import {
   getMonthlySalesOverview,
 } from '../lib/selectors';
 import { formatDate } from '../lib/dates';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from 'react-native-reanimated';
+
+function AnimatedBar({
+  targetHeight,
+  isSelected,
+  color,
+  label,
+  valueText,
+  onPress,
+}: {
+  targetHeight: number;
+  isSelected: boolean;
+  color: string;
+  label: string;
+  valueText: string;
+  onPress: () => void;
+}) {
+  const heightAnim = useSharedValue(0);
+
+  useEffect(() => {
+    heightAnim.value = withTiming(targetHeight, { duration: 600 });
+  }, [targetHeight]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    height: heightAnim.value,
+  }));
+
+  return (
+    <Pressable
+      style={styles.chartCol}
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityState={{ selected: isSelected }}
+    >
+      <Text
+        style={[
+          styles.colValText,
+          isSelected && { color: color, fontWeight: '700', fontFamily: fonts.bold },
+        ]}
+      >
+        {valueText}
+      </Text>
+      <View style={styles.barTrack}>
+        <Animated.View
+          style={[
+            styles.barFill,
+            { backgroundColor: color },
+            isSelected && {
+              shadowColor: color,
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.35,
+              shadowRadius: 10,
+              elevation: 4,
+            },
+            animatedStyle,
+          ]}
+        />
+      </View>
+      <Text
+        style={[
+          styles.monthLabel,
+          isSelected && [styles.monthLabelActive, { color: color }],
+        ]}
+      >
+        {label}
+      </Text>
+    </Pressable>
+  );
+}
 
 export default function DashboardScreen() {
   const { t, i18n } = useTranslation();
@@ -71,7 +144,7 @@ export default function DashboardScreen() {
     { label: t('dashboard.addPurchase', 'Purchase'), path: '/purchase', icon: 'shopping-cart' as const },
     { label: t('dashboard.addPayment', 'Payment'), path: '/payments', icon: 'credit-card' as const },
     { label: t('dashboard.reports', 'Reports'), path: '/reports', icon: 'bar-chart-2' as const },
-    { label: t('dashboard.gstReturns', 'GST Returns'), path: '/gst-returns', icon: 'book-open' as const },
+    { label: t('dashboard.gstReturns', 'GST'), path: '/gst-returns', icon: 'book-open' as const },
   ];
 
   const cycleLang = async () => {
@@ -261,8 +334,8 @@ export default function DashboardScreen() {
           onPress={() => router.push('/sale' as any)}
           accessibilityRole="button"
         >
-          <Feather name="plus" size={20} color="#0F172A" style={{ marginRight: 6 }} />
-          <Text style={styles.floatingSaleText}>{t('dashboard.newSaleBtn', '+ New sale')}</Text>
+          <Feather name="plus" size={18} color="#0F172A" style={{ marginRight: 6 }} />
+          <Text style={styles.floatingSaleText}>{t('dashboard.newSaleBtn', 'New sale')}</Text>
         </Pressable>
       </View>
     );
@@ -286,43 +359,61 @@ export default function DashboardScreen() {
         contentContainerStyle={styles.mobileScrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Two white cards side by side */}
+        {/* Two glass cards side by side */}
         <View style={styles.overlapCardsRow}>
-          <Card style={styles.overlapCard}>
-            <Text style={styles.overlapCardLabel}>{t('dashboard.toCollect', 'To collect')}</Text>
-            <Text style={[styles.overlapCardValue, { color: '#047857' }]}>
+          <Card style={styles.overlapCard} variant="glass">
+            <View style={styles.cardHeaderSmall}>
+              <View style={[styles.statusDot, { backgroundColor: '#10B981' }]} />
+              <Text style={styles.overlapCardLabel}>{t('dashboard.toCollect', 'To collect')}</Text>
+            </View>
+            <Text
+              style={[styles.overlapCardValue, { color: '#047857' }]}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.6}
+            >
               {formatMoney(toCollectPaise)}
             </Text>
           </Card>
 
-          <Card style={styles.overlapCard}>
-            <Text style={styles.overlapCardLabel}>{t('dashboard.toPay', 'To pay')}</Text>
-            <Text style={[styles.overlapCardValue, { color: '#B91C1C' }]}>
+          <Card style={styles.overlapCard} variant="glass">
+            <View style={styles.cardHeaderSmall}>
+              <View style={[styles.statusDot, { backgroundColor: '#EF4444' }]} />
+              <Text style={styles.overlapCardLabel}>{t('dashboard.toPay', 'To pay')}</Text>
+            </View>
+            <Text
+              style={[styles.overlapCardValue, { color: '#B91C1C' }]}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.6}
+            >
               {formatMoney(toPayPaise)}
             </Text>
           </Card>
         </View>
 
-        {/* 4 quick-action tiles grid */}
+        {/* 5 quick-action tiles grid with glassmorphism */}
         <View style={styles.tilesGrid}>
           {quickActions.map((tile) => (
             <Pressable
               key={tile.path}
               style={({ pressed }) => [
                 styles.tileBox,
-                pressed && { opacity: 0.85, transform: [{ scale: 0.96 }] },
+                pressed && { opacity: 0.85, transform: [{ scale: 0.94 }] },
               ]}
               onPress={() => router.push(tile.path as any)}
               accessibilityRole="button"
             >
-              <Feather name={tile.icon} size={24} color="#1D4ED8" />
-              <Text style={styles.tileLabel}>{tile.label}</Text>
+              <View style={styles.tileIconCircle}>
+                <Feather name={tile.icon} size={20} color="#1D4ED8" />
+              </View>
+              <Text style={styles.tileLabel} numberOfLines={1}>{tile.label}</Text>
             </Pressable>
           ))}
         </View>
 
         {/* Sales Overview Monthly Trend Chart */}
-        <Card style={styles.chartCard}>
+        <Card style={styles.chartCard} variant="glass">
           <View style={styles.chartHeader}>
             <View>
               <Text style={styles.chartTitle}>{t('dashboard.saleOverview', 'Sale Overview')} ({selectedMonth})</Text>
@@ -343,38 +434,33 @@ export default function DashboardScreen() {
             </View>
           </View>
 
-          {/* Multi-month graphical trend bars with interactive tap selection */}
+          {/* Multi-month graphical trend bars with interactive tap selection and spring animations */}
           <View style={styles.chartVisualArea}>
             <View style={styles.chartColsRow}>
-              <Pressable
-                style={styles.chartCol}
+              <AnimatedBar
+                targetHeight={42}
+                isSelected={selectedMonth === 'Sept'}
+                color={selectedMonth === 'Sept' ? '#1D4ED8' : '#94A3B8'}
+                label="Sept"
+                valueText="₹ 1.8k"
                 onPress={() => setSelectedMonth('Sept')}
-                accessibilityRole="button"
-              >
-                <Text style={[styles.colValText, selectedMonth === 'Sept' && { color: '#1D4ED8', fontWeight: '700' }]}>₹ 1.8k</Text>
-                <View style={[styles.barFill, { height: 42 }, selectedMonth === 'Sept' && { backgroundColor: '#1D4ED8' }]} />
-                <Text style={[styles.monthLabel, selectedMonth === 'Sept' && styles.monthLabelActive]}>Sept</Text>
-              </Pressable>
-
-              <Pressable
-                style={styles.chartCol}
+              />
+              <AnimatedBar
+                targetHeight={78}
+                isSelected={selectedMonth === 'Oct'}
+                color={selectedMonth === 'Oct' ? '#7C3AED' : '#94A3B8'}
+                label="Oct"
+                valueText="₹ 3.8k"
                 onPress={() => setSelectedMonth('Oct')}
-                accessibilityRole="button"
-              >
-                <Text style={[styles.colValText, selectedMonth === 'Oct' && { color: '#7C3AED', fontWeight: '700' }]}>₹ 3.8k</Text>
-                <View style={[styles.barFill, styles.barFillPeak, { height: 78 }, selectedMonth === 'Oct' && { backgroundColor: '#7C3AED' }]} />
-                <Text style={[styles.monthLabel, selectedMonth === 'Oct' && styles.monthLabelActive]}>Oct</Text>
-              </Pressable>
-
-              <Pressable
-                style={styles.chartCol}
+              />
+              <AnimatedBar
+                targetHeight={68}
+                isSelected={selectedMonth === 'Nov'}
+                color={selectedMonth === 'Nov' ? '#1D4ED8' : '#94A3B8'}
+                label="Nov"
+                valueText="₹ 3.4k"
                 onPress={() => setSelectedMonth('Nov')}
-                accessibilityRole="button"
-              >
-                <Text style={[styles.colValText, selectedMonth === 'Nov' && { color: '#1D4ED8', fontWeight: '700' }]}>₹ 3.4k</Text>
-                <View style={[styles.barFill, styles.barFillCurrent, { height: 68 }, selectedMonth === 'Nov' && { backgroundColor: '#1D4ED8' }]} />
-                <Text style={[styles.monthLabel, selectedMonth === 'Nov' && styles.monthLabelActive]}>Nov</Text>
-              </Pressable>
+              />
             </View>
           </View>
         </Card>
@@ -451,8 +537,8 @@ export default function DashboardScreen() {
         onPress={() => router.push('/sale' as any)}
         accessibilityRole="button"
       >
-        <Feather name="plus" size={20} color="#0F172A" style={{ marginRight: 6 }} />
-        <Text style={styles.floatingSaleText}>{t('dashboard.newSaleBtn', '+ New sale')}</Text>
+        <Feather name="plus" size={18} color="#0F172A" style={{ marginRight: 6 }} />
+        <Text style={styles.floatingSaleText}>{t('dashboard.newSaleBtn', 'New sale')}</Text>
       </Pressable>
 
       {/* Transaction Detail Modal */}
@@ -626,14 +712,24 @@ const styles = StyleSheet.create({
   overlapCard: {
     flex: 1,
     padding: 14,
-    borderRadius: 14,
-    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.88)',
+  },
+  cardHeaderSmall: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 4,
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
   overlapCardLabel: {
     fontSize: 13,
     fontFamily: fonts.medium,
     color: '#475569',
-    marginBottom: 4,
   },
   overlapCardValue: {
     fontSize: 20,
@@ -644,35 +740,46 @@ const styles = StyleSheet.create({
   // Quick Action Tiles
   tilesGrid: {
     flexDirection: 'row',
-    gap: 10,
-    marginBottom: 20,
+    gap: 8,
+    marginBottom: 18,
   },
   tileBox: {
     flex: 1,
-    minHeight: 84,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
+    minHeight: 78,
+    backgroundColor: 'rgba(255, 255, 255, 0.88)',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.75)',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-    paddingVertical: 12,
+    gap: 5,
+    paddingVertical: 10,
     shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
     elevation: 2,
   },
+  tileIconCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    backgroundColor: 'rgba(29, 78, 216, 0.08)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   tileLabel: {
-    fontSize: 12,
+    fontSize: 11,
     fontFamily: fonts.semiBold,
     fontWeight: '600',
     color: '#0F172A',
+    textAlign: 'center',
   },
 
   // Sales Trend Chart (BiLU ERP Feature)
   chartCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
+    backgroundColor: 'rgba(255, 255, 255, 0.88)',
+    borderRadius: 16,
     padding: 16,
     marginBottom: 14,
   },
@@ -717,12 +824,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'flex-end',
-    height: 110,
+    height: 120,
     paddingTop: 10,
   },
   chartCol: {
     alignItems: 'center',
-    width: 64,
+    width: 68,
   },
   colValText: {
     fontSize: 11,
@@ -730,9 +837,16 @@ const styles = StyleSheet.create({
     color: '#64748B',
     marginBottom: 6,
   },
-  barFill: {
+  barTrack: {
+    height: 80,
     width: 28,
-    backgroundColor: '#CBD5E1',
+    backgroundColor: 'rgba(241, 245, 249, 0.8)',
+    borderRadius: 6,
+    justifyContent: 'flex-end',
+    overflow: 'hidden',
+  },
+  barFill: {
+    width: '100%',
     borderRadius: 6,
   },
   barFillPeak: {
@@ -845,14 +959,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 22,
     borderRadius: 28,
     backgroundColor: '#F59E0B',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.45)',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 6,
+    shadowColor: '#D97706',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.38,
+    shadowRadius: 14,
+    elevation: 8,
     zIndex: 999,
   },
   floatingSaleBtnDesktop: {
@@ -864,15 +980,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 22,
     borderRadius: 28,
     backgroundColor: '#F59E0B',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.45)',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 5,
-    zIndex: 100,
+    shadowColor: '#D97706',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.38,
+    shadowRadius: 14,
+    elevation: 8,
+    zIndex: 999,
   },
   floatingSaleText: {
     color: '#0F172A',
