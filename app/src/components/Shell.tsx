@@ -106,22 +106,13 @@ export default function Shell({ children }: { children: React.ReactNode }) {
       <View style={styles.wideRoot}>
         {/* Left Sidebar */}
         <View style={styles.sidebar}>
-          {/* BiLU ERP Brand Logo Header (from User Images) */}
-          <View style={styles.sidebarBrandHeader}>
+          {/* BiLU ERP Wordmark card (white rounded card) */}
+          <View style={styles.sidebarWordmarkCard}>
             <Image
-              source={require('../../assets/images/bilu-badge.png')}
-              style={styles.sidebarLogoImg}
+              source={require('../../assets/images/bilu-wordmark.jpg')}
+              style={styles.sidebarWordmarkImg}
               resizeMode="contain"
             />
-            <View style={{ marginLeft: 10 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={styles.sidebarBrandTitle}>BiLU</Text>
-                <View style={styles.erpBadgeSidebar}>
-                  <Text style={styles.erpBadgeSidebarText}>ERP</Text>
-                </View>
-              </View>
-              <Text style={styles.sidebarBrandSubtitle}>Pravara Infotech</Text>
-            </View>
           </View>
 
           {/* Business switcher button */}
@@ -346,14 +337,14 @@ export default function Shell({ children }: { children: React.ReactNode }) {
   }
 
   // Mobile Shell (< 900px)
-  // Dynamic top padding to clear iPhone notch / Dynamic Island and Android status bar
-  const topPadding = pathname === '/' ? 0 : Math.max(insets.top, 16);
+  // AppHeader extends behind the status bar on every screen with insets.top handled internally
+  const topPadding = 0;
   // Dynamic bottom padding to clear Android soft navigation buttons and iPhone home indicator
   const bottomPadding = Math.max(insets.bottom, 12);
 
   return (
     <View style={styles.mobileRoot}>
-      {/* Content Area with safe top inset for non-dashboard pages */}
+      {/* Content Area */}
       <View style={[styles.mobileContentArea, { paddingTop: topPadding }]}>
         {children}
       </View>
@@ -418,49 +409,17 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'space-between',
   },
-  sidebarBrandHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+  sidebarWordmarkCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 8,
     marginBottom: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  sidebarLogoImg: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    shadowColor: '#1D4ED8',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.35,
-    shadowRadius: 6,
-    elevation: 4,
-  },
-  sidebarBrandTitle: {
-    fontSize: 20,
-    fontFamily: fonts.bold,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    letterSpacing: 0.5,
-  },
-  erpBadgeSidebar: {
-    backgroundColor: '#7C3AED', // BiLU ERP Royal Purple
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 6,
-    marginLeft: 6,
-  },
-  erpBadgeSidebarText: {
-    color: '#FFFFFF',
-    fontFamily: fonts.bold,
-    fontSize: 10,
-    fontWeight: '700',
-  },
-  sidebarBrandSubtitle: {
-    fontSize: 11,
-    color: '#94A3B8',
-    marginTop: 1,
+  sidebarWordmarkImg: {
+    width: '100%',
+    height: 48,
   },
   businessSwitcher: {
     minHeight: 44,

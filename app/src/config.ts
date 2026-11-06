@@ -1,5 +1,9 @@
 // app/src/config.ts
-// Central config for the Expo app.
+// Central config for BiLU ERP.
+
+export const APP_NAME = "BiLU ERP";
+export const APP_TAGLINE = "Everything Your Business Needs";
+export const COMPANY_NAME = "Pravara Infotech Pvt. Ltd.";
 
 // Toggle between mock data and real API.
 export const USE_MOCK = true;

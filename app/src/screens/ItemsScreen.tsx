@@ -19,6 +19,7 @@ import { formatMoney, toPaise } from '../lib/money';
 import Card from '../components/Card';
 import { colors, fonts } from '../theme';
 import { useAuth } from '../context/AuthContext';
+import AppHeader from '../components/AppHeader';
 
 export default function ItemsScreen() {
   const { t } = useTranslation();
@@ -123,37 +124,38 @@ export default function ItemsScreen() {
 
   return (
     <View style={styles.screenRoot}>
-      {/* Header with Safe Area spacing */}
-      <View style={[styles.headerBlock, !isDesktop && { paddingTop: Math.max(insets.top, 16) + 4 }]}>
-        <View style={styles.headerRow}>
-          <Text style={styles.h1Title}>{t('items.title', 'Items & stock')}</Text>
-          <Pressable
-            style={({ pressed }) => [
-              styles.filledTealBtn,
-              pressed && { opacity: 0.85, transform: [{ scale: 0.98 }] },
-            ]}
-            onPress={() => setAddModalOpen(true)}
-            accessibilityRole="button"
-          >
-            <Feather name="plus" size={18} color="#FFFFFF" style={{ marginRight: 6 }} />
-            <Text style={styles.filledTealBtnText}>{t('items.addItem', '+ Add item')}</Text>
-          </Pressable>
+      {/* Global Brand Header with compact variant */}
+      <AppHeader
+        variant="compact"
+        title={t('items.title', 'Items & Stock')}
+        rightAction={
+          isDesktop ? (
+            <Pressable
+              style={styles.filledTealBtn}
+              onPress={() => setAddModalOpen(true)}
+              accessibilityRole="button"
+            >
+              <Feather name="plus" size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
+              <Text style={styles.filledTealBtnText}>Add item</Text>
+            </Pressable>
+          ) : undefined
+        }
+      />
+
+      {/* Filter and Search Bar */}
+      <View style={styles.filterBar}>
+        <View style={styles.searchBox}>
+          <Feather name="search" size={18} color="#475569" style={{ marginRight: 10 }} />
+          <TextInput
+            value={search}
+            onChangeText={setSearch}
+            placeholder={t('items.searchPlaceholder', 'Search item or HSN code')}
+            placeholderTextColor="#64748B"
+            style={styles.searchInput}
+          />
         </View>
 
-        {/* Search & Filter Chips */}
-        <View style={styles.controlsRow}>
-          <View style={styles.searchBox}>
-            <Feather name="search" size={18} color="#475569" style={{ marginRight: 10 }} />
-            <TextInput
-              value={search}
-              onChangeText={setSearch}
-              placeholder={t('items.searchPlaceholder', 'Search item or HSN code')}
-              placeholderTextColor="#475569"
-              style={styles.searchInput}
-            />
-          </View>
-
-          <View style={styles.pillGroup}>
+        <View style={styles.pillGroup}>
             <Pressable
               style={({ pressed }) => [
                 styles.pillChip,
@@ -193,7 +195,6 @@ export default function ItemsScreen() {
             </Pressable>
           </View>
         </View>
-      </View>
 
       {/* Main Content Area */}
       <ScrollView
@@ -311,7 +312,7 @@ export default function ItemsScreen() {
         accessibilityRole="button"
       >
         <Feather name="plus" size={20} color="#0F172A" style={{ marginRight: 6 }} />
-        <Text style={styles.floatingAddText}>{t('items.addItem', '+ Add item')}</Text>
+        <Text style={styles.floatingAddText}>Add item</Text>
       </Pressable>
 
       {/* Item Details, Barcode & Stock Adjustment Modal */}
@@ -547,12 +548,12 @@ const styles = StyleSheet.create({
     position: 'relative',
     backgroundColor: '#F4F6FA',
   },
-  headerBlock: {
+  filterBar: {
     backgroundColor: '#FFFFFF',
-    padding: 20,
+    padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#E2E8F0',
-    gap: 14,
+    gap: 12,
   },
   headerRow: {
     flexDirection: 'row',

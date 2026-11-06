@@ -7,6 +7,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { loadLanguage } from '@/src/i18n';
 import { AuthProvider, useAuth } from '@/src/context/AuthContext';
+import { DataProvider } from '@/src/context/DataContext';
 import Shell from '@/src/components/Shell';
 import { colors } from '@/src/theme';
 
@@ -86,7 +87,9 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider style={{ flex: 1 }}>
       <AuthProvider>
-        <RootNav />
+        <DataProvider>
+          <RootNav />
+        </DataProvider>
       </AuthProvider>
     </SafeAreaProvider>
   );

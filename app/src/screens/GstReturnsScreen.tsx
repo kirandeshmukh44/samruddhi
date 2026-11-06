@@ -19,6 +19,7 @@ import { formatMoney } from '../lib/money';
 import { mockInvoices, mockParties, mockItems, mockBusinesses } from '../services/mockData';
 import { useAuth } from '../context/AuthContext';
 import { Invoice } from '../types';
+import AppHeader from '../components/AppHeader';
 
 type ReturnTab = 'gstr1' | 'gstr3b' | 'gstr2b' | 'tds' | 'guide';
 
@@ -270,7 +271,16 @@ export default function GstReturnsScreen() {
   };
 
   return (
-    <ScrollView style={styles.root} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+    <View style={{ flex: 1, backgroundColor: '#F4F6FA' }}>
+      {/* Global Brand Header with back arrow */}
+      <AppHeader
+        variant="compact"
+        title={t('nav.gstReturns', 'GST Returns')}
+        showBack={true}
+        onBack={() => router.back()}
+      />
+
+      <ScrollView style={styles.root} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
       {/* Top Header Row (Matching Image 1 & 2) */}
       <View style={styles.headerRow}>
         <View style={styles.titleWithInfo}>
@@ -717,7 +727,8 @@ export default function GstReturnsScreen() {
           </View>
         </Card>
       )}
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 

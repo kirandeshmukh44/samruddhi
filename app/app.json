@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "app",
+    "scheme": "biluerp",
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
@@ -22,6 +22,8 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
+      "name": "BiLU ERP",
+      "shortName": "BiLU ERP",
       "bundler": "metro",
       "output": "single",
       "favicon": "./assets/images/favicon.png"

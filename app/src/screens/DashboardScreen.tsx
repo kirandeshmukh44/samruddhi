@@ -23,8 +23,16 @@ import { listItems } from '../services/items';
 import { formatMoney } from '../lib/money';
 import Card from '../components/Card';
 import { colors, fonts } from '../theme';
-import { mockParties } from '../services/mockData';
 import { setLanguage } from '../i18n';
+import AppHeader from '../components/AppHeader';
+import { useData } from '../context/DataContext';
+import {
+  getTotalToCollect,
+  getTotalToPay,
+  getTodaySales,
+  getMonthlySalesOverview,
+} from '../lib/selectors';
+import { formatDate } from '../lib/dates';
 
 export default function DashboardScreen() {
   const { t, i18n } = useTranslation();
@@ -33,40 +41,30 @@ export default function DashboardScreen() {
   const isDesktop = width >= 900;
   const insets = useSafeAreaInsets();
   const { currentBusiness, businesses, switchBusiness } = useAuth();
+  const { parties, items, invoices } = useData();
 
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [recent, setRecent] = useState<any[]>([]);
-  const [lowStock, setLowStock] = useState<any[]>([]);
-  const [businessPickerVisible, setBusinessPickerVisible] = useState(false);
+  const businessId = currentBusiness?.id || 'b-1';
+  const businessName = currentBusiness?.name || 'Gupta Traders';
+
+  const todaySalesPaise = getTodaySales(businessId, invoices);
+  const toCollectPaise = getTotalToCollect(businessId, parties, invoices);
+  const toPayPaise = getTotalToPay(businessId, parties, invoices);
+  const monthlyOverview = getMonthlySalesOverview(businessId, invoices);
+
   const [selectedTx, setSelectedTx] = useState<any | null>(null);
   const [selectedMonth, setSelectedMonth] = useState<'Sept' | 'Oct' | 'Nov'>('Nov');
 
-  const monthDetails = {
-    Sept: { total: '₹ 1,820.00', bills: 14, growth: '+12.5%' },
-    Oct: { total: '₹ 3,850.50', bills: 28, growth: '+22.4%' },
-    Nov: { total: '₹ 3,417.76', bills: 22, growth: '+18.4%' },
+  const currentMonthData = monthlyOverview[selectedMonth] || {
+    monthKey: 'Nov',
+    fullMonth: 'November 2026',
+    totalPaise: 341776,
+    billsCount: 22,
+    growthPercent: 18.4,
+    isPositive: true,
   };
 
-  useEffect(() => {
-    if (!currentBusiness) return;
-    getDashboard(currentBusiness.id).then(setStats);
-    listInvoices(currentBusiness.id).then((inv) => {
-      // Ensure party_name is populated
-      const enriched = inv.map((item) => {
-        const pObj = item.party_id ? mockParties.find((p) => p.id === item.party_id) : null;
-        return {
-          ...item,
-          party_name: item.party_name || pObj?.name || (item.type === 'sale' ? 'Sharma Retail' : 'Mehta Distributors'),
-        };
-      });
-      setRecent(enriched.slice(0, 8));
-    });
-    listItems(currentBusiness.id).then((its) =>
-      setLowStock(its.filter((i) => i.stock_qty <= i.low_stock_limit))
-    );
-  }, [currentBusiness]);
-
-  const businessName = currentBusiness?.name || 'Gupta Traders';
+  const recent = invoices.slice(0, 8);
+  const lowStock = items.filter((i) => i.stock_qty <= i.low_stock_limit);
 
   const quickActions = [
     { label: t('dashboard.addSale', 'Sale'), path: '/sale', icon: 'file-text' as const },
@@ -127,28 +125,28 @@ export default function DashboardScreen() {
           <Card style={styles.kpiCard}>
             <Text style={styles.kpiLabel}>{t('dashboard.todaySales', "Today's sale")}</Text>
             <Text style={[styles.kpiValue, { color: colors.primary }]}>
-              {stats ? formatMoney(stats.todaySales) : '₹ 0.00'}
+              {formatMoney(todaySalesPaise)}
             </Text>
           </Card>
 
           <Card style={styles.kpiCard}>
             <Text style={styles.kpiLabel}>{t('dashboard.toCollect', 'To collect')}</Text>
             <Text style={[styles.kpiValue, { color: '#047857' }]}>
-              {stats ? formatMoney(stats.toCollect) : '₹ 0.00'}
+              {formatMoney(toCollectPaise)}
             </Text>
           </Card>
 
           <Card style={styles.kpiCard}>
             <Text style={styles.kpiLabel}>{t('dashboard.toPay', 'To pay')}</Text>
             <Text style={[styles.kpiValue, { color: '#B91C1C' }]}>
-              {stats ? formatMoney(stats.toPay) : '₹ 0.00'}
+              {formatMoney(toPayPaise)}
             </Text>
           </Card>
 
           <Card style={styles.kpiCard}>
             <Text style={styles.kpiLabel}>{t('dashboard.lowStock', 'Low stock items')}</Text>
             <Text style={[styles.kpiValue, { color: colors.accent }]}>
-              {stats ? stats.lowStockCount : lowStock.length}
+              {lowStock.length}
             </Text>
           </Card>
         </View>
@@ -273,62 +271,34 @@ export default function DashboardScreen() {
   // Mobile View (< 900px)
   return (
     <View style={styles.mobileScreenRoot}>
+      {/* Global Brand Header with variant="full" containing Today's sale block */}
+      <AppHeader variant="full">
+        <View style={styles.todaySaleBlock}>
+          <Text style={styles.todaySaleLabel}>{t('dashboard.todaySales', "Today's sale")}</Text>
+          <Text style={styles.todaySaleValue}>
+            {formatMoney(todaySalesPaise)}
+          </Text>
+        </View>
+      </AppHeader>
+
       <ScrollView
         style={styles.mobileScrollView}
         contentContainerStyle={styles.mobileScrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header block BiLU ERP Brand Blue, white text */}
-        <View style={[styles.mobileHeaderBlock, { paddingTop: Math.max(insets.top, 20) + 8 }]}>
-          {/* Row with BiLU logo + business switcher on the left and language button on the right */}
-          <View style={styles.mobileTopRow}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 10 }}>
-              <Image
-                source={require('../../assets/images/bilu-badge.png')}
-                style={{ width: 38, height: 38, marginRight: 8, borderRadius: 19 }}
-                resizeMode="contain"
-              />
-              <Pressable
-                style={styles.businessSwitcherBtn}
-                onPress={() => setBusinessPickerVisible(true)}
-                accessibilityRole="button"
-              >
-                <Text style={styles.businessSwitcherText} numberOfLines={1}>
-                  {businessName}
-                </Text>
-                <Feather name="chevron-down" size={16} color="#FFFFFF" style={{ marginLeft: 6 }} />
-              </Pressable>
-            </View>
-
-            <Pressable
-              style={styles.langBtnWhite}
-              onPress={cycleLang}
-              accessibilityRole="button"
-            >
-              <Text style={styles.langBtnWhiteText}>{currentLangLabel}</Text>
-            </Pressable>
-          </View>
-
-          {/* "Today's sale" 13px, then amount 32px bold */}
-          <Text style={styles.todaySaleLabel}>{t('dashboard.todaySales', "Today's sale")}</Text>
-          <Text style={styles.todaySaleValue}>
-            {stats ? formatMoney(stats.todaySales) : '₹ 0.00'}
-          </Text>
-        </View>
-
-        {/* Two white cards side by side overlapping header by 16px */}
+        {/* Two white cards side by side */}
         <View style={styles.overlapCardsRow}>
           <Card style={styles.overlapCard}>
             <Text style={styles.overlapCardLabel}>{t('dashboard.toCollect', 'To collect')}</Text>
             <Text style={[styles.overlapCardValue, { color: '#047857' }]}>
-              {stats ? formatMoney(stats.toCollect) : '₹ 0.00'}
+              {formatMoney(toCollectPaise)}
             </Text>
           </Card>
 
           <Card style={styles.overlapCard}>
             <Text style={styles.overlapCardLabel}>{t('dashboard.toPay', 'To pay')}</Text>
             <Text style={[styles.overlapCardValue, { color: '#B91C1C' }]}>
-              {stats ? formatMoney(stats.toPay) : '₹ 0.00'}
+              {formatMoney(toPayPaise)}
             </Text>
           </Card>
         </View>
@@ -351,16 +321,25 @@ export default function DashboardScreen() {
           ))}
         </View>
 
-        {/* Sales Overview Monthly Trend Chart (Interactive with tap feedback) */}
+        {/* Sales Overview Monthly Trend Chart */}
         <Card style={styles.chartCard}>
           <View style={styles.chartHeader}>
             <View>
               <Text style={styles.chartTitle}>{t('dashboard.saleOverview', 'Sale Overview')} ({selectedMonth})</Text>
-              <Text style={styles.chartSub}>{t('common.total', 'Total Sale')}: {monthDetails[selectedMonth].total} · {monthDetails[selectedMonth].bills} {t('invoices.title', 'bills')}</Text>
+              <Text style={styles.chartSub}>
+                {t('common.total', 'Total Sale')}: {formatMoney(currentMonthData.totalPaise)} · {currentMonthData.billsCount} bills
+              </Text>
             </View>
-            <View style={styles.growthBadge}>
-              <Feather name="trending-up" size={13} color="#047857" style={{ marginRight: 4 }} />
-              <Text style={styles.growthBadgeText}>{monthDetails[selectedMonth].growth}</Text>
+            <View style={[styles.growthBadge, !currentMonthData.isPositive && { backgroundColor: '#FEE2E2' }]}>
+              <Feather
+                name={currentMonthData.isPositive ? 'arrow-up-right' : 'arrow-down-right'}
+                size={13}
+                color={currentMonthData.isPositive ? '#047857' : '#DC2626'}
+                style={{ marginRight: 4 }}
+              />
+              <Text style={[styles.growthBadgeText, !currentMonthData.isPositive && { color: '#DC2626' }]}>
+                {currentMonthData.isPositive ? `+${currentMonthData.growthPercent}%` : `${currentMonthData.growthPercent}%`}
+              </Text>
             </View>
           </View>
 
@@ -444,7 +423,7 @@ export default function DashboardScreen() {
                       {inv.party_name}
                     </Text>
                     <Text style={styles.invSubtitleText}>
-                      {inv.type === 'sale' ? t('dashboard.addSale', 'Sale') : t('dashboard.addPurchase', 'Purchase')} · {inv.invoice_no}
+                      {inv.type === 'sale' ? t('dashboard.addSale', 'Sale') : t('dashboard.addPurchase', 'Purchase')} · {inv.invoice_no} · {formatDate(inv.date)}
                     </Text>
                   </View>
                   <Text style={styles.txAmountText}>{formatMoney(inv.total)}</Text>
@@ -555,55 +534,6 @@ export default function DashboardScreen() {
           </View>
         </View>
       </Modal>
-
-      {/* Business Switcher Modal */}
-      <Modal
-        visible={businessPickerVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setBusinessPickerVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalCard}>
-            <View style={styles.modalHeaderRow}>
-              <Text style={styles.modalTitle}>{t('common.switchBusiness', 'Select Business')}</Text>
-              <Pressable
-                onPress={() => setBusinessPickerVisible(false)}
-                style={styles.modalCloseBtn}
-                hitSlop={12}
-              >
-                <Feather name="x" size={20} color="#64748B" />
-              </Pressable>
-            </View>
-
-            {businesses.map((b) => (
-              <Pressable
-                key={b.id}
-                style={[
-                  styles.modalOption,
-                  currentBusiness?.id === b.id && styles.modalOptionActive,
-                ]}
-                onPress={() => {
-                  switchBusiness(b.id);
-                  setBusinessPickerVisible(false);
-                }}
-              >
-                <Text
-                  style={[
-                    styles.modalOptionText,
-                    currentBusiness?.id === b.id && styles.modalOptionTextActive,
-                  ]}
-                >
-                  {b.name}
-                </Text>
-                {currentBusiness?.id === b.id && (
-                  <Feather name="check" size={18} color={colors.primary} />
-                )}
-              </Pressable>
-            ))}
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 }
@@ -668,6 +598,10 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: fonts.bold,
     fontWeight: '700',
+  },
+  todaySaleBlock: {
+    marginTop: 12,
+    paddingBottom: 6,
   },
   todaySaleLabel: {
     color: 'rgba(255, 255, 255, 0.85)',

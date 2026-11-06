@@ -15,7 +15,11 @@ import { useTranslation } from 'react-i18next';
 import Card from '../components/Card';
 import { colors, fonts } from '../theme';
 import { formatMoney } from '../lib/money';
-import { mockInvoices, mockParties, mockItems } from '../services/mockData';
+import AppHeader from '../components/AppHeader';
+import { useAuth } from '../context/AuthContext';
+import { useData } from '../context/DataContext';
+import { filterInvoicesByPeriod, getPartyOutstanding } from '../lib/selectors';
+import { formatDate } from '../lib/dates';
 
 interface ReportItem {
   id: string;
@@ -75,59 +79,98 @@ export default function ReportsScreen() {
     },
   ];
 
+  const { currentBusiness } = useAuth();
+  const businessId = currentBusiness?.id || 'b-1';
+  const { invoices, parties, items, expenses } = useData();
+
   const [period, setPeriod] = useState('This month');
   const [periodModalOpen, setPeriodModalOpen] = useState(false);
   const [activeReport, setActiveReport] = useState<ReportItem | null>(null);
 
-  // Live KPI calculations from mock data
-  const totalSalesPaise = mockInvoices
+  // Live filtered dataset by period
+  const bizInvoices = invoices.filter((i) => i.business_id === businessId);
+  const periodInvoices = filterInvoicesByPeriod(bizInvoices, period);
+
+  const totalSalesPaise = periodInvoices
     .filter((i) => i.type === 'sale')
     .reduce((sum, i) => sum + i.total, 0);
 
-  const totalPurchasesPaise = mockInvoices
+  const totalPurchasesPaise = periodInvoices
     .filter((i) => i.type === 'purchase')
     .reduce((sum, i) => sum + i.total, 0);
 
-  const profitPaise = Math.max(0, totalSalesPaise - totalPurchasesPaise);
+  const totalExpensesPaise = expenses
+    .filter((e) => e.business_id === businessId)
+    .reduce((sum, e) => sum + e.amount, 0);
 
-  const gstPayablePaise = mockInvoices
+  // Net Profit = sales revenue - purchase cost - expenses in period
+  const profitPaise = Math.max(0, totalSalesPaise - totalPurchasesPaise - totalExpensesPaise);
+
+  const gstPayablePaise = periodInvoices
     .filter((i) => i.type === 'sale')
     .reduce((sum, i) => sum + (i.cgst + i.sgst + i.igst), 0);
 
   const handleExportCsv = (reportTitle: string) => {
+    let csvHeader = '';
+    let csvRows = '';
+
+    if (activeReport?.id === 'stock_summary') {
+      csvHeader = 'Item Name,HSN,Unit,Stock Qty,Sale Price,Purchase Price,Valuation\n';
+      csvRows = items
+        .filter((it) => it.business_id === businessId)
+        .map((it) => `${it.name},${it.hsn || '-'},${it.unit},${it.stock_qty},${it.sale_price / 100},${it.purchase_price / 100},${(it.stock_qty * it.purchase_price) / 100}`)
+        .join('\n');
+    } else if (activeReport?.id === 'party_ledger') {
+      csvHeader = 'Party Name,Phone,GSTIN,Type,Outstanding Balance\n';
+      csvRows = parties
+        .filter((p) => p.business_id === businessId)
+        .map((p) => `${p.name},${p.phone || '-'},${p.gstin || '-'},${p.type},${getPartyOutstanding(p, invoices) / 100}`)
+        .join('\n');
+    } else if (activeReport?.id === 'gst_summary') {
+      csvHeader = 'Invoice No,Party,Date,Taxable,CGST,SGST,IGST,Total Tax\n';
+      csvRows = periodInvoices
+        .filter((i) => i.type === 'sale')
+        .map((i) => `${i.invoice_no},${i.party_name || '-'},${formatDate(i.date)},${i.subtotal / 100},${i.cgst / 100},${i.sgst / 100},${i.igst / 100},${(i.cgst + i.sgst + i.igst) / 100}`)
+        .join('\n');
+    } else {
+      csvHeader = 'Invoice No,Party,Type,Date,Taxable,Total,Paid,Status\n';
+      csvRows = periodInvoices
+        .map((i) => `${i.invoice_no},${i.party_name || '-'},${i.type},${formatDate(i.date)},${i.subtotal / 100},${i.total / 100},${(i.paid_amount || 0) / 100},${i.status}`)
+        .join('\n');
+    }
+
     if (Platform.OS === 'web') {
-      const csvContent =
-        'data:text/csv;charset=utf-8,Invoice/Ref,Party,Date,Amount,Status\n' +
-        mockInvoices
-          .map((i) => `${i.invoice_no},${i.party_name || i.party_id},${i.date},${i.total / 100},${i.status}`)
-          .join('\n');
-      const encodedUri = encodeURI(csvContent);
+      const csvContent = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvHeader + csvRows);
       const link = document.createElement('a');
-      link.setAttribute('href', encodedUri);
-      link.setAttribute('download', `${reportTitle.replace(/\s+/g, '_')}.csv`);
+      link.setAttribute('href', csvContent);
+      link.setAttribute('download', `${reportTitle.replace(/\s+/g, '_')}_${period.replace(/\s+/g, '_')}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     } else {
-      alert(`Exporting ${reportTitle} to CSV...`);
+      alert(`Exported ${reportTitle} (${period}) to CSV.`);
     }
   };
 
   return (
-    <ScrollView style={styles.root} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-      {/* Header: h1 "Reports" and a period select on the right */}
-      <View style={styles.headerRow}>
-        <Text style={styles.h1Title}>{t('reports.title', 'Reports')}</Text>
+    <View style={styles.root}>
+      {/* Global Brand Header */}
+      <AppHeader
+        variant="compact"
+        title={t('reports.title', 'Reports')}
+        rightAction={
+          <Pressable
+            style={styles.periodSelectBtn}
+            onPress={() => setPeriodModalOpen(true)}
+            accessibilityRole="combobox"
+          >
+            <Text style={styles.periodSelectText}>{period}</Text>
+            <Feather name="chevron-down" size={16} color="#0F172A" style={{ marginLeft: 6 }} />
+          </Pressable>
+        }
+      />
 
-        <Pressable
-          style={styles.periodSelectBtn}
-          onPress={() => setPeriodModalOpen(false || true)}
-          accessibilityRole="combobox"
-        >
-          <Text style={styles.periodSelectText}>{period}</Text>
-          <Feather name="chevron-down" size={16} color="#0F172A" style={{ marginLeft: 8 }} />
-        </Pressable>
-      </View>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
       {/* Row of 4 KPI cards: desktop row, mobile 2x2 */}
       <View style={[styles.kpiContainer, isDesktop ? styles.kpiRowDesktop : styles.kpiGridMobile]}>
@@ -267,7 +310,7 @@ export default function ReportsScreen() {
               {width < 768 ? (
                 /* Mobile Card View: Clean, spacious, zero text wrapping */
                 <View style={styles.mobileReportList}>
-                  {mockInvoices.map((inv) => {
+                  {periodInvoices.map((inv) => {
                     const isPaid = inv.status === 'paid';
                     const isPartial = inv.status === 'partial';
                     const statusBg = isPaid ? '#DCFCE7' : isPartial ? '#FEF3C7' : '#FEE2E2';
@@ -295,7 +338,7 @@ export default function ReportsScreen() {
 
                         <View style={styles.mobileReportBtmRow}>
                           <Feather name="calendar" size={13} color="#64748B" style={{ marginRight: 6 }} />
-                          <Text style={styles.mobileReportDate}>{inv.date}</Text>
+                          <Text style={styles.mobileReportDate}>{formatDate(inv.date)}</Text>
                         </View>
                       </View>
                     );
@@ -313,11 +356,11 @@ export default function ReportsScreen() {
                       <Text style={[styles.rth, { width: 110, textAlign: 'right' }]} numberOfLines={1}>STATUS</Text>
                     </View>
 
-                    {mockInvoices.map((inv) => (
+                    {periodInvoices.map((inv) => (
                       <View key={inv.id} style={styles.reportTableRow}>
                         <Text style={[styles.rtdBold, { width: 140 }]} numberOfLines={1}>{inv.invoice_no}</Text>
                         <Text style={[styles.rtd, { width: 200 }]} numberOfLines={1}>{inv.party_name || 'Customer'}</Text>
-                        <Text style={[styles.rtd, { width: 120 }]} numberOfLines={1}>{inv.date}</Text>
+                        <Text style={[styles.rtd, { width: 120 }]} numberOfLines={1}>{formatDate(inv.date)}</Text>
                         <Text style={[styles.rtdBold, { width: 130, textAlign: 'right' }]} numberOfLines={1}>
                           {formatMoney(inv.total)}
                         </Text>
@@ -345,7 +388,8 @@ export default function ReportsScreen() {
           </View>
         </View>
       </Modal>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 

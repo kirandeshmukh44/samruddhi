@@ -10,6 +10,7 @@ import {
   Modal,
   TextInput,
   Alert,
+  Image,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -18,15 +19,40 @@ import { setLanguage, supportedLanguages } from '../i18n';
 import Card from '../components/Card';
 import { colors, fonts } from '../theme';
 import { useAuth } from '../context/AuthContext';
+import { APP_NAME, APP_TAGLINE, COMPANY_NAME } from '../config';
+import AppHeader from '../components/AppHeader';
+import { useData } from '../context/DataContext';
+import { formatDate } from '../lib/dates';
+import { formatMoney } from '../lib/money';
 
 export default function SettingsScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const { user, currentBusiness, businesses, switchBusiness, addBusiness, signOut } = useAuth();
+  const { expenses, cashInHand, bankAccounts, addExpense, resetDemoData } = useData();
 
   const [enableGst, setEnableGst] = useState(true);
   const [autoRoundOff, setAutoRoundOff] = useState(true);
   const [smsAlerts, setSmsAlerts] = useState(true);
+  const [printInvoiceFooter, setPrintInvoiceFooter] = useState(true);
+
+  const handleResetDemoData = () => {
+    Alert.alert(
+      'Reset Demo Data',
+      'This will restore all default parties, items, invoices and payment records. Continue?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Reset',
+          style: 'destructive',
+          onPress: async () => {
+            await resetDemoData();
+            Alert.alert('Success', 'Demo data reset to factory defaults.');
+          },
+        },
+      ]
+    );
+  };
 
   // Edit / Create Business Modal
   const [bizModalOpen, setBizModalOpen] = useState(false);
@@ -41,25 +67,15 @@ export default function SettingsScreen() {
 
   // Expenses State (BiLU ERP Feature)
   const [expenseModalOpen, setExpenseModalOpen] = useState(false);
-  const [expenses, setExpenses] = useState([
-    { id: 'exp-1', category: 'Shop Rent', amount: 15000, date: '01 Nov', note: 'Monthly shop lease' },
-    { id: 'exp-2', category: 'Electricity Bill', amount: 2450, date: '28 Oct', note: 'MSEDCL bill' },
-    { id: 'exp-3', category: 'Staff Salary', amount: 12000, date: '01 Nov', note: 'Helper salary' },
-    { id: 'exp-4', category: 'Tea & Refreshments', amount: 850, date: '02 Nov', note: 'Daily customer tea' },
-  ]);
-  const [newExpCategory, setNewExpCategory] = useState('Shop Rent');
+  const [newExpCategory, setNewExpCategory] = useState<'Rent' | 'Electricity' | 'Salary' | 'Tea & Refreshments' | 'Other'>('Rent');
   const [newExpAmount, setNewExpAmount] = useState('');
   const [newExpNote, setNewExpNote] = useState('');
+  const [newExpAccount, setNewExpAccount] = useState<'cash' | string>('cash');
 
-  // Cash & Bank State (BiLU ERP Feature)
+  // Cash & Bank State
   const [cashBankModalOpen, setCashBankModalOpen] = useState(false);
-  const [cashInHand, setCashInHand] = useState(14500);
-  const [bankAccounts, setBankAccounts] = useState([
-    { id: 'b-1', bankName: 'HDFC Bank', accountNo: '...4819', balance: 45200 },
-    { id: 'b-2', bankName: 'State Bank of India', accountNo: '...9012', balance: 18350 },
-  ]);
 
-  // Backup & Restore State (BiLU ERP Feature)
+  // Backup & Restore State
   const [backupSuccessModal, setBackupSuccessModal] = useState(false);
   const [cloudSyncActive, setCloudSyncActive] = useState(true);
 
@@ -67,20 +83,20 @@ export default function SettingsScreen() {
     await setLanguage(code);
   };
 
-  const handleAddExpense = () => {
-    const amt = parseFloat(newExpAmount);
-    if (isNaN(amt) || amt <= 0) {
+  const handleAddExpense = async () => {
+    const amtRupees = parseFloat(newExpAmount);
+    if (isNaN(amtRupees) || amtRupees <= 0) {
       alert('Please enter a valid expense amount');
       return;
     }
-    const newEntry = {
-      id: `exp-${Date.now()}`,
+    await addExpense({
+      business_id: currentBusiness?.id || 'b-1',
       category: newExpCategory,
-      amount: amt,
-      date: 'Today',
+      amount: Math.round(amtRupees * 100),
+      date: new Date().toISOString().slice(0, 10),
       note: newExpNote || newExpCategory,
-    };
-    setExpenses((prev) => [newEntry, ...prev]);
+      account: newExpAccount,
+    });
     setNewExpAmount('');
     setNewExpNote('');
     setExpenseModalOpen(false);
@@ -102,8 +118,14 @@ export default function SettingsScreen() {
   };
 
   return (
-    <ScrollView style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <Text style={styles.title}>More & Settings</Text>
+    <View style={styles.root}>
+      {/* Global Brand Header */}
+      <AppHeader
+        variant="compact"
+        title="Settings & More"
+      />
+
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 
       {/* Profile & Business Banner */}
       <Card style={styles.businessCard}>
@@ -220,9 +242,9 @@ export default function SettingsScreen() {
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.menuTitle}>Cash In-Hand</Text>
-            <Text style={styles.menuSub}>Current store cash drawer: ₹ {cashInHand.toLocaleString('en-IN')}</Text>
+            <Text style={styles.menuSub}>Current store cash drawer: {formatMoney(cashInHand)}</Text>
           </View>
-          <Text style={styles.menuValTag}>₹ {cashInHand.toLocaleString('en-IN')}</Text>
+          <Text style={styles.menuValTag}>{formatMoney(cashInHand)}</Text>
         </Pressable>
 
         <View style={styles.divider} />
@@ -245,33 +267,56 @@ export default function SettingsScreen() {
       {/* Important Utilities & Data Protection */}
       <Text style={styles.sectionHeader}>{t('settings.dataBackup', 'Data, Backup & Sync')}</Text>
       <Card style={styles.menuCard}>
-        <Pressable
-          style={styles.menuItem}
-          onPress={() => setBackupSuccessModal(true)}
-        >
-          <View style={[styles.iconWrap, { backgroundColor: '#FEF3C7' }]}>
-            <Feather name="database" size={18} color="#B45309" />
+        <View style={styles.menuItem}>
+          <View style={[styles.iconWrap, { backgroundColor: '#F1F5F9' }]}>
+            <Feather name="database" size={18} color="#94A3B8" />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.menuTitle}>{t('settings.dataBackup', 'Backup / Restore')}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Text style={[styles.menuTitle, { color: '#64748B' }]}>{t('settings.dataBackup', 'Backup / Restore')}</Text>
+              <View style={styles.comingSoonBadge}>
+                <Text style={styles.comingSoonText}>Coming soon</Text>
+              </View>
+            </View>
             <Text style={styles.menuSub}>Create instant encrypted backup to device storage</Text>
           </View>
-          <Feather name="download" size={18} color="#B45309" />
-        </Pressable>
+          <Feather name="lock" size={16} color="#94A3B8" />
+        </View>
 
         <View style={styles.divider} />
 
         <View style={styles.switchRow}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.switchTitle}>{t('settings.cloudSync', 'Multi-Device Cloud Sync')}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Text style={[styles.switchTitle, { color: '#64748B' }]}>{t('settings.cloudSync', 'Multi-Device Cloud Sync')}</Text>
+              <View style={styles.comingSoonBadge}>
+                <Text style={styles.comingSoonText}>Coming soon</Text>
+              </View>
+            </View>
             <Text style={styles.switchSub}>Sync real-time between Android, iPhone & Desktop</Text>
           </View>
           <Switch
-            value={cloudSyncActive}
-            onValueChange={setCloudSyncActive}
-            trackColor={{ false: '#CBD5E1', true: '#1D4ED8' }}
+            value={false}
+            disabled={true}
+            trackColor={{ false: '#E2E8F0', true: '#CBD5E1' }}
           />
         </View>
+
+        <View style={styles.divider} />
+
+        <Pressable
+          style={styles.menuItem}
+          onPress={handleResetDemoData}
+        >
+          <View style={[styles.iconWrap, { backgroundColor: '#FEE2E2' }]}>
+            <Feather name="refresh-cw" size={18} color="#DC2626" />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.menuTitle, { color: '#DC2626' }]}>Reset Demo Data</Text>
+            <Text style={styles.menuSub}>Restore default demo invoices, parties and inventory</Text>
+          </View>
+          <Feather name="chevron-right" size={18} color="#DC2626" />
+        </Pressable>
       </Card>
 
       {/* Language Section */}
@@ -340,6 +385,44 @@ export default function SettingsScreen() {
             trackColor={{ false: '#CBD5E1', true: '#1D4ED8' }}
           />
         </View>
+
+        <View style={styles.divider} />
+
+        <View style={styles.switchRow}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.switchTitle}>Print 'Generated by BiLU ERP' Footer</Text>
+            <Text style={styles.switchSub}>Display branding on printed and shared invoices</Text>
+          </View>
+          <Switch
+            value={printInvoiceFooter}
+            onValueChange={setPrintInvoiceFooter}
+            trackColor={{ false: '#CBD5E1', true: '#1D4ED8' }}
+          />
+        </View>
+      </Card>
+
+      {/* About BiLU ERP Card */}
+      <Text style={styles.sectionHeader}>About {APP_NAME}</Text>
+      <Card style={styles.aboutCard}>
+        <View style={styles.aboutWordmarkWrap}>
+          <Image
+            source={require('../../assets/images/bilu-wordmark.jpg')}
+            style={styles.aboutWordmarkImg}
+            resizeMode="contain"
+          />
+        </View>
+        <Text style={styles.aboutAppTitle}>
+          {APP_NAME} <Text style={styles.aboutVersion}>v1.0.0</Text>
+        </Text>
+        <Text style={styles.aboutTagline}>{APP_TAGLINE}</Text>
+        <View style={styles.aboutDivider} />
+        <View style={styles.aboutCompanyRow}>
+          <Feather name="shield" size={16} color="#1D4ED8" style={{ marginRight: 8 }} />
+          <Text style={styles.aboutCompanyText}>
+            Powered by <Text style={{ fontWeight: '700', color: '#0F172A' }}>{COMPANY_NAME}</Text>
+          </Text>
+        </View>
+        <Text style={styles.aboutCopyright}>© 2026 {COMPANY_NAME}. All rights reserved.</Text>
       </Card>
 
       {/* Sign Out Button */}
@@ -354,7 +437,7 @@ export default function SettingsScreen() {
         <Text style={styles.signOutText}>{t('settings.logout', 'Logout from BiLU ERP')}</Text>
       </Pressable>
 
-      <Text style={styles.versionText}>BiLU ERP v1.0.0 · Powered by Pravara Infotech Pvt. Ltd.</Text>
+      <Text style={styles.versionText}>{APP_NAME} v1.0.0 · Powered by {COMPANY_NAME}</Text>
 
       {/* Add / Edit Business Profile Modal */}
       {/* Business Profile Modal */}
@@ -526,51 +609,84 @@ export default function SettingsScreen() {
               </Pressable>
             </View>
 
-            <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 240, marginVertical: 10 }}>
+            <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 220, marginVertical: 10 }}>
               {expenses.map((exp) => (
                 <View key={exp.id} style={styles.expenseItemRow}>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.expenseCatText}>{exp.category}</Text>
-                    <Text style={styles.expenseNoteText}>{exp.note} · {exp.date}</Text>
+                    <Text style={styles.expenseNoteText}>{exp.note} · {formatDate(exp.date)}</Text>
                   </View>
-                  <Text style={styles.expenseAmtText}>₹ {exp.amount.toLocaleString('en-IN')}</Text>
+                  <Text style={styles.expenseAmtText}>{formatMoney(exp.amount)}</Text>
                 </View>
               ))}
             </ScrollView>
 
             <View style={styles.divider} />
 
-            <Text style={[styles.inputLabel, { marginTop: 6 }]}>Record New Expense</Text>
+            <Text style={[styles.inputLabel, { marginTop: 6 }]}>Category</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginVertical: 6 }}>
+              {(['Rent', 'Electricity', 'Salary', 'Tea & Refreshments', 'Other'] as const).map((cat) => (
+                <Pressable
+                  key={cat}
+                  style={[
+                    styles.catChip,
+                    newExpCategory === cat && styles.catChipActive,
+                  ]}
+                  onPress={() => setNewExpCategory(cat)}
+                >
+                  <Text style={[styles.catChipText, newExpCategory === cat && styles.catChipTextActive]}>
+                    {cat}
+                  </Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+
+            <Text style={[styles.inputLabel, { marginTop: 6 }]}>Paid From</Text>
+            <View style={{ flexDirection: 'row', gap: 8, marginVertical: 6 }}>
+              <Pressable
+                style={[styles.accountChip, newExpAccount === 'cash' && styles.accountChipActive]}
+                onPress={() => setNewExpAccount('cash')}
+              >
+                <Text style={[styles.accountChipText, newExpAccount === 'cash' && styles.accountChipTextActive]}>
+                  Cash in-Hand
+                </Text>
+              </Pressable>
+              {bankAccounts.map((b) => (
+                <Pressable
+                  key={b.id}
+                  style={[styles.accountChip, newExpAccount === b.id && styles.accountChipActive]}
+                  onPress={() => setNewExpAccount(b.id)}
+                >
+                  <Text style={[styles.accountChipText, newExpAccount === b.id && styles.accountChipTextActive]}>
+                    {b.bankName}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+
             <View style={styles.expenseFormRow}>
-              <TextInput
-                value={newExpCategory}
-                onChangeText={setNewExpCategory}
-                placeholder="Category (e.g. Shop Rent, Tea)"
-                placeholderTextColor="#94A3B8"
-                style={[styles.input, { flex: 1.2 }]}
-              />
               <TextInput
                 value={newExpAmount}
                 onChangeText={setNewExpAmount}
                 placeholder="Amount (₹)"
                 placeholderTextColor="#94A3B8"
                 keyboardType="numeric"
-                style={[styles.input, { flex: 0.8 }]}
+                style={[styles.input, { flex: 1 }]}
+              />
+              <TextInput
+                value={newExpNote}
+                onChangeText={setNewExpNote}
+                placeholder="Note / remark (optional)"
+                placeholderTextColor="#94A3B8"
+                style={[styles.input, { flex: 1.5 }]}
               />
             </View>
-            <TextInput
-              value={newExpNote}
-              onChangeText={setNewExpNote}
-              placeholder="Expense note / remark (optional)"
-              placeholderTextColor="#94A3B8"
-              style={[styles.input, { marginTop: 8 }]}
-            />
 
             <Pressable
               style={styles.saveExpenseBtn}
               onPress={handleAddExpense}
             >
-              <Text style={styles.saveExpenseBtnText}>+ Save Expense</Text>
+              <Text style={styles.saveExpenseBtnText}>Save Expense</Text>
             </Pressable>
           </View>
         </View>
@@ -651,7 +767,8 @@ export default function SettingsScreen() {
         </View>
       </Modal>
     </ScrollView>
-  );
+  </View>
+);
 }
 
 const styles = StyleSheet.create({
@@ -1106,5 +1223,116 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: fonts.semiBold,
     fontWeight: '600',
+  },
+  comingSoonBadge: {
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  comingSoonText: {
+    fontSize: 10,
+    fontFamily: fonts.semiBold,
+    color: '#B45309',
+    fontWeight: '700',
+  },
+  aboutCard: {
+    padding: 16,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  aboutWordmarkWrap: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    padding: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  aboutWordmarkImg: {
+    width: 220,
+    height: 48,
+  },
+  aboutAppTitle: {
+    fontSize: 18,
+    fontFamily: fonts.bold,
+    fontWeight: '800',
+    color: '#0F172A',
+  },
+  aboutVersion: {
+    fontSize: 13,
+    fontFamily: fonts.medium,
+    color: '#1D4ED8',
+  },
+  aboutTagline: {
+    fontSize: 13,
+    fontFamily: fonts.medium,
+    color: '#64748B',
+    marginTop: 2,
+  },
+  aboutDivider: {
+    height: 1,
+    backgroundColor: '#F1F5F9',
+    marginVertical: 12,
+  },
+  aboutCompanyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  aboutCompanyText: {
+    fontSize: 13,
+    color: '#334155',
+    fontFamily: fonts.medium,
+  },
+  aboutCopyright: {
+    fontSize: 11,
+    color: '#94A3B8',
+    fontFamily: fonts.regular,
+  },
+  catChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    backgroundColor: '#F1F5F9',
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  catChipActive: {
+    backgroundColor: '#EFF6FF',
+    borderColor: '#1D4ED8',
+  },
+  catChipText: {
+    fontSize: 12,
+    color: '#475569',
+    fontFamily: fonts.medium,
+  },
+  catChipTextActive: {
+    color: '#1D4ED8',
+    fontWeight: '700',
+  },
+  accountChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+  },
+  accountChipActive: {
+    backgroundColor: '#EFF6FF',
+    borderColor: '#1D4ED8',
+  },
+  accountChipText: {
+    fontSize: 12,
+    color: '#334155',
+    fontFamily: fonts.medium,
+  },
+  accountChipTextActive: {
+    color: '#1D4ED8',
+    fontWeight: '700',
   },
 });

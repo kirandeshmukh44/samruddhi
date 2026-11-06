@@ -4,7 +4,7 @@ import { Business, Party, Item, Invoice, InvoiceItem, Payment, User } from '../t
 export const mockUser: User = {
   id: 'u-1',
   name: 'Ramesh Gupta',
-  email: 'ramesh@example.com',
+  email: 'admin@biluerp.com',
   phone: '9876543210',
   role: 'owner',
   plan: 'free',
@@ -12,17 +12,17 @@ export const mockUser: User = {
 };
 
 export const mockBusinesses: Business[] = [
-  { id: 'b-1', owner_id: 'u-1', name: 'Gupta Traders', gstin: '27ABCDE1234F1Z5', address: 'Pune, MH', state: 'Maharashtra', phone: '9876543210' },
-  { id: 'b-2', owner_id: 'u-1', name: 'Gupta Kirana', gstin: '27FGHIJ5678K2Z9', address: 'Mumbai, MH', state: 'Maharashtra', phone: '9876543211' },
+  { id: 'b-1', owner_id: 'u-1', name: 'Gupta Traders', gstin: '27ABCDE1234F1Z5', address: 'Market Yard, Pune, MH', state: 'Maharashtra', phone: '9876543210' },
+  { id: 'b-2', owner_id: 'u-1', name: 'Gupta Kirana', gstin: '27FGHIJ5678K2Z9', address: 'Dadar, Mumbai, MH', state: 'Maharashtra', phone: '9876543211' },
 ];
 
 export const mockParties: Party[] = [
   { id: 'p-1', business_id: 'b-1', name: 'Sharma Retail', phone: '9999990001', gstin: '27SHRM1234A1Z5', state: 'Maharashtra', type: 'customer', opening_balance: 0 },
-  { id: 'p-2', business_id: 'b-1', name: 'Patel Wholesale', phone: '9999990002', gstin: '24PTLW5678B2Z9', state: 'Gujarat', type: 'customer', opening_balance: 500000 },
-  { id: 'p-3', business_id: 'b-1', name: 'Mehta Distributors', phone: '9999990003', gstin: '27MHTD9012C3Z1', state: 'Maharashtra', type: 'supplier', opening_balance: -200000 },
+  { id: 'p-2', business_id: 'b-1', name: 'Patel Wholesale', phone: '9999990002', gstin: '24PTLW5678B2Z9', state: 'Gujarat', type: 'customer', opening_balance: 0 },
+  { id: 'p-3', business_id: 'b-1', name: 'Mehta Distributors', phone: '9999990003', gstin: '27MHTD9012C3Z1', state: 'Maharashtra', type: 'supplier', opening_balance: 0 },
   { id: 'p-4', business_id: 'b-1', name: 'Khan Traders', phone: '9999990004', state: 'Delhi', type: 'customer', opening_balance: 0 },
-  { id: 'p-5', business_id: 'b-2', name: 'Joshi Stores', phone: '9999990005', state: 'Maharashtra', type: 'customer', opening_balance: 120000 },
-  { id: 'p-6', business_id: 'b-2', name: 'Verma Suppliers', phone: '9999990006', state: 'Maharashtra', type: 'supplier', opening_balance: -80000 },
+  { id: 'p-5', business_id: 'b-2', name: 'Joshi Stores', phone: '9999990005', state: 'Maharashtra', type: 'customer', opening_balance: 0 },
+  { id: 'p-6', business_id: 'b-2', name: 'Verma Suppliers', phone: '9999990006', state: 'Maharashtra', type: 'supplier', opening_balance: 0 },
 ];
 
 export const mockItems: Item[] = [
@@ -36,31 +36,8 @@ export const mockItems: Item[] = [
 
 const ii1: InvoiceItem = { id: 'ii-1', invoice_id: 'inv-1', item_id: 'i-1', name: 'Rice 25kg', hsn: '1006', qty: 2, unit: 'bag', price: 120000, gst_rate: 5, amount: 240000 };
 const ii2: InvoiceItem = { id: 'ii-2', invoice_id: 'inv-1', item_id: 'i-3', name: 'Sugar 1kg', hsn: '1701', qty: 5, unit: 'kg', price: 4500, gst_rate: 5, amount: 22500 };
-const iiDesign: InvoiceItem = { id: 'ii-design', invoice_id: 'inv-gst-1', name: 'Website Designs', hsn: '', qty: 1, unit: 'service', price: 16200000, gst_rate: 18, amount: 16200000 };
 
 export const mockInvoices: Invoice[] = [
-  {
-    id: 'inv-gst-1',
-    business_id: 'b-1',
-    party_id: 'p-custom-1',
-    party_name: 'paban bhuyan',
-    party_gstin: '18BAFPB6697C1Z', // Sample with invalid 14-char format to demonstrate real-time GST portal validation warning
-    billing_address: 'Guwahati, Assam - 781001',
-    invoice_no: 'INV/2026-27/0001',
-    type: 'sale',
-    doc_type: 'tax_invoice',
-    supply_category: 'services',
-    date: '2026-10-28',
-    subtotal: 16200000,
-    discount: 0,
-    cgst: 0,
-    sgst: 0,
-    igst: 2916000,
-    total: 19116000,
-    paid_amount: 19116000,
-    status: 'paid',
-    items: [iiDesign],
-  },
   {
     id: 'inv-1',
     business_id: 'b-1',
@@ -68,7 +45,7 @@ export const mockInvoices: Invoice[] = [
     party_name: 'Sharma Retail',
     party_gstin: '27SHRM1234A1Z5',
     billing_address: 'Shop 12, Market Yard, Pune, Maharashtra',
-    invoice_no: 'INV-001',
+    invoice_no: 'INV-2026-27-0001',
     type: 'sale',
     doc_type: 'tax_invoice',
     supply_category: 'goods',
@@ -90,7 +67,7 @@ export const mockInvoices: Invoice[] = [
     party_name: 'Patel Wholesale',
     party_gstin: '24PTLW5678B2Z9',
     billing_address: 'Ring Road, Surat, Gujarat',
-    invoice_no: 'INV-002',
+    invoice_no: 'INV-2026-27-0002',
     type: 'sale',
     doc_type: 'tax_invoice',
     supply_category: 'goods',
@@ -112,7 +89,7 @@ export const mockInvoices: Invoice[] = [
     party_name: 'Mehta Distributors',
     party_gstin: '27MHTD9012C3Z1',
     billing_address: 'Dadar West, Mumbai, Maharashtra',
-    invoice_no: 'PB-001',
+    invoice_no: 'PB-2026-27-0001',
     type: 'purchase',
     doc_type: 'tax_invoice',
     supply_category: 'goods',
@@ -133,7 +110,7 @@ export const mockInvoices: Invoice[] = [
     party_id: 'p-4',
     party_name: 'Khan Traders',
     billing_address: 'Chandni Chowk, Delhi',
-    invoice_no: 'INV-003',
+    invoice_no: 'INV-2026-27-0003',
     type: 'sale',
     doc_type: 'tax_invoice',
     supply_category: 'goods',
@@ -154,7 +131,7 @@ export const mockInvoices: Invoice[] = [
     party_id: 'p-5',
     party_name: 'Joshi Stores',
     billing_address: 'Laxmi Road, Pune, Maharashtra',
-    invoice_no: 'INV-101',
+    invoice_no: 'INV-2026-27-0004',
     type: 'sale',
     doc_type: 'tax_invoice',
     supply_category: 'goods',
@@ -176,4 +153,16 @@ export const mockPayments: Payment[] = [
   { id: 'pay-2', business_id: 'b-1', party_id: 'p-2', party_name: 'Patel Wholesale', invoice_id: 'inv-2', amount: 47250, mode: 'cash', direction: 'in', date: '2026-11-02' },
   { id: 'pay-3', business_id: 'b-1', party_id: 'p-3', party_name: 'Mehta Distributors', invoice_id: 'inv-3', amount: 0, mode: 'bank', direction: 'out', date: '2026-10-28' },
   { id: 'pay-4', business_id: 'b-2', party_id: 'p-5', party_name: 'Joshi Stores', invoice_id: 'inv-5', amount: 9450, mode: 'cash', direction: 'in', date: '2026-11-03' },
+];
+
+export const mockExpenses = [
+  { id: 'exp-1', business_id: 'b-1', category: 'Rent', amount: 1500000, date: '2026-11-01', note: 'Monthly shop lease', account: 'bank' },
+  { id: 'exp-2', business_id: 'b-1', category: 'Electricity', amount: 245000, date: '2026-10-28', note: 'MSEDCL electricity bill', account: 'bank' },
+  { id: 'exp-3', business_id: 'b-1', category: 'Salary', amount: 1200000, date: '2026-11-01', note: 'Staff salary', account: 'bank' },
+  { id: 'exp-4', business_id: 'b-1', category: 'Tea & Refreshments', amount: 85000, date: '2026-11-02', note: 'Customer tea & snacks', account: 'cash' },
+];
+
+export const mockBankAccounts = [
+  { id: 'b-acc-1', business_id: 'b-1', bankName: 'HDFC Bank', accountNo: '...4819', balance: 4520000 },
+  { id: 'b-acc-2', business_id: 'b-1', bankName: 'State Bank of India', accountNo: '...9012', balance: 1835000 },
 ];

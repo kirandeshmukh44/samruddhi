@@ -21,6 +21,9 @@ import { Party } from '../types';
 import { formatMoney } from '../lib/money';
 import Card from '../components/Card';
 import { useAuth } from '../context/AuthContext';
+import AppHeader from '../components/AppHeader';
+import { useData } from '../context/DataContext';
+import { getPartyOutstanding, getTotalToCollect, getTotalToPay } from '../lib/selectors';
 
 export default function PartiesScreen() {
   const { t } = useTranslation();
@@ -29,10 +32,10 @@ export default function PartiesScreen() {
   const isDesktop = width >= 900;
   const insets = useSafeAreaInsets();
   const { currentBusiness } = useAuth();
+  const { parties, invoices, addParty } = useData();
 
   const [activeTab, setActiveTab] = useState<'customers' | 'suppliers'>('customers');
   const [search, setSearch] = useState('');
-  const [parties, setParties] = useState<Party[]>([]);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [selectedParty, setSelectedParty] = useState<Party | null>(null);
 
@@ -46,27 +49,25 @@ export default function PartiesScreen() {
   const businessId = currentBusiness?.id || 'b-1';
   const businessName = currentBusiness?.name || 'Gupta Traders';
 
-  useEffect(() => {
-    listParties(businessId).then(setParties);
-  }, [businessId]);
-
   const filteredParties = parties.filter((p) => {
+    const matchesBiz = p.business_id === businessId;
     const matchesTab =
       activeTab === 'customers' ? p.type === 'customer' : p.type === 'supplier';
     const matchesSearch =
       p.name.toLowerCase().includes(search.toLowerCase()) ||
       (p.phone && p.phone.includes(search));
-    return matchesTab && matchesSearch;
+    return matchesBiz && matchesTab && matchesSearch;
   });
 
-  const totalBalancePaise = filteredParties.reduce((sum, p) => {
-    return sum + (p.opening_balance > 0 ? p.opening_balance : 0);
-  }, 0);
+  const totalBalancePaise =
+    activeTab === 'customers'
+      ? getTotalToCollect(businessId, parties, invoices)
+      : getTotalToPay(businessId, parties, invoices);
 
   const handleAddParty = async () => {
     if (!newName) return;
     const balRupees = parseFloat(newOpeningBalance) || 0;
-    const created = await createParty({
+    await addParty({
       business_id: businessId,
       name: newName,
       phone: newPhone,
@@ -75,7 +76,6 @@ export default function PartiesScreen() {
       type: activeTab === 'customers' ? 'customer' : 'supplier',
       opening_balance: Math.round(balRupees * 100),
     });
-    setParties((prev) => [...prev, created]);
     setNewName('');
     setNewPhone('');
     setNewGstin('');
@@ -95,18 +95,34 @@ export default function PartiesScreen() {
 
   return (
     <View style={styles.screenRoot}>
-      {/* White header with dynamic safe area inset for iPhone Dynamic Island and notch */}
-      <View style={[styles.whiteHeader, { paddingTop: Math.max(insets.top, 16) + 12 }]}>
-        <Text style={styles.h1Title}>{t('parties.title', 'Parties')}</Text>
+      {/* Global Brand Header with compact variant */}
+      <AppHeader
+        variant="compact"
+        title={t('parties.title', 'Parties')}
+        rightAction={
+          <Pressable
+            style={styles.headerAddBtn}
+            onPress={() => setAddModalOpen(true)}
+            accessibilityRole="button"
+          >
+            <Feather name="plus" size={16} color="#FFFFFF" style={{ marginRight: 4 }} />
+            <Text style={styles.headerAddBtnText}>
+              {activeTab === 'customers' ? 'Add customer' : 'Add supplier'}
+            </Text>
+          </Pressable>
+        }
+      />
 
+      {/* Sub-header Filter controls: Search + Customer/Supplier tabs */}
+      <View style={styles.filterBar}>
         {/* Search field */}
         <View style={styles.searchBox}>
           <Feather name="search" size={18} color="#475569" style={{ marginRight: 10 }} />
           <TextInput
             value={search}
             onChangeText={setSearch}
-            placeholder={t('parties.searchPlaceholder', 'Search party by name or mobile')}
-            placeholderTextColor="#475569"
+            placeholder={t('parties.searchPlaceholder', 'Search party')}
+            placeholderTextColor="#64748B"
             style={styles.searchInput}
           />
         </View>
@@ -159,10 +175,10 @@ export default function PartiesScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Line "[N] parties" and "Total to collect/pay" */}
+        {/* Line "N customers" and "Total to collect/pay" */}
         <View style={styles.infoLine}>
           <Text style={styles.countText}>
-            [{filteredParties.length}] {t('parties.title', 'parties')}
+            {filteredParties.length} {activeTab === 'customers' ? 'customers' : 'suppliers'}
           </Text>
           <Text style={styles.totalCollectLabel}>
             {activeTab === 'customers' ? `${t('dashboard.toCollect', 'To collect')}: ` : `${t('dashboard.toPay', 'To pay')}: `}
@@ -186,9 +202,9 @@ export default function PartiesScreen() {
 
               {filteredParties.length > 0 ? (
                 filteredParties.map((party) => {
-                  const bal = party.opening_balance;
-                  const isToCollect = bal > 0;
-                  const isToPay = bal < 0;
+                  const bal = getPartyOutstanding(party, invoices);
+                  const isToCollect = party.type === 'customer' && bal > 0;
+                  const isToPay = party.type === 'supplier' && bal > 0;
                   const isSettled = bal === 0;
 
                   const statusColor = isToCollect
@@ -235,9 +251,9 @@ export default function PartiesScreen() {
           <View style={styles.cardsList}>
             {filteredParties.length > 0 ? (
               filteredParties.map((party) => {
-                const bal = party.opening_balance;
-                const isToCollect = bal > 0;
-                const isToPay = bal < 0;
+                const bal = getPartyOutstanding(party, invoices);
+                const isToCollect = party.type === 'customer' && bal > 0;
+                const isToPay = party.type === 'supplier' && bal > 0;
                 const isSettled = bal === 0;
 
                 const amountColor = isToCollect
@@ -298,7 +314,7 @@ export default function PartiesScreen() {
       >
         <Feather name="plus" size={20} color="#0F172A" style={{ marginRight: 6 }} />
         <Text style={styles.floatingAddText}>
-          {activeTab === 'customers' ? t('parties.addCustomer', '+ Add Customer') : t('parties.addSupplier', '+ Add Supplier')}
+          {activeTab === 'customers' ? 'Add customer' : 'Add supplier'}
         </Text>
       </Pressable>
 
@@ -478,19 +494,27 @@ const styles = StyleSheet.create({
     position: 'relative',
     backgroundColor: '#F4F6FA',
   },
-  whiteHeader: {
+  filterBar: {
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 20,
-    paddingBottom: 16,
+    paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#E2E8F0',
-    gap: 14,
+    gap: 12,
   },
-  h1Title: {
-    fontSize: 22,
-    fontFamily: fonts.bold,
-    fontWeight: '700',
-    color: '#0F172A',
+  headerAddBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1D4ED8',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  headerAddBtnText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontFamily: fonts.semiBold,
+    fontWeight: '600',
   },
   searchBox: {
     height: 44,

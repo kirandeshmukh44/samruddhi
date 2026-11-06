@@ -23,6 +23,7 @@ import { mockParties, mockItems } from '../services/mockData';
 import { useAuth } from '../context/AuthContext';
 import { createInvoice } from '../services/invoices';
 import { DocumentType, SupplyCategory } from '../types';
+import AppHeader from '../components/AppHeader';
 
 interface InvoiceItemState {
   id: string;
@@ -287,20 +288,24 @@ export default function InvoicesScreen({ type }: { type: 'sale' | 'purchase' }) 
   ], [t]);
 
   return (
-    <ScrollView style={styles.scrollRoot} contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-      {/* Top Action Control Bar (Matching Image 4) */}
-      <View style={styles.topControlBar}>
-        <View style={styles.topBarLeftGroup}>
-          <Pressable style={styles.backButton} onPress={() => router.back()} accessibilityRole="button">
-            <Feather name="arrow-left" size={18} color="#0F172A" />
-            <Text style={styles.backButtonText}>{t('common.back', 'Back')}</Text>
-          </Pressable>
+    <View style={{ flex: 1, backgroundColor: '#F4F6FA' }}>
+      {/* Global Brand Header with back arrow */}
+      <AppHeader
+        variant="compact"
+        title={titleText}
+        showBack={true}
+        onBack={() => router.back()}
+      />
 
-          <View style={styles.draftBadge}>
-            <View style={styles.draftDot} />
-            <Text style={styles.draftBadgeText}>{t('invoices.draft', 'Draft — click to complete')}</Text>
+      <ScrollView style={styles.scrollRoot} contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+        {/* Top Action Control Bar */}
+        <View style={styles.topControlBar}>
+          <View style={styles.topBarLeftGroup}>
+            <View style={styles.draftBadge}>
+              <View style={styles.draftDot} />
+              <Text style={styles.draftBadgeText}>{t('invoices.draft', 'Draft — click to complete')}</Text>
+            </View>
           </View>
-        </View>
 
         <View style={styles.topBarRightActions}>
           <Pressable
@@ -971,7 +976,8 @@ export default function InvoicesScreen({ type }: { type: 'sale' | 'purchase' }) 
           </View>
         </View>
       </Modal>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 

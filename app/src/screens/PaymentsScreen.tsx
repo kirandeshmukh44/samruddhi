@@ -19,6 +19,9 @@ import { formatMoney, toPaise } from '../lib/money';
 import Card from '../components/Card';
 import { colors, fonts } from '../theme';
 import { useAuth } from '../context/AuthContext';
+import AppHeader from '../components/AppHeader';
+import { useData } from '../context/DataContext';
+import { formatDate } from '../lib/dates';
 
 export default function PaymentsScreen() {
   const { t } = useTranslation();
@@ -26,9 +29,8 @@ export default function PaymentsScreen() {
   const isDesktop = width >= 900;
   const { currentBusiness } = useAuth();
   const businessId = currentBusiness?.id || 'b-1';
+  const { payments, parties, recordPayment } = useData();
 
-  const [payments, setPayments] = useState<Payment[]>([]);
-  const [parties, setParties] = useState<Party[]>([]);
   const [activeTab, setActiveTab] = useState<'all' | 'in' | 'out'>('all');
 
   // Record Payment Modal State
@@ -39,43 +41,39 @@ export default function PaymentsScreen() {
   const [mode, setMode] = useState<'cash' | 'upi' | 'bank' | 'card'>('cash');
   const [note, setNote] = useState('');
 
-  const loadData = () => {
-    listPayments(businessId).then(setPayments);
-    listParties(businessId).then(setParties);
-  };
-
-  useEffect(() => {
-    loadData();
-  }, [businessId]);
-
   const filteredPayments = payments.filter((p) => {
+    const matchesBiz = p.business_id === businessId;
+    if (!matchesBiz) return false;
     if (activeTab === 'in') return p.direction === 'in';
     if (activeTab === 'out') return p.direction === 'out';
     return true;
   });
 
   const totalIn = payments
-    .filter((p) => p.direction === 'in')
+    .filter((p) => p.business_id === businessId && p.direction === 'in')
     .reduce((sum, p) => sum + p.amount, 0);
 
   const totalOut = payments
-    .filter((p) => p.direction === 'out')
+    .filter((p) => p.business_id === businessId && p.direction === 'out')
     .reduce((sum, p) => sum + p.amount, 0);
 
   const handleRecordPayment = async () => {
     if (!amountRupees || !selectedPartyId) return;
     const amountPaise = toPaise(parseFloat(amountRupees) || 0);
 
-    const newPayment = await recordPayment(businessId, {
+    const party = parties.find((pt) => pt.id === selectedPartyId);
+
+    await recordPayment({
+      business_id: businessId,
       party_id: selectedPartyId,
+      party_name: party?.name,
       amount: amountPaise,
       mode,
       direction,
       date: new Date().toISOString().slice(0, 10),
-      note,
+      note: note || (direction === 'in' ? 'Payment received' : 'Payment paid out'),
     });
 
-    setPayments((prev) => [newPayment, ...prev]);
     setAmountRupees('');
     setNote('');
     setModalOpen(false);
@@ -83,24 +81,22 @@ export default function PaymentsScreen() {
 
   return (
     <View style={styles.root}>
-      {/* Header with Title and '+ Record Payment' button */}
-      <View style={styles.headerRow}>
-        <View>
-          <Text style={styles.h1Title}>{t('payments.title', 'Payments')}</Text>
-          <Text style={styles.subtitle}>
-            {t('common.in', 'Money In')} ({t('payments.received', 'Received')}) & {t('common.out', 'Money Out')} ({t('payments.paid', 'Paid')})
-          </Text>
-        </View>
-
-        <Pressable
-          style={styles.recordBtn}
-          onPress={() => setModalOpen(true)}
-          accessibilityRole="button"
-        >
-          <Feather name="plus-circle" size={18} color="#FFFFFF" style={{ marginRight: 6 }} />
-          <Text style={styles.recordBtnText}>{t('payments.recordPayment', '+ Record Payment')}</Text>
-        </Pressable>
-      </View>
+      {/* Global Brand Header */}
+      <AppHeader
+        variant="compact"
+        title={t('payments.title', 'Payments')}
+        subtitle={`${t('common.in', 'Money In')} (${t('payments.received', 'Received')}) & ${t('common.out', 'Money Out')} (${t('payments.paid', 'Paid')})`}
+        rightAction={
+          <Pressable
+            style={styles.recordBtn}
+            onPress={() => setModalOpen(true)}
+            accessibilityRole="button"
+          >
+            <Feather name="plus-circle" size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
+            <Text style={styles.recordBtnText}>Record Payment</Text>
+          </Pressable>
+        }
+      />
 
       {/* Summary KPI Cards: Total In vs Total Out */}
       <View style={styles.kpiRow}>
@@ -177,7 +173,7 @@ export default function PaymentsScreen() {
                       <Text style={styles.tdBold}>{party?.name || 'Cash Customer'}</Text>
                       <Text style={styles.tdSub}>{isIn ? 'From Customer' : 'To Supplier'}</Text>
                     </View>
-                    <Text style={[styles.td, { flex: 1.5 }]}>{p.date}</Text>
+                    <Text style={[styles.td, { flex: 1.5 }]}>{formatDate(p.date)}</Text>
                     <View style={{ flex: 1.5 }}>
                       <View style={styles.modeBadge}>
                         <Text style={styles.modeBadgeText}>{p.mode.toUpperCase()}</Text>
@@ -229,7 +225,7 @@ export default function PaymentsScreen() {
                     <View style={{ flex: 1 }}>
                       <Text style={styles.mobilePartyName}>{party?.name || 'Cash Customer'}</Text>
                       <Text style={styles.mobileDateSub}>
-                        {p.date} · {p.mode.toUpperCase()}
+                        {formatDate(p.date)} · {p.mode.toUpperCase()}
                       </Text>
                     </View>
                   </View>
